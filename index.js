@@ -27,7 +27,7 @@ const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024, files: 20
 
 const transporter = nodemailer.createTransport(CONFIG.SMTP);
 
-function generateClaimPDF(formData) {
+function generateClaimPDF(formData, referenceNumber) {
   return new Promise(function(resolve, reject) {
     var doc = new PDFDocument({ margin: 50 });
     var chunks = [];
@@ -38,7 +38,8 @@ function generateClaimPDF(formData) {
     doc.fontSize(20).font('Helvetica-Bold').text('TITANIUM DEFENSE GROUP', { align: 'center' });
     doc.fontSize(14).font('Helvetica').text('First Report of Work-Related Injury/Illness', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(10).text('Generated: ' + new Date().toLocaleString(), { align: 'center' });
+    doc.fontSize(12).font('Helvetica-Bold').fillColor('#1e3a5f').text('Reference #: ' + referenceNumber, { align: 'center' });
+    doc.fontSize(10).font('Helvetica').fillColor('black').text('Generated: ' + new Date().toLocaleString(), { align: 'center' });
     doc.moveDown(2);
 
     doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('EMPLOYEE PERSONAL INFORMATION');
@@ -154,7 +155,7 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
     var files = req.files || [];
     var referenceNumber = 'FROI-' + Date.now().toString().slice(-8);
     console.log('Processing claim ' + referenceNumber);
-    var pdfBuffer = await generateClaimPDF(formData);
+    var pdfBuffer = await generateClaimPDF(formData, referenceNumber);
     var attachments = [{ filename: referenceNumber + '-Summary.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
     files.forEach(function(file) {
       attachments.push({ filename: file.originalname, content: file.buffer, contentType: file.mimetype });
