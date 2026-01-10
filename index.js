@@ -321,7 +321,7 @@ Witness Statement Form
 <!-- Financial Breakdown -->
 <div class="grid md:grid-cols-2 gap-4 mb-4">
 <div class="bg-white rounded-xl shadow p-6 stat-card">
-<h4 class="text-lg font-bold text-slate-700 mb-4">Cost Breakdown</h4>
+<h4 class="text-lg font-bold text-slate-700 mb-4">Cost Breakdown by Accident Year</h4>
 <div class="space-y-3" id="cost-breakdown">
 </div>
 </div>
@@ -445,18 +445,56 @@ function analyzeData(data) {
   document.getElementById('stat-avg-claim').textContent = '$' + avgClaim.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
   document.getElementById('stat-open-claims').textContent = openClaims;
   
-  // Cost Breakdown
-  var indemnity = data.reduce(function(sum, row) { return sum + (parseFloat(row.IndemnityIncurred) || 0); }, 0);
-  var medical = data.reduce(function(sum, row) { return sum + (parseFloat(row.MedicalIncurred) || 0); }, 0);
-  var legal = data.reduce(function(sum, row) { return sum + (parseFloat(row.LegalIncurred) || 0); }, 0);
-  var expense = data.reduce(function(sum, row) { return sum + (parseFloat(row.ExpenseIncurred) || 0); }, 0);
+  // Cost Breakdown by Year
+  var yearData = {};
+  data.forEach(function(row) {
+    var lossDate = row.LossDate ? new Date(row.LossDate) : null;
+    var year = lossDate ? lossDate.getFullYear() : 'Unknown';
+    if (!yearData[year]) {
+      yearData[year] = { claims: 0, indemnity: 0, medical: 0, legal: 0, expense: 0, total: 0 };
+    }
+    yearData[year].claims++;
+    yearData[year].indemnity += parseFloat(row.IndemnityIncurred) || 0;
+    yearData[year].medical += parseFloat(row.MedicalIncurred) || 0;
+    yearData[year].legal += parseFloat(row.LegalIncurred) || 0;
+    yearData[year].expense += parseFloat(row.ExpenseIncurred) || 0;
+    yearData[year].total += parseFloat(row.TotalIncurred) || 0;
+  });
   
-  var costHtml = '';
-  costHtml += '<div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg"><span class="font-medium text-blue-800">Indemnity (Lost Wages)</span><span class="font-bold text-blue-900">$' + indemnity.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</span></div>';
-  costHtml += '<div class="flex justify-between items-center p-3 bg-green-50 rounded-lg"><span class="font-medium text-green-800">Medical</span><span class="font-bold text-green-900">$' + medical.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</span></div>';
-  costHtml += '<div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg"><span class="font-medium text-purple-800">Legal</span><span class="font-bold text-purple-900">$' + legal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</span></div>';
-  costHtml += '<div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg"><span class="font-medium text-orange-800">Expenses</span><span class="font-bold text-orange-900">$' + expense.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</span></div>';
-  costHtml += '<div class="flex justify-between items-center p-3 bg-slate-100 rounded-lg border-2 border-slate-300"><span class="font-bold text-slate-800">TOTAL INCURRED</span><span class="font-bold text-slate-900 text-lg">$' + totalIncurred.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</span></div>';
+  var sortedYears = Object.keys(yearData).sort().reverse();
+  var costHtml = '<div class="overflow-x-auto"><table class="w-full text-sm">';
+  costHtml += '<thead class="bg-slate-100"><tr><th class="px-3 py-2 text-left font-semibold">Year</th><th class="px-3 py-2 text-center font-semibold">Claims</th><th class="px-3 py-2 text-right font-semibold">Indemnity</th><th class="px-3 py-2 text-right font-semibold">Medical</th><th class="px-3 py-2 text-right font-semibold">Legal</th><th class="px-3 py-2 text-right font-semibold">Expense</th><th class="px-3 py-2 text-right font-semibold">Total</th></tr></thead><tbody>';
+  
+  var grandTotal = { claims: 0, indemnity: 0, medical: 0, legal: 0, expense: 0, total: 0 };
+  sortedYears.forEach(function(year) {
+    var yd = yearData[year];
+    grandTotal.claims += yd.claims;
+    grandTotal.indemnity += yd.indemnity;
+    grandTotal.medical += yd.medical;
+    grandTotal.legal += yd.legal;
+    grandTotal.expense += yd.expense;
+    grandTotal.total += yd.total;
+    costHtml += '<tr class="border-b hover:bg-slate-50">';
+    costHtml += '<td class="px-3 py-2 font-medium">' + year + '</td>';
+    costHtml += '<td class="px-3 py-2 text-center">' + yd.claims + '</td>';
+    costHtml += '<td class="px-3 py-2 text-right">$' + yd.indemnity.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+    costHtml += '<td class="px-3 py-2 text-right">$' + yd.medical.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+    costHtml += '<td class="px-3 py-2 text-right">$' + yd.legal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+    costHtml += '<td class="px-3 py-2 text-right">$' + yd.expense.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+    costHtml += '<td class="px-3 py-2 text-right font-bold">$' + yd.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+    costHtml += '</tr>';
+  });
+  
+  costHtml += '<tr class="bg-slate-700 text-white font-bold">';
+  costHtml += '<td class="px-3 py-2">TOTAL</td>';
+  costHtml += '<td class="px-3 py-2 text-center">' + grandTotal.claims + '</td>';
+  costHtml += '<td class="px-3 py-2 text-right">$' + grandTotal.indemnity.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+  costHtml += '<td class="px-3 py-2 text-right">$' + grandTotal.medical.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+  costHtml += '<td class="px-3 py-2 text-right">$' + grandTotal.legal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+  costHtml += '<td class="px-3 py-2 text-right">$' + grandTotal.expense.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+  costHtml += '<td class="px-3 py-2 text-right">$' + grandTotal.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '</td>';
+  costHtml += '</tr>';
+  costHtml += '</tbody></table></div>';
   document.getElementById('cost-breakdown').innerHTML = costHtml;
   
   // Status Chart
