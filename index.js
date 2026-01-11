@@ -401,7 +401,7 @@ Download PDF Report
 <div id="section-c240" class="hidden">
 <div class="bg-white rounded-xl shadow p-6 mb-4">
 <h3 class="text-xl font-bold text-slate-700 mb-2">C-240 Employer's Statement of Wage Earnings</h3>
-<p class="text-slate-600 mb-4">Auto-populate the 52-week payroll table (Page 2) of the NY Workers' Compensation C-240 form. Upload payroll data in Excel or PDF format.</p>
+<p class="text-slate-600 mb-4">Auto-populate the 52-week payroll table (Page 2) of the NY Workers Compensation C-240 form. Upload payroll data in Excel or PDF format.</p>
 
 <div class="grid lg:grid-cols-2 gap-6">
 <!-- Left Column - Basic Info -->
