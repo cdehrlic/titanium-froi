@@ -47,16 +47,58 @@ async function initDB() {
         date_of_injury DATE,
         injury_type VARCHAR(255),
         body_part VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'Submitted',
+        status VARCHAR(50) DEFAULT 'Reported',
         form_data JSONB,
         pdf_data BYTEA,
+        location VARCHAR(255),
+        carrier_claim_number VARCHAR(100),
+        carrier_name VARCHAR(255),
+        tpa_name VARCHAR(255),
+        adjuster_name VARCHAR(255),
+        adjuster_phone VARCHAR(50),
+        adjuster_email VARCHAR(255),
+        adjuster_notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS claim_notes (
+        id SERIAL PRIMARY KEY,
+        claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_name VARCHAR(255),
+        note_text TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS claim_tasks (
+        id SERIAL PRIMARY KEY,
+        claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_by_name VARCHAR(255),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        due_date DATE,
+        status VARCHAR(50) DEFAULT 'Pending',
+        completed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS claim_status_history (
+        id SERIAL PRIMARY KEY,
+        claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_name VARCHAR(255),
+        old_status VARCHAR(50),
+        new_status VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       
       CREATE TABLE IF NOT EXISTS documents (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        claim_id INTEGER REFERENCES claims(id) ON DELETE SET NULL,
         doc_type VARCHAR(50) NOT NULL,
         title VARCHAR(255),
         description TEXT,
@@ -68,7 +110,12 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
       CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
       CREATE INDEX IF NOT EXISTS idx_claims_user ON claims(user_id);
+      CREATE INDEX IF NOT EXISTS idx_claims_status ON claims(status);
+      CREATE INDEX IF NOT EXISTS idx_claim_notes_claim ON claim_notes(claim_id);
+      CREATE INDEX IF NOT EXISTS idx_claim_tasks_claim ON claim_tasks(claim_id);
+      CREATE INDEX IF NOT EXISTS idx_claim_tasks_due ON claim_tasks(due_date);
       CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
+      CREATE INDEX IF NOT EXISTS idx_documents_claim ON documents(claim_id);
     `);
     console.log('Database tables initialized');
   } catch (err) {
@@ -396,34 +443,133 @@ app.get('/api/auth/me', authenticateSession, async function(req, res) {
 
 // ==================== CLAIMS API ROUTES ====================
 
-// Get user's claims
+// Get user's claims with filtering and sorting
 app.get('/api/claims', authenticateSession, async function(req, res) {
   try {
-    const result = await pool.query(
-      `SELECT id, reference_number, employee_name, date_of_injury, injury_type, 
-              body_part, status, created_at, updated_at 
-       FROM claims WHERE user_id = $1 ORDER BY created_at DESC`,
-      [req.userId]
-    );
+    const { status, search, sortBy, sortOrder } = req.query;
+    let query = `
+      SELECT id, reference_number, employee_name, date_of_injury, injury_type, 
+             body_part, status, location, carrier_claim_number, created_at, updated_at 
+      FROM claims WHERE user_id = $1`;
+    const params = [req.userId];
+    let paramCount = 1;
+    
+    // Filter by status
+    if (status && status !== 'all') {
+      paramCount++;
+      query += ` AND status = $${paramCount}`;
+      params.push(status);
+    }
+    
+    // Search by employee name
+    if (search) {
+      paramCount++;
+      query += ` AND LOWER(employee_name) LIKE LOWER($${paramCount})`;
+      params.push('%' + search + '%');
+    }
+    
+    // Sorting
+    const validSortColumns = ['date_of_injury', 'status', 'created_at', 'updated_at', 'employee_name'];
+    const sortColumn = validSortColumns.includes(sortBy) ? sortBy : 'created_at';
+    const order = sortOrder === 'asc' ? 'ASC' : 'DESC';
+    query += ` ORDER BY ${sortColumn} ${order}`;
+    
+    const result = await pool.query(query, params);
     res.json({ claims: result.rows });
   } catch (err) {
+    console.error('Get claims error:', err);
     res.status(500).json({ error: 'Failed to fetch claims' });
   }
 });
 
-// Get single claim
+// Get single claim with full details
 app.get('/api/claims/:id', authenticateSession, async function(req, res) {
   try {
     const result = await pool.query(
-      'SELECT * FROM claims WHERE id = $1 AND user_id = $2',
+      `SELECT * FROM claims WHERE id = $1 AND user_id = $2`,
       [req.params.id, req.userId]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Claim not found' });
     }
-    res.json({ claim: result.rows[0] });
+    
+    // Get notes count
+    const notesCount = await pool.query(
+      'SELECT COUNT(*) FROM claim_notes WHERE claim_id = $1',
+      [req.params.id]
+    );
+    
+    // Get tasks count
+    const tasksCount = await pool.query(
+      'SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status != $2) as pending FROM claim_tasks WHERE claim_id = $1',
+      [req.params.id, 'Completed']
+    );
+    
+    const claim = result.rows[0];
+    claim.notes_count = parseInt(notesCount.rows[0].count);
+    claim.tasks_total = parseInt(tasksCount.rows[0].total);
+    claim.tasks_pending = parseInt(tasksCount.rows[0].pending);
+    
+    res.json({ claim });
   } catch (err) {
+    console.error('Get claim error:', err);
     res.status(500).json({ error: 'Failed to fetch claim' });
+  }
+});
+
+// Update claim (status, adjuster info, etc.)
+app.put('/api/claims/:id', authenticateSession, async function(req, res) {
+  try {
+    const { 
+      status, location, carrier_claim_number, carrier_name, tpa_name,
+      adjuster_name, adjuster_phone, adjuster_email, adjuster_notes 
+    } = req.body;
+    
+    // Get current claim to check ownership and get old status
+    const current = await pool.query(
+      'SELECT * FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (current.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const oldStatus = current.rows[0].status;
+    
+    // Update the claim
+    const result = await pool.query(
+      `UPDATE claims SET 
+        status = COALESCE($1, status),
+        location = COALESCE($2, location),
+        carrier_claim_number = COALESCE($3, carrier_claim_number),
+        carrier_name = COALESCE($4, carrier_name),
+        tpa_name = COALESCE($5, tpa_name),
+        adjuster_name = COALESCE($6, adjuster_name),
+        adjuster_phone = COALESCE($7, adjuster_phone),
+        adjuster_email = COALESCE($8, adjuster_email),
+        adjuster_notes = COALESCE($9, adjuster_notes),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $10 AND user_id = $11
+      RETURNING *`,
+      [status, location, carrier_claim_number, carrier_name, tpa_name,
+       adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
+       req.params.id, req.userId]
+    );
+    
+    // Log status change if status was updated
+    if (status && status !== oldStatus) {
+      const userName = (req.user.first_name || '') + ' ' + (req.user.last_name || req.user.email);
+      await pool.query(
+        `INSERT INTO claim_status_history (claim_id, user_id, user_name, old_status, new_status)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [req.params.id, req.userId, userName.trim(), oldStatus, status]
+      );
+    }
+    
+    res.json({ success: true, claim: result.rows[0] });
+  } catch (err) {
+    console.error('Update claim error:', err);
+    res.status(500).json({ error: 'Failed to update claim' });
   }
 });
 
@@ -442,6 +588,258 @@ app.get('/api/claims/:id/pdf', authenticateSession, async function(req, res) {
     res.send(result.rows[0].pdf_data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to download PDF' });
+  }
+});
+
+// Get claim status history
+app.get('/api/claims/:id/history', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const result = await pool.query(
+      `SELECT * FROM claim_status_history WHERE claim_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    res.json({ history: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch status history' });
+  }
+});
+
+// ==================== CLAIM NOTES API ====================
+
+// Get notes for a claim
+app.get('/api/claims/:id/notes', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const result = await pool.query(
+      `SELECT * FROM claim_notes WHERE claim_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    res.json({ notes: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch notes' });
+  }
+});
+
+// Add note to a claim
+app.post('/api/claims/:id/notes', authenticateSession, async function(req, res) {
+  try {
+    const { note_text } = req.body;
+    if (!note_text || !note_text.trim()) {
+      return res.status(400).json({ error: 'Note text is required' });
+    }
+    
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const userName = (req.user.first_name || '') + ' ' + (req.user.last_name || req.user.email);
+    
+    const result = await pool.query(
+      `INSERT INTO claim_notes (claim_id, user_id, user_name, note_text)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [req.params.id, req.userId, userName.trim(), note_text.trim()]
+    );
+    
+    // Update claim's updated_at
+    await pool.query(
+      'UPDATE claims SET updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      [req.params.id]
+    );
+    
+    res.json({ success: true, note: result.rows[0] });
+  } catch (err) {
+    console.error('Add note error:', err);
+    res.status(500).json({ error: 'Failed to add note' });
+  }
+});
+
+// Delete a note
+app.delete('/api/claims/:claimId/notes/:noteId', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.claimId, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    await pool.query(
+      'DELETE FROM claim_notes WHERE id = $1 AND claim_id = $2',
+      [req.params.noteId, req.params.claimId]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete note' });
+  }
+});
+
+// ==================== CLAIM TASKS API ====================
+
+// Get tasks for a claim
+app.get('/api/claims/:id/tasks', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const result = await pool.query(
+      `SELECT * FROM claim_tasks WHERE claim_id = $1 ORDER BY 
+        CASE WHEN status = 'Completed' THEN 1 ELSE 0 END,
+        due_date ASC NULLS LAST,
+        created_at DESC`,
+      [req.params.id]
+    );
+    res.json({ tasks: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
+});
+
+// Create a task
+app.post('/api/claims/:id/tasks', authenticateSession, async function(req, res) {
+  try {
+    const { title, description, due_date } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Task title is required' });
+    }
+    
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const userName = (req.user.first_name || '') + ' ' + (req.user.last_name || req.user.email);
+    
+    const result = await pool.query(
+      `INSERT INTO claim_tasks (claim_id, user_id, created_by_name, title, description, due_date, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'Pending') RETURNING *`,
+      [req.params.id, req.userId, userName.trim(), title.trim(), description || null, due_date || null]
+    );
+    
+    // Update claim's updated_at
+    await pool.query(
+      'UPDATE claims SET updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      [req.params.id]
+    );
+    
+    res.json({ success: true, task: result.rows[0] });
+  } catch (err) {
+    console.error('Create task error:', err);
+    res.status(500).json({ error: 'Failed to create task' });
+  }
+});
+
+// Update a task
+app.put('/api/claims/:claimId/tasks/:taskId', authenticateSession, async function(req, res) {
+  try {
+    const { title, description, due_date, status } = req.body;
+    
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.claimId, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const completedAt = status === 'Completed' ? 'CURRENT_TIMESTAMP' : 'NULL';
+    
+    const result = await pool.query(
+      `UPDATE claim_tasks SET 
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        due_date = $3,
+        status = COALESCE($4, status),
+        completed_at = ${status === 'Completed' ? 'CURRENT_TIMESTAMP' : 'CASE WHEN $4 = \'Completed\' THEN CURRENT_TIMESTAMP ELSE completed_at END'},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $5 AND claim_id = $6
+      RETURNING *`,
+      [title, description, due_date || null, status, req.params.taskId, req.params.claimId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    res.json({ success: true, task: result.rows[0] });
+  } catch (err) {
+    console.error('Update task error:', err);
+    res.status(500).json({ error: 'Failed to update task' });
+  }
+});
+
+// Delete a task
+app.delete('/api/claims/:claimId/tasks/:taskId', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.claimId, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    await pool.query(
+      'DELETE FROM claim_tasks WHERE id = $1 AND claim_id = $2',
+      [req.params.taskId, req.params.claimId]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete task' });
+  }
+});
+
+// Get all pending tasks for user (across all claims)
+app.get('/api/tasks', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT t.*, c.employee_name, c.reference_number 
+       FROM claim_tasks t
+       JOIN claims c ON t.claim_id = c.id
+       WHERE c.user_id = $1 AND t.status != 'Completed'
+       ORDER BY t.due_date ASC NULLS LAST, t.created_at DESC`,
+      [req.userId]
+    );
+    res.json({ tasks: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
 
@@ -515,8 +913,11 @@ app.get('/api/dashboard/stats', authenticateSession, async function(req, res) {
   try {
     const claimsResult = await pool.query(
       `SELECT COUNT(*) as total, 
-              COUNT(*) FILTER (WHERE status = 'Submitted') as submitted,
+              COUNT(*) FILTER (WHERE status = 'Reported') as reported,
               COUNT(*) FILTER (WHERE status = 'Open') as open,
+              COUNT(*) FILTER (WHERE status = 'Medical Only') as medical_only,
+              COUNT(*) FILTER (WHERE status = 'Lost Time') as lost_time,
+              COUNT(*) FILTER (WHERE status = 'Pending Docs') as pending_docs,
               COUNT(*) FILTER (WHERE status = 'Closed') as closed
        FROM claims WHERE user_id = $1`,
       [req.userId]
@@ -528,17 +929,36 @@ app.get('/api/dashboard/stats', authenticateSession, async function(req, res) {
     );
     
     const recentClaims = await pool.query(
-      `SELECT id, reference_number, employee_name, status, created_at 
-       FROM claims WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5`,
+      `SELECT id, reference_number, employee_name, status, date_of_injury, injury_type, body_part, created_at, updated_at
+       FROM claims WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 5`,
+      [req.userId]
+    );
+    
+    const pendingTasks = await pool.query(
+      `SELECT COUNT(*) as total FROM claim_tasks t
+       JOIN claims c ON t.claim_id = c.id
+       WHERE c.user_id = $1 AND t.status != 'Completed'`,
+      [req.userId]
+    );
+    
+    const overdueTasks = await pool.query(
+      `SELECT COUNT(*) as total FROM claim_tasks t
+       JOIN claims c ON t.claim_id = c.id
+       WHERE c.user_id = $1 AND t.status != 'Completed' AND t.due_date < CURRENT_DATE`,
       [req.userId]
     );
     
     res.json({
       claims: claimsResult.rows[0],
       documents: { total: docsResult.rows[0].total },
-      recentClaims: recentClaims.rows
+      recentClaims: recentClaims.rows,
+      tasks: {
+        pending: parseInt(pendingTasks.rows[0].total),
+        overdue: parseInt(overdueTasks.rows[0].total)
+      }
     });
   } catch (err) {
+    console.error('Dashboard stats error:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });
@@ -560,9 +980,10 @@ app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, re
     // Save to database if user is logged in
     if (req.userId) {
       try {
+        var location = formData.facilityCity ? (formData.facilityCity + (formData.facilityState ? ', ' + formData.facilityState : '')) : null;
         await pool.query(
-          `INSERT INTO claims (user_id, reference_number, employee_name, date_of_injury, injury_type, body_part, status, form_data, pdf_data)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          `INSERT INTO claims (user_id, reference_number, employee_name, date_of_injury, injury_type, body_part, status, location, form_data, pdf_data)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             req.userId,
             referenceNumber,
@@ -570,7 +991,8 @@ app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, re
             formData.dateOfInjury || null,
             formData.natureOfInjury || null,
             formData.bodyPartInjured || null,
-            'Submitted',
+            'Reported',
+            location,
             formData,
             pdfBuffer
           ]
@@ -1355,33 +1777,324 @@ body { font-family: 'Inter', sans-serif; }
 </div>
 <div id="form-container"></div>
 </div>
-<!-- Claims Dashboard Section (Coming Soon) -->
-<div id="section-claims" class="hidden">
-<div class="bg-white rounded-xl shadow p-8 text-center">
-<div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-<svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<!-- Claims Dashboard Section -->
+<div id="section-claims" class="hidden space-y-4">
+
+<!-- Claims List View -->
+<div id="claims-list-view">
+<!-- Header with Stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-slate-600">
+<div class="text-2xl font-bold text-slate-700" id="stat-total">0</div>
+<div class="text-xs text-slate-500 uppercase">Total Claims</div>
 </div>
-<h2 class="text-2xl font-bold text-slate-700 mb-3">Claims Dashboard</h2>
-<p class="text-slate-500 mb-6 max-w-md mx-auto">A comprehensive claims management dashboard is coming soon. Track claim status, analyze trends, and manage your workers' compensation claims all in one place.</p>
-<div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-Coming Soon
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
+<div class="text-2xl font-bold text-blue-600" id="stat-reported">0</div>
+<div class="text-xs text-slate-500 uppercase">Reported</div>
 </div>
-<div class="mt-8 grid md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
-<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-<h4 class="font-semibold text-slate-700 mb-1">Claim Tracking</h4>
-<p class="text-sm text-slate-500">Monitor claim status in real-time</p>
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
+<div class="text-2xl font-bold text-green-600" id="stat-open">0</div>
+<div class="text-xs text-slate-500 uppercase">Open</div>
 </div>
-<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-<h4 class="font-semibold text-slate-700 mb-1">Analytics</h4>
-<p class="text-sm text-slate-500">Visualize trends and patterns</p>
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-amber-500">
+<div class="text-2xl font-bold text-amber-600" id="stat-medical">0</div>
+<div class="text-xs text-slate-500 uppercase">Medical Only</div>
 </div>
-<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-<h4 class="font-semibold text-slate-700 mb-1">Reporting</h4>
-<p class="text-sm text-slate-500">Generate custom reports</p>
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
+<div class="text-2xl font-bold text-red-600" id="stat-losttime">0</div>
+<div class="text-xs text-slate-500 uppercase">Lost Time</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-slate-400">
+<div class="text-2xl font-bold text-slate-500" id="stat-closed">0</div>
+<div class="text-xs text-slate-500 uppercase">Closed</div>
+</div>
+</div>
+
+<!-- Filters and Search -->
+<div class="bg-white rounded-xl shadow p-4 mb-4">
+<div class="flex flex-wrap gap-3 items-center justify-between">
+<div class="flex flex-wrap gap-3 items-center">
+<!-- Search -->
+<div class="relative">
+<svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+<input type="text" id="claims-search" placeholder="Search by employee name..." class="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:ring-2 focus:ring-green-500 focus:border-transparent" onkeyup="debounceClaimsSearch()">
+</div>
+<!-- Status Filter -->
+<select id="claims-status-filter" onchange="loadClaimsList()" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500">
+<option value="all">All Statuses</option>
+<option value="Reported">Reported</option>
+<option value="Open">Open</option>
+<option value="Medical Only">Medical Only</option>
+<option value="Lost Time">Lost Time</option>
+<option value="Pending Docs">Pending Docs</option>
+<option value="Closed">Closed</option>
+</select>
+<!-- Sort -->
+<select id="claims-sort" onchange="loadClaimsList()" class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500">
+<option value="updated_at-desc">Recently Updated</option>
+<option value="date_of_injury-desc">Date of Injury (Newest)</option>
+<option value="date_of_injury-asc">Date of Injury (Oldest)</option>
+<option value="status-asc">Status (A-Z)</option>
+<option value="employee_name-asc">Employee Name (A-Z)</option>
+</select>
+</div>
+<button onclick="loadClaimsList()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 text-sm">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+Refresh
+</button>
+</div>
+</div>
+
+<!-- Claims Table -->
+<div class="bg-white rounded-xl shadow overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-700 text-white">
+<tr>
+<th class="px-4 py-3 text-left font-semibold">Employee</th>
+<th class="px-4 py-3 text-left font-semibold">Date of Injury</th>
+<th class="px-4 py-3 text-left font-semibold">Injury Type</th>
+<th class="px-4 py-3 text-left font-semibold">Body Part</th>
+<th class="px-4 py-3 text-center font-semibold">Status</th>
+<th class="px-4 py-3 text-left font-semibold">Last Updated</th>
+<th class="px-4 py-3 text-center font-semibold">Actions</th>
+</tr>
+</thead>
+<tbody id="claims-table-body">
+<tr><td colspan="7" class="px-4 py-12 text-center text-slate-500">Loading claims...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Empty State (shown when no claims) -->
+<div id="claims-empty-state" class="hidden bg-white rounded-xl shadow p-12 text-center">
+<svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+<h3 class="text-lg font-semibold text-slate-700 mb-2">No Claims Found</h3>
+<p class="text-slate-500 mb-4">You haven't submitted any claims yet, or no claims match your current filters.</p>
+<button onclick="showTab('report')" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">Report New Injury</button>
+</div>
+</div>
+
+<!-- Claim Detail View (hidden by default) -->
+<div id="claim-detail-view" class="hidden">
+<!-- Back Button -->
+<button onclick="showClaimsList()" class="mb-4 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 text-sm">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+Back to Claims List
+</button>
+
+<!-- Claim Header -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<div class="flex flex-wrap justify-between items-start gap-4">
+<div>
+<h2 class="text-2xl font-bold text-slate-800" id="detail-employee-name">Loading...</h2>
+<p class="text-slate-500" id="detail-reference">Reference: ---</p>
+</div>
+<div class="flex items-center gap-3">
+<select id="detail-status" onchange="updateClaimStatus()" class="px-4 py-2 border-2 border-slate-300 rounded-lg font-semibold focus:ring-2 focus:ring-green-500">
+<option value="Reported">Reported</option>
+<option value="Open">Open</option>
+<option value="Medical Only">Medical Only</option>
+<option value="Lost Time">Lost Time</option>
+<option value="Pending Docs">Pending Docs</option>
+<option value="Closed">Closed</option>
+</select>
+<a id="detail-pdf-link" href="#" class="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+Download PDF
+</a>
+</div>
+</div>
+
+<!-- Claim Overview Grid -->
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200">
+<div>
+<div class="text-xs text-slate-500 uppercase mb-1">Date of Injury</div>
+<div class="font-semibold text-slate-800" id="detail-doi">---</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase mb-1">Injury Type</div>
+<div class="font-semibold text-slate-800" id="detail-injury-type">---</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase mb-1">Body Part</div>
+<div class="font-semibold text-slate-800" id="detail-body-part">---</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase mb-1">Location</div>
+<div class="font-semibold text-slate-800" id="detail-location">---</div>
 </div>
 </div>
 </div>
+
+<!-- Two Column Layout for Detail Sections -->
+<div class="grid lg:grid-cols-2 gap-4">
+<!-- Left Column -->
+<div class="space-y-4">
+
+<!-- Adjuster Information -->
+<div class="bg-white rounded-xl shadow p-6">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
+<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+Adjuster Information
+</h3>
+<button onclick="toggleAdjusterEdit()" id="adjuster-edit-btn" class="text-sm text-green-600 hover:text-green-700 font-medium">Edit</button>
+</div>
+
+<!-- View Mode -->
+<div id="adjuster-view" class="space-y-3">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="text-xs text-slate-500 uppercase">Carrier</div>
+<div class="font-medium text-slate-800" id="adj-carrier-view">Not set</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase">TPA</div>
+<div class="font-medium text-slate-800" id="adj-tpa-view">Not set</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="text-xs text-slate-500 uppercase">Adjuster Name</div>
+<div class="font-medium text-slate-800" id="adj-name-view">Not set</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase">Carrier Claim #</div>
+<div class="font-medium text-slate-800" id="adj-claim-num-view">Not set</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="text-xs text-slate-500 uppercase">Phone</div>
+<div class="font-medium text-slate-800" id="adj-phone-view">Not set</div>
+</div>
+<div>
+<div class="text-xs text-slate-500 uppercase">Email</div>
+<div class="font-medium text-slate-800" id="adj-email-view">Not set</div>
+</div>
+</div>
+<div id="adj-notes-container" class="hidden">
+<div class="text-xs text-slate-500 uppercase">Notes</div>
+<div class="font-medium text-slate-800" id="adj-notes-view">---</div>
+</div>
+</div>
+
+<!-- Edit Mode -->
+<div id="adjuster-edit" class="hidden space-y-3">
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Carrier Name</label>
+<input type="text" id="adj-carrier" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">TPA / Adjusting Company</label>
+<input type="text" id="adj-tpa" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Adjuster Name</label>
+<input type="text" id="adj-name" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Carrier Claim Number</label>
+<input type="text" id="adj-claim-num" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Phone</label>
+<input type="tel" id="adj-phone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Email</label>
+<input type="email" id="adj-email" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Notes about Adjuster/Carrier</label>
+<textarea id="adj-notes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></textarea>
+</div>
+<div class="flex gap-2 pt-2">
+<button onclick="saveAdjusterInfo()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium">Save Changes</button>
+<button onclick="toggleAdjusterEdit()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- Status History -->
+<div class="bg-white rounded-xl shadow p-6">
+<h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+Status History
+</h3>
+<div id="status-history-list" class="space-y-2 max-h-48 overflow-y-auto">
+<p class="text-slate-500 text-sm">No status changes recorded.</p>
+</div>
+</div>
+
+</div>
+
+<!-- Right Column -->
+<div class="space-y-4">
+
+<!-- Notes Section -->
+<div class="bg-white rounded-xl shadow p-6">
+<h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+Notes
+<span class="text-sm font-normal text-slate-400" id="notes-count">(0)</span>
+</h3>
+
+<!-- Add Note Form -->
+<div class="mb-4">
+<textarea id="new-note-text" rows="3" placeholder="Add a note about this claim... (e.g., 'Spoke with adjuster, waiting on IME report.')" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500"></textarea>
+<div class="flex justify-end mt-2">
+<button onclick="addClaimNote()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+Add Note
+</button>
+</div>
+</div>
+
+<!-- Notes List -->
+<div id="notes-list" class="space-y-3 max-h-64 overflow-y-auto">
+<p class="text-slate-500 text-sm text-center py-4">No notes yet. Add a note above to keep track of claim activity.</p>
+</div>
+</div>
+
+<!-- Tasks Section -->
+<div class="bg-white rounded-xl shadow p-6">
+<h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+Tasks & Follow-ups
+<span class="text-sm font-normal text-slate-400" id="tasks-count">(0 pending)</span>
+</h3>
+
+<!-- Add Task Form -->
+<div class="mb-4 p-3 bg-slate-50 rounded-lg">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+<input type="text" id="new-task-title" placeholder="Task title..." class="md:col-span-2 px-3 py-2 border border-slate-300 rounded-lg text-sm">
+<input type="date" id="new-task-due" class="px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div class="flex justify-between items-center">
+<input type="text" id="new-task-desc" placeholder="Optional description..." class="flex-1 mr-2 px-3 py-2 border border-slate-300 rounded-lg text-sm">
+<button onclick="addClaimTask()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium whitespace-nowrap">Add Task</button>
+</div>
+</div>
+
+<!-- Tasks List -->
+<div id="tasks-list" class="space-y-2 max-h-64 overflow-y-auto">
+<p class="text-slate-500 text-sm text-center py-4">No tasks yet. Create a task above to track follow-ups.</p>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
 </div>
 
 <!-- My Documents Section -->
@@ -1870,6 +2583,7 @@ function showTab(tab) {
   // Trigger actions for specific tabs
   if (tab === 'report') render();
   if (tab === 'mydocs') loadMyDocuments();
+  if (tab === 'claims') loadClaimsDashboard();
 }
 
 function showTool(tool) {
@@ -1891,6 +2605,533 @@ function showTool(tool) {
     toolBtn.classList.remove('border-transparent', 'text-slate-600');
   }
   currentTool = tool;
+}
+
+// ==================== CLAIMS DASHBOARD FUNCTIONS ====================
+
+var currentClaimId = null;
+var claimsSearchTimeout = null;
+
+// Load the claims dashboard
+function loadClaimsDashboard() {
+  if (!sessionToken) {
+    document.getElementById('claims-table-body').innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center"><div class="text-slate-500"><svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium mb-2">Sign in to view your claims</p><button onclick="openAuthModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div></td></tr>';
+    return;
+  }
+  loadClaimsStats();
+  loadClaimsList();
+}
+
+// Load claims statistics
+async function loadClaimsStats() {
+  try {
+    var res = await fetch('/api/dashboard/stats', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    if (data.claims) {
+      document.getElementById('stat-total').textContent = data.claims.total || 0;
+      document.getElementById('stat-reported').textContent = data.claims.reported || 0;
+      document.getElementById('stat-open').textContent = data.claims.open || 0;
+      document.getElementById('stat-medical').textContent = data.claims.medical_only || 0;
+      document.getElementById('stat-losttime').textContent = data.claims.lost_time || 0;
+      document.getElementById('stat-closed').textContent = data.claims.closed || 0;
+    }
+  } catch (err) {
+    console.error('Failed to load claims stats:', err);
+  }
+}
+
+// Load claims list with filters
+async function loadClaimsList() {
+  var tbody = document.getElementById('claims-table-body');
+  var emptyState = document.getElementById('claims-empty-state');
+  
+  tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500"><div class="animate-spin w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full mx-auto mb-2"></div>Loading claims...</td></tr>';
+  
+  try {
+    var status = document.getElementById('claims-status-filter').value;
+    var search = document.getElementById('claims-search').value;
+    var sortVal = document.getElementById('claims-sort').value.split('-');
+    var sortBy = sortVal[0];
+    var sortOrder = sortVal[1];
+    
+    var url = '/api/claims?status=' + encodeURIComponent(status) + '&search=' + encodeURIComponent(search) + '&sortBy=' + sortBy + '&sortOrder=' + sortOrder;
+    
+    var res = await fetch(url, { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    if (data.claims && data.claims.length > 0) {
+      emptyState.classList.add('hidden');
+      tbody.parentElement.parentElement.classList.remove('hidden');
+      
+      tbody.innerHTML = data.claims.map(function(claim) {
+        var doi = claim.date_of_injury ? new Date(claim.date_of_injury).toLocaleDateString() : 'N/A';
+        var updated = claim.updated_at ? formatRelativeTime(claim.updated_at) : 'N/A';
+        var statusClass = getStatusClass(claim.status);
+        
+        return '<tr class="border-b border-slate-100 hover:bg-slate-50 cursor-pointer" onclick="viewClaimDetail(' + claim.id + ')">' +
+          '<td class="px-4 py-3"><div class="font-medium text-slate-800">' + (claim.employee_name || 'Unknown') + '</div><div class="text-xs text-slate-500">' + (claim.reference_number || '') + '</div></td>' +
+          '<td class="px-4 py-3 text-slate-600">' + doi + '</td>' +
+          '<td class="px-4 py-3 text-slate-600">' + (claim.injury_type || 'N/A') + '</td>' +
+          '<td class="px-4 py-3 text-slate-600">' + (claim.body_part || 'N/A') + '</td>' +
+          '<td class="px-4 py-3 text-center"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + statusClass + '">' + (claim.status || 'Unknown') + '</span></td>' +
+          '<td class="px-4 py-3 text-slate-500 text-sm">' + updated + '</td>' +
+          '<td class="px-4 py-3 text-center"><button class="px-3 py-1 bg-slate-100 text-slate-700 rounded hover:bg-slate-200 text-sm font-medium">View</button></td>' +
+          '</tr>';
+      }).join('');
+    } else {
+      tbody.parentElement.parentElement.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('Failed to load claims:', err);
+    tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-red-500">Failed to load claims. Please try again.</td></tr>';
+  }
+}
+
+// Debounce search input
+function debounceClaimsSearch() {
+  clearTimeout(claimsSearchTimeout);
+  claimsSearchTimeout = setTimeout(function() {
+    loadClaimsList();
+  }, 300);
+}
+
+// Get status badge CSS class
+function getStatusClass(status) {
+  switch (status) {
+    case 'Reported': return 'bg-blue-100 text-blue-700';
+    case 'Open': return 'bg-green-100 text-green-700';
+    case 'Medical Only': return 'bg-amber-100 text-amber-700';
+    case 'Lost Time': return 'bg-red-100 text-red-700';
+    case 'Pending Docs': return 'bg-purple-100 text-purple-700';
+    case 'Closed': return 'bg-slate-100 text-slate-600';
+    default: return 'bg-slate-100 text-slate-600';
+  }
+}
+
+// Format relative time
+function formatRelativeTime(dateStr) {
+  var date = new Date(dateStr);
+  var now = new Date();
+  var diff = now - date;
+  var mins = Math.floor(diff / 60000);
+  var hours = Math.floor(diff / 3600000);
+  var days = Math.floor(diff / 86400000);
+  
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return mins + ' min ago';
+  if (hours < 24) return hours + ' hr ago';
+  if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+  return date.toLocaleDateString();
+}
+
+// Show claim detail view
+async function viewClaimDetail(claimId) {
+  currentClaimId = claimId;
+  
+  // Show detail view, hide list view
+  document.getElementById('claims-list-view').classList.add('hidden');
+  document.getElementById('claim-detail-view').classList.remove('hidden');
+  
+  // Load claim data
+  try {
+    var res = await fetch('/api/claims/' + claimId, { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    if (data.claim) {
+      var claim = data.claim;
+      var formData = claim.form_data || {};
+      
+      // Populate header
+      document.getElementById('detail-employee-name').textContent = claim.employee_name || 'Unknown Employee';
+      document.getElementById('detail-reference').textContent = 'Reference: ' + (claim.reference_number || 'N/A');
+      document.getElementById('detail-status').value = claim.status || 'Reported';
+      document.getElementById('detail-pdf-link').href = '/api/claims/' + claimId + '/pdf?token=' + sessionToken;
+      
+      // Populate overview
+      document.getElementById('detail-doi').textContent = claim.date_of_injury ? new Date(claim.date_of_injury).toLocaleDateString() : 'N/A';
+      document.getElementById('detail-injury-type').textContent = claim.injury_type || formData.natureOfInjury || 'N/A';
+      document.getElementById('detail-body-part').textContent = claim.body_part || formData.bodyPartInjured || 'N/A';
+      document.getElementById('detail-location').textContent = claim.location || formData.facilityCity || 'N/A';
+      
+      // Populate adjuster info (view mode)
+      document.getElementById('adj-carrier-view').textContent = claim.carrier_name || 'Not set';
+      document.getElementById('adj-tpa-view').textContent = claim.tpa_name || 'Not set';
+      document.getElementById('adj-name-view').textContent = claim.adjuster_name || 'Not set';
+      document.getElementById('adj-claim-num-view').textContent = claim.carrier_claim_number || 'Not set';
+      document.getElementById('adj-phone-view').textContent = claim.adjuster_phone || 'Not set';
+      document.getElementById('adj-email-view').textContent = claim.adjuster_email || 'Not set';
+      
+      if (claim.adjuster_notes) {
+        document.getElementById('adj-notes-view').textContent = claim.adjuster_notes;
+        document.getElementById('adj-notes-container').classList.remove('hidden');
+      } else {
+        document.getElementById('adj-notes-container').classList.add('hidden');
+      }
+      
+      // Populate adjuster info (edit mode)
+      document.getElementById('adj-carrier').value = claim.carrier_name || '';
+      document.getElementById('adj-tpa').value = claim.tpa_name || '';
+      document.getElementById('adj-name').value = claim.adjuster_name || '';
+      document.getElementById('adj-claim-num').value = claim.carrier_claim_number || '';
+      document.getElementById('adj-phone').value = claim.adjuster_phone || '';
+      document.getElementById('adj-email').value = claim.adjuster_email || '';
+      document.getElementById('adj-notes').value = claim.adjuster_notes || '';
+      
+      // Update counts
+      document.getElementById('notes-count').textContent = '(' + (claim.notes_count || 0) + ')';
+      document.getElementById('tasks-count').textContent = '(' + (claim.tasks_pending || 0) + ' pending)';
+      
+      // Load related data
+      loadClaimNotes(claimId);
+      loadClaimTasks(claimId);
+      loadStatusHistory(claimId);
+    }
+  } catch (err) {
+    console.error('Failed to load claim:', err);
+    alert('Failed to load claim details. Please try again.');
+    showClaimsList();
+  }
+}
+
+// Show claims list view
+function showClaimsList() {
+  currentClaimId = null;
+  document.getElementById('claim-detail-view').classList.add('hidden');
+  document.getElementById('claims-list-view').classList.remove('hidden');
+  loadClaimsList();
+  loadClaimsStats();
+}
+
+// Toggle adjuster edit mode
+function toggleAdjusterEdit() {
+  var viewEl = document.getElementById('adjuster-view');
+  var editEl = document.getElementById('adjuster-edit');
+  var btnEl = document.getElementById('adjuster-edit-btn');
+  
+  if (viewEl.classList.contains('hidden')) {
+    viewEl.classList.remove('hidden');
+    editEl.classList.add('hidden');
+    btnEl.textContent = 'Edit';
+  } else {
+    viewEl.classList.add('hidden');
+    editEl.classList.remove('hidden');
+    btnEl.textContent = 'Cancel';
+  }
+}
+
+// Save adjuster information
+async function saveAdjusterInfo() {
+  if (!currentClaimId) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({
+        carrier_name: document.getElementById('adj-carrier').value,
+        tpa_name: document.getElementById('adj-tpa').value,
+        adjuster_name: document.getElementById('adj-name').value,
+        carrier_claim_number: document.getElementById('adj-claim-num').value,
+        adjuster_phone: document.getElementById('adj-phone').value,
+        adjuster_email: document.getElementById('adj-email').value,
+        adjuster_notes: document.getElementById('adj-notes').value
+      })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      // Update view mode
+      document.getElementById('adj-carrier-view').textContent = data.claim.carrier_name || 'Not set';
+      document.getElementById('adj-tpa-view').textContent = data.claim.tpa_name || 'Not set';
+      document.getElementById('adj-name-view').textContent = data.claim.adjuster_name || 'Not set';
+      document.getElementById('adj-claim-num-view').textContent = data.claim.carrier_claim_number || 'Not set';
+      document.getElementById('adj-phone-view').textContent = data.claim.adjuster_phone || 'Not set';
+      document.getElementById('adj-email-view').textContent = data.claim.adjuster_email || 'Not set';
+      
+      if (data.claim.adjuster_notes) {
+        document.getElementById('adj-notes-view').textContent = data.claim.adjuster_notes;
+        document.getElementById('adj-notes-container').classList.remove('hidden');
+      } else {
+        document.getElementById('adj-notes-container').classList.add('hidden');
+      }
+      
+      toggleAdjusterEdit();
+    } else {
+      alert('Failed to save adjuster info: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Save adjuster error:', err);
+    alert('Failed to save adjuster information.');
+  }
+}
+
+// Update claim status
+async function updateClaimStatus() {
+  if (!currentClaimId) return;
+  
+  var newStatus = document.getElementById('detail-status').value;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadStatusHistory(currentClaimId);
+      loadClaimsStats();
+    } else {
+      alert('Failed to update status: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Update status error:', err);
+    alert('Failed to update claim status.');
+  }
+}
+
+// Load status history
+async function loadStatusHistory(claimId) {
+  try {
+    var res = await fetch('/api/claims/' + claimId + '/history', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    var container = document.getElementById('status-history-list');
+    
+    if (data.history && data.history.length > 0) {
+      container.innerHTML = data.history.map(function(h) {
+        var date = new Date(h.created_at).toLocaleString();
+        return '<div class="flex items-center gap-3 p-2 bg-slate-50 rounded-lg text-sm">' +
+          '<div class="w-2 h-2 rounded-full bg-purple-500"></div>' +
+          '<div class="flex-1">' +
+            '<span class="font-medium">' + h.old_status + '</span> → <span class="font-medium">' + h.new_status + '</span>' +
+            '<div class="text-xs text-slate-500">' + (h.user_name || 'User') + ' • ' + date + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<p class="text-slate-500 text-sm">No status changes recorded.</p>';
+    }
+  } catch (err) {
+    console.error('Load history error:', err);
+  }
+}
+
+// Load claim notes
+async function loadClaimNotes(claimId) {
+  try {
+    var res = await fetch('/api/claims/' + claimId + '/notes', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    var container = document.getElementById('notes-list');
+    document.getElementById('notes-count').textContent = '(' + (data.notes ? data.notes.length : 0) + ')';
+    
+    if (data.notes && data.notes.length > 0) {
+      container.innerHTML = data.notes.map(function(note) {
+        var date = new Date(note.created_at).toLocaleString();
+        return '<div class="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-400">' +
+          '<div class="text-sm text-slate-800">' + escapeHtml(note.note_text) + '</div>' +
+          '<div class="flex justify-between items-center mt-2 text-xs text-slate-500">' +
+            '<span>' + (note.user_name || 'User') + ' • ' + date + '</span>' +
+            '<button onclick="deleteNote(' + note.id + ')" class="text-red-500 hover:text-red-700">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">No notes yet. Add a note above to keep track of claim activity.</p>';
+    }
+  } catch (err) {
+    console.error('Load notes error:', err);
+  }
+}
+
+// Add a new note
+async function addClaimNote() {
+  if (!currentClaimId) return;
+  
+  var noteText = document.getElementById('new-note-text').value.trim();
+  if (!noteText) {
+    alert('Please enter a note.');
+    return;
+  }
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/notes', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({ note_text: noteText })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('new-note-text').value = '';
+      loadClaimNotes(currentClaimId);
+    } else {
+      alert('Failed to add note: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Add note error:', err);
+    alert('Failed to add note.');
+  }
+}
+
+// Delete a note
+async function deleteNote(noteId) {
+  if (!currentClaimId || !confirm('Are you sure you want to delete this note?')) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/notes/' + noteId, {
+      method: 'DELETE',
+      headers: { 'X-Session-Token': sessionToken }
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadClaimNotes(currentClaimId);
+    }
+  } catch (err) {
+    console.error('Delete note error:', err);
+  }
+}
+
+// Load claim tasks
+async function loadClaimTasks(claimId) {
+  try {
+    var res = await fetch('/api/claims/' + claimId + '/tasks', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    var container = document.getElementById('tasks-list');
+    var pendingCount = data.tasks ? data.tasks.filter(function(t) { return t.status !== 'Completed'; }).length : 0;
+    document.getElementById('tasks-count').textContent = '(' + pendingCount + ' pending)';
+    
+    if (data.tasks && data.tasks.length > 0) {
+      container.innerHTML = data.tasks.map(function(task) {
+        var isCompleted = task.status === 'Completed';
+        var isOverdue = !isCompleted && task.due_date && new Date(task.due_date) < new Date();
+        var dueStr = task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date';
+        var bgClass = isCompleted ? 'bg-slate-50 opacity-60' : isOverdue ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200';
+        var checkClass = isCompleted ? 'bg-green-500 text-white' : 'bg-white border-2 border-slate-300 hover:border-green-500';
+        
+        return '<div class="p-3 rounded-lg border ' + bgClass + '">' +
+          '<div class="flex items-start gap-3">' +
+            '<button onclick="toggleTask(' + task.id + ', ' + (isCompleted ? 'false' : 'true') + ')" class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center ' + checkClass + '">' +
+              (isCompleted ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : '') +
+            '</button>' +
+            '<div class="flex-1">' +
+              '<div class="font-medium text-slate-800 ' + (isCompleted ? 'line-through' : '') + '">' + escapeHtml(task.title) + '</div>' +
+              (task.description ? '<div class="text-sm text-slate-600">' + escapeHtml(task.description) + '</div>' : '') +
+              '<div class="flex items-center gap-3 mt-1 text-xs">' +
+                '<span class="' + (isOverdue ? 'text-red-600 font-medium' : 'text-slate-500') + '">' + (isOverdue ? '⚠ Overdue: ' : 'Due: ') + dueStr + '</span>' +
+                '<button onclick="deleteTask(' + task.id + ')" class="text-red-500 hover:text-red-700">Delete</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">No tasks yet. Create a task above to track follow-ups.</p>';
+    }
+  } catch (err) {
+    console.error('Load tasks error:', err);
+  }
+}
+
+// Add a new task
+async function addClaimTask() {
+  if (!currentClaimId) return;
+  
+  var title = document.getElementById('new-task-title').value.trim();
+  if (!title) {
+    alert('Please enter a task title.');
+    return;
+  }
+  
+  var dueDate = document.getElementById('new-task-due').value || null;
+  var description = document.getElementById('new-task-desc').value.trim() || null;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/tasks', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({ title: title, description: description, due_date: dueDate })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('new-task-title').value = '';
+      document.getElementById('new-task-due').value = '';
+      document.getElementById('new-task-desc').value = '';
+      loadClaimTasks(currentClaimId);
+    } else {
+      alert('Failed to add task: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Add task error:', err);
+    alert('Failed to add task.');
+  }
+}
+
+// Toggle task completion
+async function toggleTask(taskId, completed) {
+  if (!currentClaimId) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/tasks/' + taskId, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({ status: completed ? 'Completed' : 'Pending' })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadClaimTasks(currentClaimId);
+    }
+  } catch (err) {
+    console.error('Toggle task error:', err);
+  }
+}
+
+// Delete a task
+async function deleteTask(taskId) {
+  if (!currentClaimId || !confirm('Are you sure you want to delete this task?')) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/tasks/' + taskId, {
+      method: 'DELETE',
+      headers: { 'X-Session-Token': sessionToken }
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadClaimTasks(currentClaimId);
+    }
+  } catch (err) {
+    console.error('Delete task error:', err);
+  }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // PDF Export function
