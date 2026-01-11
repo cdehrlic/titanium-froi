@@ -245,7 +245,7 @@ body { font-family: 'Inter', sans-serif; }
 <div class="flex items-center gap-4">
 <img src="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Titanium%20logo.webp" alt="Titanium Defense Group" class="h-16">
 <div class="border-l border-white/30 pl-4">
-<div class="text-xs text-green-400 uppercase tracking-widest font-medium">Workers Compensation</div>
+<div class="text-xs text-white/80 uppercase tracking-widest font-medium">Workers Compensation</div>
 <div class="text-xl font-bold">Claims Management Portal</div>
 </div>
 </div>
