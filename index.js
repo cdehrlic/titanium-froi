@@ -2,9 +2,81 @@ const express = require('express');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Database connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
+
+// Initialize database tables
+async function initDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        company_name VARCHAR(255),
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        phone VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_login TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS sessions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        token VARCHAR(255) UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS claims (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        reference_number VARCHAR(50) NOT NULL,
+        employee_name VARCHAR(255),
+        date_of_injury DATE,
+        injury_type VARCHAR(255),
+        body_part VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'Submitted',
+        form_data JSONB,
+        pdf_data BYTEA,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        doc_type VARCHAR(50) NOT NULL,
+        title VARCHAR(255),
+        description TEXT,
+        file_data BYTEA,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_claims_user ON claims(user_id);
+      CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
+    `);
+    console.log('Database tables initialized');
+  } catch (err) {
+    console.error('Database initialization error:', err.message);
+  }
+}
+
+initDB();
 
 const CONFIG = {
   CLAIMS_EMAIL: 'Chad@Titaniumdg.com',
@@ -16,11 +88,63 @@ const CONFIG = {
       user: process.env.SMTP_USER || '',
       pass: process.env.SMTP_PASS || ''
     }
-  }
+  },
+  SESSION_EXPIRY_HOURS: 24 * 7 // 1 week
 };
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Session middleware
+async function authenticateSession(req, res, next) {
+  const token = req.headers['x-session-token'] || req.query.token;
+  if (!token) {
+    return res.status(401).json({ error: 'No session token provided' });
+  }
+  
+  try {
+    const result = await pool.query(
+      `SELECT s.*, u.email, u.company_name, u.first_name, u.last_name 
+       FROM sessions s 
+       JOIN users u ON s.user_id = u.id 
+       WHERE s.token = $1 AND s.expires_at > NOW()`,
+      [token]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+    
+    req.user = result.rows[0];
+    req.userId = result.rows[0].user_id;
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Authentication error' });
+  }
+}
+
+// Optional auth - doesn't fail if no token, just sets req.user if valid
+async function optionalAuth(req, res, next) {
+  const token = req.headers['x-session-token'] || req.query.token;
+  if (token) {
+    try {
+      const result = await pool.query(
+        `SELECT s.*, u.email, u.company_name, u.first_name, u.last_name 
+         FROM sessions s 
+         JOIN users u ON s.user_id = u.id 
+         WHERE s.token = $1 AND s.expires_at > NOW()`,
+        [token]
+      );
+      if (result.rows.length > 0) {
+        req.user = result.rows[0];
+        req.userId = result.rows[0].user_id;
+      }
+    } catch (err) {
+      // Ignore auth errors for optional auth
+    }
+  }
+  next();
+}
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024, files: 20 } });
@@ -145,17 +269,318 @@ function generateClaimPDF(formData, referenceNumber) {
   });
 }
 
-app.get('/api/health', function(req, res) {
-  res.json({ status: 'ok' });
+// ==================== AUTH API ROUTES ====================
+
+// Register new user
+app.post('/api/auth/register', async function(req, res) {
+  try {
+    const { email, password, companyName, firstName, lastName, phone } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    
+    // Check if user exists
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+    
+    // Hash password and create user
+    const passwordHash = await bcrypt.hash(password, 12);
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash, company_name, first_name, last_name, phone) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, company_name, first_name, last_name`,
+      [email.toLowerCase(), passwordHash, companyName || null, firstName || null, lastName || null, phone || null]
+    );
+    
+    // Create session
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + CONFIG.SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+    await pool.query(
+      'INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [result.rows[0].id, token, expiresAt]
+    );
+    
+    res.json({ 
+      success: true, 
+      token,
+      user: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ error: 'Registration failed' });
+  }
 });
 
-app.post('/api/submit-claim', upload.any(), async function(req, res) {
+// Login
+app.post('/api/auth/login', async function(req, res) {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    
+    const result = await pool.query(
+      'SELECT id, email, password_hash, company_name, first_name, last_name FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    // Update last login
+    await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+    
+    // Create session
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + CONFIG.SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+    await pool.query(
+      'INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, token, expiresAt]
+    );
+    
+    res.json({ 
+      success: true, 
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        companyName: user.company_name,
+        firstName: user.first_name,
+        lastName: user.last_name
+      }
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Logout
+app.post('/api/auth/logout', authenticateSession, async function(req, res) {
+  try {
+    const token = req.headers['x-session-token'];
+    await pool.query('DELETE FROM sessions WHERE token = $1', [token]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Logout failed' });
+  }
+});
+
+// Get current user
+app.get('/api/auth/me', authenticateSession, async function(req, res) {
+  res.json({
+    user: {
+      id: req.user.user_id,
+      email: req.user.email,
+      companyName: req.user.company_name,
+      firstName: req.user.first_name,
+      lastName: req.user.last_name
+    }
+  });
+});
+
+// ==================== CLAIMS API ROUTES ====================
+
+// Get user's claims
+app.get('/api/claims', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT id, reference_number, employee_name, date_of_injury, injury_type, 
+              body_part, status, created_at, updated_at 
+       FROM claims WHERE user_id = $1 ORDER BY created_at DESC`,
+      [req.userId]
+    );
+    res.json({ claims: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch claims' });
+  }
+});
+
+// Get single claim
+app.get('/api/claims/:id', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    res.json({ claim: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch claim' });
+  }
+});
+
+// Download claim PDF
+app.get('/api/claims/:id/pdf', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT pdf_data, reference_number FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (result.rows.length === 0 || !result.rows[0].pdf_data) {
+      return res.status(404).json({ error: 'PDF not found' });
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${result.rows[0].reference_number}.pdf"`);
+    res.send(result.rows[0].pdf_data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to download PDF' });
+  }
+});
+
+// ==================== DOCUMENTS API ROUTES ====================
+
+// Get user's documents
+app.get('/api/documents', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT id, doc_type, title, description, metadata, created_at 
+       FROM documents WHERE user_id = $1 ORDER BY created_at DESC`,
+      [req.userId]
+    );
+    res.json({ documents: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// Save document
+app.post('/api/documents', authenticateSession, async function(req, res) {
+  try {
+    const { docType, title, description, fileData, metadata } = req.body;
+    const buffer = fileData ? Buffer.from(fileData, 'base64') : null;
+    
+    const result = await pool.query(
+      `INSERT INTO documents (user_id, doc_type, title, description, file_data, metadata) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, doc_type, title, created_at`,
+      [req.userId, docType, title, description, buffer, metadata || {}]
+    );
+    res.json({ success: true, document: result.rows[0] });
+  } catch (err) {
+    console.error('Save document error:', err);
+    res.status(500).json({ error: 'Failed to save document' });
+  }
+});
+
+// Download document
+app.get('/api/documents/:id/download', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT file_data, title, doc_type FROM documents WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (result.rows.length === 0 || !result.rows[0].file_data) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    const doc = result.rows[0];
+    const ext = doc.doc_type === 'c240' ? 'pdf' : 'pdf';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.title || 'document'}.${ext}"`);
+    res.send(doc.file_data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
+// Delete document
+app.delete('/api/documents/:id', authenticateSession, async function(req, res) {
+  try {
+    await pool.query('DELETE FROM documents WHERE id = $1 AND user_id = $2', [req.params.id, req.userId]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete document' });
+  }
+});
+
+// ==================== DASHBOARD STATS ====================
+
+app.get('/api/dashboard/stats', authenticateSession, async function(req, res) {
+  try {
+    const claimsResult = await pool.query(
+      `SELECT COUNT(*) as total, 
+              COUNT(*) FILTER (WHERE status = 'Submitted') as submitted,
+              COUNT(*) FILTER (WHERE status = 'Open') as open,
+              COUNT(*) FILTER (WHERE status = 'Closed') as closed
+       FROM claims WHERE user_id = $1`,
+      [req.userId]
+    );
+    
+    const docsResult = await pool.query(
+      'SELECT COUNT(*) as total FROM documents WHERE user_id = $1',
+      [req.userId]
+    );
+    
+    const recentClaims = await pool.query(
+      `SELECT id, reference_number, employee_name, status, created_at 
+       FROM claims WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5`,
+      [req.userId]
+    );
+    
+    res.json({
+      claims: claimsResult.rows[0],
+      documents: { total: docsResult.rows[0].total },
+      recentClaims: recentClaims.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+// ==================== EXISTING ROUTES ====================
+
+app.get('/api/health', function(req, res) {
+  res.json({ status: 'ok', db: pool ? 'connected' : 'not connected' });
+});
+
+app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, res) {
   try {
     var formData = JSON.parse(req.body.formData);
     var files = req.files || [];
     var referenceNumber = 'FROI-' + Date.now().toString().slice(-8);
     console.log('Processing claim ' + referenceNumber);
     var pdfBuffer = await generateClaimPDF(formData, referenceNumber);
+    
+    // Save to database if user is logged in
+    if (req.userId) {
+      try {
+        await pool.query(
+          `INSERT INTO claims (user_id, reference_number, employee_name, date_of_injury, injury_type, body_part, status, form_data, pdf_data)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [
+            req.userId,
+            referenceNumber,
+            (formData.firstName || '') + ' ' + (formData.lastName || ''),
+            formData.dateOfInjury || null,
+            formData.natureOfInjury || null,
+            formData.bodyPartInjured || null,
+            'Submitted',
+            formData,
+            pdfBuffer
+          ]
+        );
+        console.log('Claim saved to database for user ' + req.userId);
+      } catch (dbErr) {
+        console.error('Failed to save claim to DB:', dbErr.message);
+      }
+    }
+    
     var attachments = [{ filename: referenceNumber + '-Summary.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
     files.forEach(function(file) {
       attachments.push({ filename: file.originalname, content: file.buffer, contentType: file.mimetype });
@@ -207,12 +632,12 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
         from: CONFIG.SMTP.auth.user,
         to: formData.submitterEmail,
         subject: 'Claim Confirmation - ' + referenceNumber,
-        html: '<h2>Claim Submitted Successfully</h2><p>Your workers compensation claim for <strong>' + (formData.firstName || '') + ' ' + (formData.lastName || '') + '</strong> has been received.</p><p><strong>Reference Number:</strong> ' + referenceNumber + '</p><p><strong>Date of Injury:</strong> ' + (formData.dateOfInjury || 'N/A') + '</p><p>Our team will review the claim and follow up if additional information is needed.</p><p>Thank you,<br>Titanium Defense Group</p>'
+        html: '<h2>Claim Submitted Successfully</h2><p>Your workers compensation claim for <strong>' + (formData.firstName || '') + ' ' + (formData.lastName || '') + '</strong> has been received.</p><p><strong>Reference Number:</strong> ' + referenceNumber + '</p><p><strong>Date of Injury:</strong> ' + (formData.dateOfInjury || 'N/A') + '</p><p>Our team will review the claim and follow up if additional information is needed.</p><p>Thank you,<br>WCReporting</p>'
       });
     }
 
     console.log('Claim ' + referenceNumber + ' sent successfully');
-    res.json({ success: true, referenceNumber: referenceNumber });
+    res.json({ success: true, referenceNumber: referenceNumber, saved: !!req.userId });
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).json({ success: false, error: error.message });
@@ -788,9 +1213,69 @@ body { font-family: 'Inter', sans-serif; }
 .tab-inactive { background: #e2e8f0; color: #1e3a5f; }
 .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+.modal-overlay { background: rgba(0,0,0,0.5); }
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
+
+<!-- Auth Modal -->
+<div id="authModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+<div class="bg-gradient-to-r from-slate-800 to-slate-700 p-6">
+<h2 id="authTitle" class="text-2xl font-bold text-white">Sign In</h2>
+<p class="text-slate-300 text-sm mt-1">Access your claims and documents</p>
+</div>
+<div class="p-6">
+<div id="authError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"></div>
+<div id="loginForm">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+<input type="email" id="loginEmail" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="you@company.com">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+<input type="password" id="loginPassword" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="••••••••">
+</div>
+<button onclick="handleLogin()" class="w-full py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">Sign In</button>
+</div>
+<p class="text-center text-slate-600 mt-4">Don't have an account? <a href="#" onclick="showRegister()" class="text-green-600 font-semibold hover:underline">Create one</a></p>
+</div>
+<div id="registerForm" class="hidden">
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+<input type="text" id="regFirstName" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+<input type="text" id="regLastName" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+<input type="text" id="regCompany" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Email *</label>
+<input type="email" id="regEmail" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="you@company.com">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Password * <span class="text-slate-400 font-normal">(min 8 characters)</span></label>
+<input type="password" id="regPassword" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+</div>
+<button onclick="handleRegister()" class="w-full py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">Create Account</button>
+</div>
+<p class="text-center text-slate-600 mt-4">Already have an account? <a href="#" onclick="showLogin()" class="text-green-600 font-semibold hover:underline">Sign in</a></p>
+</div>
+</div>
+<button onclick="closeAuthModal()" class="absolute top-4 right-4 text-white/70 hover:text-white">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</button>
+</div>
+</div>
+
 <header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white p-4 shadow-lg">
 <div class="max-w-6xl mx-auto flex justify-between items-center">
 <a href="/" class="flex items-center gap-4 hover:opacity-90 transition">
@@ -802,6 +1287,28 @@ body { font-family: 'Inter', sans-serif; }
 <div class="text-xs text-slate-300 uppercase tracking-widest font-medium">Claims Management Portal</div>
 </div>
 </a>
+<div id="authSection" class="flex items-center gap-4">
+<div id="guestButtons">
+<button onclick="openAuthModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-400 transition">Sign In</button>
+</div>
+<div id="userSection" class="hidden flex items-center gap-4">
+<div class="text-right">
+<div id="userName" class="font-semibold text-white"></div>
+<div id="userCompany" class="text-xs text-slate-300"></div>
+</div>
+<div class="relative">
+<button onclick="toggleUserMenu()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center font-bold text-white">
+<span id="userInitial">U</span>
+</button>
+<div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 py-2">
+<a href="#" onclick="showTab('my-claims'); toggleUserMenu();" class="block px-4 py-2 text-slate-700 hover:bg-slate-50">My Claims</a>
+<a href="#" onclick="showTab('my-documents'); toggleUserMenu();" class="block px-4 py-2 text-slate-700 hover:bg-slate-50">My Documents</a>
+<hr class="my-2">
+<a href="#" onclick="handleLogout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sign Out</a>
+</div>
+</div>
+</div>
+</div>
 </div>
 </header>
 
@@ -813,6 +1320,8 @@ body { font-family: 'Inter', sans-serif; }
 <button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
 <button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
 <button type="button" onclick="showTab('emr')" id="tab-emr" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">EMR Calculator</button>
+<button type="button" onclick="showTab('my-claims')" id="tab-my-claims" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive hidden auth-required">My Claims</button>
+<button type="button" onclick="showTab('my-documents')" id="tab-my-documents" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive hidden auth-required">My Documents</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">OSHA 300 Compliance</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Fraud / Red Flags</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">HIPAA Generator</button>
@@ -821,6 +1330,42 @@ body { font-family: 'Inter', sans-serif; }
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Safety Committee</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Settlement Estimator</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Jurisdiction / Compliance</button>
+</div>
+
+<!-- My Claims Section -->
+<div id="section-my-claims" class="bg-white rounded-xl shadow p-6 hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-700">My Submitted Claims</h3>
+<button onclick="loadMyClaims()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+Refresh
+</button>
+</div>
+<div id="myClaimsList" class="space-y-3">
+<div class="text-center py-12 text-slate-500">
+<svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+<p class="font-medium">No claims submitted yet</p>
+<p class="text-sm mt-1">Claims you submit will appear here</p>
+</div>
+</div>
+</div>
+
+<!-- My Documents Section -->
+<div id="section-my-documents" class="bg-white rounded-xl shadow p-6 hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-700">My Saved Documents</h3>
+<button onclick="loadMyDocuments()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+Refresh
+</button>
+</div>
+<div id="myDocumentsList" class="space-y-3">
+<div class="text-center py-12 text-slate-500">
+<svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+<p class="font-medium">No documents saved yet</p>
+<p class="text-sm mt-1">C-240 forms and loss run reports will appear here</p>
+</div>
+</div>
 </div>
 
 <!-- Forms Section -->
@@ -1189,6 +1734,8 @@ function showTab(tab) {
   document.getElementById('section-analytics').classList.add('hidden');
   document.getElementById('section-c240').classList.add('hidden');
   document.getElementById('section-emr').classList.add('hidden');
+  document.getElementById('section-my-claims').classList.add('hidden');
+  document.getElementById('section-my-documents').classList.add('hidden');
   document.getElementById('tab-forms').classList.remove('tab-active');
   document.getElementById('tab-forms').classList.add('tab-inactive');
   document.getElementById('tab-claim').classList.remove('tab-active');
@@ -1199,12 +1746,22 @@ function showTab(tab) {
   document.getElementById('tab-c240').classList.add('tab-inactive');
   document.getElementById('tab-emr').classList.remove('tab-active');
   document.getElementById('tab-emr').classList.add('tab-inactive');
+  if (document.getElementById('tab-my-claims')) {
+    document.getElementById('tab-my-claims').classList.remove('tab-active');
+    document.getElementById('tab-my-claims').classList.add('tab-inactive');
+  }
+  if (document.getElementById('tab-my-documents')) {
+    document.getElementById('tab-my-documents').classList.remove('tab-active');
+    document.getElementById('tab-my-documents').classList.add('tab-inactive');
+  }
   
   document.getElementById('section-' + tab).classList.remove('hidden');
   document.getElementById('tab-' + tab).classList.add('tab-active');
   document.getElementById('tab-' + tab).classList.remove('tab-inactive');
   
   if (tab === 'claim') render();
+  if (tab === 'my-claims') loadMyClaims();
+  if (tab === 'my-documents') loadMyDocuments();
 }
 
 // PDF Export function
@@ -1688,11 +2245,17 @@ function submitClaim() {
     }
   }
   
-  fetch('/api/submit-claim', { method: 'POST', body: fd })
+  var fetchOpts = { method: 'POST', body: fd };
+  if (sessionToken) {
+    fetchOpts.headers = { 'X-Session-Token': sessionToken };
+  }
+  
+  fetch('/api/submit-claim', fetchOpts)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        document.getElementById('form-container').innerHTML = '<div class="text-center py-8"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mb-2">Claim Submitted!</h2><p class="text-slate-600 mb-4">Reference: ' + data.referenceNumber + '</p><p class="text-slate-600 mb-4">Sent to: Chad@Titaniumdg.com</p><button type="button" onclick="location.reload()" class="px-6 py-2 bg-slate-700 text-white rounded-lg">Submit Another</button></div>';
+        var savedMsg = data.saved ? '<p class="text-green-600 mb-4">✓ Claim saved to your account</p>' : (sessionToken ? '' : '<p class="text-amber-600 mb-4">Sign in to save future claims to your account</p>');
+        document.getElementById('form-container').innerHTML = '<div class="text-center py-8"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mb-2">Claim Submitted!</h2><p class="text-slate-600 mb-4">Reference: ' + data.referenceNumber + '</p>' + savedMsg + '<button type="button" onclick="location.reload()" class="px-6 py-2 bg-slate-700 text-white rounded-lg">Submit Another</button></div>';
       } else {
         alert('Error: ' + data.error);
         btn.disabled = false;
@@ -1841,6 +2404,263 @@ function calculateEMR() {
   
   // Scroll to results
   document.getElementById('emr-results').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== AUTH FUNCTIONS ====================
+var sessionToken = localStorage.getItem('wcr_token');
+var currentUser = JSON.parse(localStorage.getItem('wcr_user') || 'null');
+
+function openAuthModal() {
+  document.getElementById('authModal').classList.remove('hidden');
+  document.getElementById('authError').classList.add('hidden');
+  showLogin();
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').classList.add('hidden');
+}
+
+function showLogin() {
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('registerForm').classList.add('hidden');
+  document.getElementById('authTitle').textContent = 'Sign In';
+}
+
+function showRegister() {
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('registerForm').classList.remove('hidden');
+  document.getElementById('authTitle').textContent = 'Create Account';
+}
+
+function showAuthError(msg) {
+  var el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+async function handleLogin() {
+  var email = document.getElementById('loginEmail').value;
+  var password = document.getElementById('loginPassword').value;
+  if (!email || !password) { showAuthError('Please enter email and password'); return; }
+  
+  try {
+    var res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    var data = await res.json();
+    if (!res.ok) { showAuthError(data.error || 'Login failed'); return; }
+    
+    sessionToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem('wcr_token', data.token);
+    localStorage.setItem('wcr_user', JSON.stringify(data.user));
+    closeAuthModal();
+    updateAuthUI();
+  } catch (err) {
+    showAuthError('Connection error. Please try again.');
+  }
+}
+
+async function handleRegister() {
+  var email = document.getElementById('regEmail').value;
+  var password = document.getElementById('regPassword').value;
+  var firstName = document.getElementById('regFirstName').value;
+  var lastName = document.getElementById('regLastName').value;
+  var companyName = document.getElementById('regCompany').value;
+  
+  if (!email || !password) { showAuthError('Email and password are required'); return; }
+  if (password.length < 8) { showAuthError('Password must be at least 8 characters'); return; }
+  
+  try {
+    var res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, firstName, lastName, companyName })
+    });
+    var data = await res.json();
+    if (!res.ok) { showAuthError(data.error || 'Registration failed'); return; }
+    
+    sessionToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem('wcr_token', data.token);
+    localStorage.setItem('wcr_user', JSON.stringify(data.user));
+    closeAuthModal();
+    updateAuthUI();
+  } catch (err) {
+    showAuthError('Connection error. Please try again.');
+  }
+}
+
+async function handleLogout() {
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { 'X-Session-Token': sessionToken }
+    });
+  } catch (err) {}
+  
+  sessionToken = null;
+  currentUser = null;
+  localStorage.removeItem('wcr_token');
+  localStorage.removeItem('wcr_user');
+  updateAuthUI();
+  showTab('forms');
+}
+
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('hidden');
+}
+
+function updateAuthUI() {
+  if (currentUser && sessionToken) {
+    document.getElementById('guestButtons').classList.add('hidden');
+    document.getElementById('userSection').classList.remove('hidden');
+    document.getElementById('userName').textContent = (currentUser.firstName || '') + ' ' + (currentUser.lastName || currentUser.email);
+    document.getElementById('userCompany').textContent = currentUser.companyName || '';
+    document.getElementById('userInitial').textContent = (currentUser.firstName || currentUser.email || 'U')[0].toUpperCase();
+    
+    // Show auth-required tabs
+    document.querySelectorAll('.auth-required').forEach(function(el) {
+      el.classList.remove('hidden');
+    });
+  } else {
+    document.getElementById('guestButtons').classList.remove('hidden');
+    document.getElementById('userSection').classList.add('hidden');
+    
+    // Hide auth-required tabs
+    document.querySelectorAll('.auth-required').forEach(function(el) {
+      el.classList.add('hidden');
+    });
+  }
+}
+
+async function loadMyClaims() {
+  if (!sessionToken) return;
+  
+  var container = document.getElementById('myClaimsList');
+  container.innerHTML = '<div class="text-center py-8"><div class="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div><p class="mt-2 text-slate-500">Loading claims...</p></div>';
+  
+  try {
+    var res = await fetch('/api/claims', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    if (data.claims && data.claims.length > 0) {
+      container.innerHTML = data.claims.map(function(claim) {
+        var date = new Date(claim.created_at).toLocaleDateString();
+        var statusColor = claim.status === 'Submitted' ? 'bg-blue-100 text-blue-700' : claim.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+        return '<div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition">' +
+          '<div class="flex-1">' +
+            '<div class="font-semibold text-slate-800">' + (claim.employee_name || 'Unknown') + '</div>' +
+            '<div class="text-sm text-slate-500">' + claim.reference_number + ' • ' + date + '</div>' +
+            '<div class="text-sm text-slate-500">Injury: ' + (claim.injury_type || 'N/A') + ' - ' + (claim.body_part || 'N/A') + '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="px-3 py-1 rounded-full text-xs font-medium ' + statusColor + '">' + claim.status + '</span>' +
+            '<a href="/api/claims/' + claim.id + '/pdf?token=' + sessionToken + '" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm">Download PDF</a>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><p class="font-medium">No claims submitted yet</p><p class="text-sm mt-1">Claims you submit will appear here</p></div>';
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load claims</div>';
+  }
+}
+
+async function loadMyDocuments() {
+  if (!sessionToken) return;
+  
+  var container = document.getElementById('myDocumentsList');
+  container.innerHTML = '<div class="text-center py-8"><div class="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div><p class="mt-2 text-slate-500">Loading documents...</p></div>';
+  
+  try {
+    var res = await fetch('/api/documents', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    if (data.documents && data.documents.length > 0) {
+      container.innerHTML = data.documents.map(function(doc) {
+        var date = new Date(doc.created_at).toLocaleDateString();
+        var typeLabel = doc.doc_type === 'c240' ? 'C-240 Form' : doc.doc_type === 'lossrun' ? 'Loss Run Report' : doc.doc_type;
+        return '<div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition">' +
+          '<div class="flex-1">' +
+            '<div class="font-semibold text-slate-800">' + (doc.title || typeLabel) + '</div>' +
+            '<div class="text-sm text-slate-500">' + typeLabel + ' • ' + date + '</div>' +
+            (doc.description ? '<div class="text-sm text-slate-500">' + doc.description + '</div>' : '') +
+          '</div>' +
+          '<div class="flex items-center gap-2">' +
+            '<a href="/api/documents/' + doc.id + '/download?token=' + sessionToken + '" class="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm">Download</a>' +
+            '<button onclick="deleteDocument(' + doc.id + ')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg><p class="font-medium">No documents saved yet</p><p class="text-sm mt-1">C-240 forms and loss run reports will appear here</p></div>';
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load documents</div>';
+  }
+}
+
+async function deleteDocument(id) {
+  if (!confirm('Are you sure you want to delete this document?')) return;
+  try {
+    await fetch('/api/documents/' + id, { method: 'DELETE', headers: { 'X-Session-Token': sessionToken } });
+    loadMyDocuments();
+  } catch (err) {
+    alert('Failed to delete document');
+  }
+}
+
+async function saveDocument(docType, title, description, pdfBytes) {
+  if (!sessionToken) {
+    alert('Please sign in to save documents');
+    openAuthModal();
+    return false;
+  }
+  
+  try {
+    var base64 = btoa(String.fromCharCode.apply(null, pdfBytes));
+    var res = await fetch('/api/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionToken },
+      body: JSON.stringify({ docType, title, description, fileData: base64 })
+    });
+    var data = await res.json();
+    if (data.success) {
+      alert('Document saved to your account!');
+      return true;
+    }
+  } catch (err) {}
+  alert('Failed to save document');
+  return false;
+}
+
+// Close user menu when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#userSection')) {
+    document.getElementById('userMenu').classList.add('hidden');
+  }
+});
+
+// Initialize auth state on load
+updateAuthUI();
+
+// Verify session on load
+if (sessionToken) {
+  fetch('/api/auth/me', { headers: { 'X-Session-Token': sessionToken } })
+    .then(function(res) {
+      if (!res.ok) {
+        sessionToken = null;
+        currentUser = null;
+        localStorage.removeItem('wcr_token');
+        localStorage.removeItem('wcr_user');
+        updateAuthUI();
+      }
+    })
+    .catch(function() {});
 }
 <\/script>
 </body>
