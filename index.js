@@ -1430,6 +1430,7 @@ Refresh
 </a>
 </div>
 </div>
+</div>
 
 <!-- Analytics Section -->
 <div id="section-analytics" class="hidden">
