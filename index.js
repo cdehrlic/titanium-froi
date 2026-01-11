@@ -230,6 +230,7 @@ var HTML = `<!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; }
@@ -254,10 +255,11 @@ body { font-family: 'Inter', sans-serif; }
 
 <div class="max-w-6xl mx-auto p-4">
 <!-- Navigation Tabs -->
-<div class="flex gap-2 mb-4">
+<div class="flex gap-2 mb-4 flex-wrap">
 <button onclick="showTab('forms')" id="tab-forms" class="px-6 py-3 rounded-t-lg font-semibold tab-active">Download Forms</button>
 <button onclick="showTab('claim')" id="tab-claim" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Submit a Claim</button>
 <button onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
+<button onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
 </div>
 
 <!-- Forms Section -->
@@ -394,6 +396,180 @@ Download PDF Report
 
 </div>
 </div>
+
+<!-- C-240 Form Section -->
+<div id="section-c240" class="hidden">
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h3 class="text-xl font-bold text-slate-700 mb-2">C-240 Employer's Statement of Wage Earnings</h3>
+<p class="text-slate-600 mb-4">Auto-populate the NY Workers' Compensation C-240 form. Upload payroll data and fill in the required information.</p>
+
+<div class="grid lg:grid-cols-2 gap-6">
+<!-- Left Column - Manual Entry -->
+<div class="space-y-4">
+<h4 class="font-bold text-slate-700 border-b pb-2">Claim Information</h4>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Date of Injury *</label><input type="date" id="c240-injuryDate" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">WCB Case #</label><input type="text" id="c240-wcbCase" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Carrier Case #</label><input type="text" id="c240-carrierCase" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+
+<h4 class="font-bold text-slate-700 border-b pb-2 pt-2">Injured Worker Information</h4>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Last Name *</label><input type="text" id="c240-claimantLast" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">First Name *</label><input type="text" id="c240-claimantFirst" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">MI</label><input type="text" id="c240-claimantMI" maxlength="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 1</label><input type="text" id="c240-claimantAddr1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 2</label><input type="text" id="c240-claimantAddr2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">City</label><input type="text" id="c240-claimantCity" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">State</label><input type="text" id="c240-claimantState" maxlength="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Zip</label><input type="text" id="c240-claimantZip" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Job Title</label><input type="text" id="c240-claimantJob" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">SSN</label><input type="text" id="c240-claimantSSN" placeholder="XXX-XX-XXXX" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+
+<h4 class="font-bold text-slate-700 border-b pb-2 pt-2">Insurer Information</h4>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Insurer Name</label><input type="text" id="c240-insurerName" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Insurer ID (W#)</label><input type="text" id="c240-insurerId" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 1</label><input type="text" id="c240-insurerAddr1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 2</label><input type="text" id="c240-insurerAddr2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">City</label><input type="text" id="c240-insurerCity" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">State</label><input type="text" id="c240-insurerState" maxlength="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Zip</label><input type="text" id="c240-insurerZip" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Phone</label><input type="tel" id="c240-insurerPhone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Fax</label><input type="tel" id="c240-insurerFax" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Email</label><input type="email" id="c240-insurerEmail" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+</div>
+
+<!-- Right Column -->
+<div class="space-y-4">
+<h4 class="font-bold text-slate-700 border-b pb-2">Employer Information</h4>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Employer Name *</label><input type="text" id="c240-employerName" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 1</label><input type="text" id="c240-employerAddr1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Address Line 2</label><input type="text" id="c240-employerAddr2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">City</label><input type="text" id="c240-employerCity" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">State</label><input type="text" id="c240-employerState" maxlength="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Zip</label><input type="text" id="c240-employerZip" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Phone</label><input type="tel" id="c240-employerPhone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Federal Tax ID</label><input type="text" id="c240-employerTaxId" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Tax ID Type</label>
+<div class="flex gap-4 mt-1">
+<label class="flex items-center gap-2"><input type="radio" name="taxIdType" value="SSN" class="text-slate-600"> SSN</label>
+<label class="flex items-center gap-2"><input type="radio" name="taxIdType" value="EIN" checked class="text-slate-600"> EIN</label>
+</div>
+</div>
+
+<h4 class="font-bold text-slate-700 border-b pb-2 pt-2">Wage Questions</h4>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Pay Basis</label>
+<div class="flex gap-3 flex-wrap mt-1">
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="payBasis" value="hourly"> Hourly</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="payBasis" value="daily"> Daily</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="payBasis" value="weekly"> Weekly</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="payBasis" value="monthly"> Monthly</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="payBasis" value="annually"> Annually</label>
+</div>
+</div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Days Per Week</label>
+<div class="flex gap-3 mt-1">
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="daysPerWeek" value="5"> 5</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="daysPerWeek" value="6"> 6</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="daysPerWeek" value="7"> 7</label>
+<label class="flex items-center gap-1 text-sm"><input type="radio" name="daysPerWeek" value="other"> Other</label>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Additional Comp? (board, tips, etc.)</label>
+<select id="c240-addComp" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"><option value="no">No</option><option value="yes">Yes</option></select></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">If Yes, Weekly Value</label><input type="text" id="c240-addCompValue" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Wage Adjustment?</label>
+<select id="c240-wageAdj" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"><option value="no">No</option><option value="yes">Yes</option></select></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Laid Off?</label>
+<select id="c240-laidOff" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<h4 class="font-bold text-slate-700 border-b pb-2 pt-2">Prepared By</h4>
+<div class="grid grid-cols-3 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Last Name *</label><input type="text" id="c240-prepLast" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">First Name *</label><input type="text" id="c240-prepFirst" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">MI</label><input type="text" id="c240-prepMI" maxlength="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Title</label><input type="text" id="c240-prepTitle" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Phone</label><input type="tel" id="c240-prepPhone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Employer Name</label><input type="text" id="c240-prepEmployer" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+<div><label class="block text-xs font-medium text-slate-600 mb-1">Email</label><input type="email" id="c240-prepEmail" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Payroll Upload Section -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h4 class="font-bold text-slate-700 mb-4">Payroll Data (52 Weeks)</h4>
+<p class="text-sm text-slate-600 mb-4">Upload an Excel or CSV file with payroll data. The file should have columns for: Week Ending Date, Days Paid, and Gross Amount Paid.</p>
+
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
+<svg class="w-12 h-12 mx-auto text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+<p class="text-slate-700 font-medium mb-2">Upload Payroll File</p>
+<p class="text-slate-500 text-sm mb-3">Excel (.xlsx) or CSV</p>
+<input type="file" id="c240-payrollFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="processPayrollFile(this.files[0])">
+<button onclick="document.getElementById('c240-payrollFile').click()" class="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 text-sm">Select File</button>
+</div>
+
+<div>
+<p class="text-sm font-medium text-slate-700 mb-2">Payroll Summary</p>
+<div id="c240-payrollSummary" class="bg-slate-50 rounded-lg p-4 text-sm">
+<p class="text-slate-500">No payroll data loaded</p>
+</div>
+</div>
+</div>
+
+<div id="c240-payrollPreview" class="mt-4 hidden">
+<h5 class="font-medium text-slate-700 mb-2">Payroll Preview (First 10 Weeks)</h5>
+<div class="overflow-x-auto">
+<table class="w-full text-sm border">
+<thead class="bg-slate-100">
+<tr><th class="px-3 py-2 text-left border">Week #</th><th class="px-3 py-2 text-left border">Week Ending</th><th class="px-3 py-2 text-left border">Days Paid</th><th class="px-3 py-2 text-right border">Gross Amount</th></tr>
+</thead>
+<tbody id="c240-payrollTableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Generate Button -->
+<div class="bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-lg p-6 text-center">
+<button onclick="generateC240()" class="px-8 py-3 bg-white text-slate-800 rounded-lg hover:bg-slate-100 font-bold text-lg flex items-center gap-3 mx-auto">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+Generate C-240 PDF
+</button>
+<p class="text-slate-300 text-sm mt-2">The completed form will be downloaded as a PDF</p>
+</div>
+</div>
 </div>
 
 <footer class="bg-slate-800 text-slate-400 py-6 mt-8 text-center text-sm">
@@ -406,12 +582,15 @@ function showTab(tab) {
   document.getElementById('section-forms').classList.add('hidden');
   document.getElementById('section-claim').classList.add('hidden');
   document.getElementById('section-analytics').classList.add('hidden');
+  document.getElementById('section-c240').classList.add('hidden');
   document.getElementById('tab-forms').classList.remove('tab-active');
   document.getElementById('tab-forms').classList.add('tab-inactive');
   document.getElementById('tab-claim').classList.remove('tab-active');
   document.getElementById('tab-claim').classList.add('tab-inactive');
   document.getElementById('tab-analytics').classList.remove('tab-active');
   document.getElementById('tab-analytics').classList.add('tab-inactive');
+  document.getElementById('tab-c240').classList.remove('tab-active');
+  document.getElementById('tab-c240').classList.add('tab-inactive');
   
   document.getElementById('section-' + tab).classList.remove('hidden');
   document.getElementById('tab-' + tab).classList.add('tab-active');
@@ -730,6 +909,224 @@ function generateRecommendations(data, injuries, bodyParts, causes) {
     recsHtml += '</div>';
   });
   document.getElementById('recommendations').innerHTML = recsHtml;
+}
+
+// C-240 Form Functions
+var c240PayrollData = [];
+
+function processPayrollFile(file) {
+  if (!file) return;
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = new Uint8Array(e.target.result);
+    var workbook = XLSX.read(data, { type: 'array', cellDates: true });
+    var sheetName = workbook.SheetNames[0];
+    var sheet = workbook.Sheets[sheetName];
+    var jsonData = XLSX.utils.sheet_to_json(sheet);
+    
+    // Try to map columns to expected format
+    c240PayrollData = jsonData.map(function(row, idx) {
+      var weekEnd = row['Week Ending'] || row['Week Ending Date'] || row['WeekEnding'] || row['Date'] || row['Pay Date'] || Object.values(row)[0];
+      var days = row['Days'] || row['Days Paid'] || row['DaysPaid'] || row['Days Worked'] || 5;
+      var gross = row['Gross'] || row['Gross Amount'] || row['GrossAmount'] || row['Gross Pay'] || row['Amount'] || row['Earnings'] || Object.values(row)[1] || 0;
+      
+      return {
+        week: idx + 1,
+        weekEnding: weekEnd instanceof Date ? weekEnd : new Date(weekEnd),
+        daysPaid: parseFloat(days) || 0,
+        grossAmount: parseFloat(String(gross).replace(/[$,]/g, '')) || 0
+      };
+    }).filter(function(row) {
+      return !isNaN(row.grossAmount) && row.grossAmount > 0;
+    }).slice(0, 52);
+    
+    updatePayrollSummary();
+    updatePayrollPreview();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function updatePayrollSummary() {
+  var totalDays = c240PayrollData.reduce(function(sum, row) { return sum + row.daysPaid; }, 0);
+  var totalGross = c240PayrollData.reduce(function(sum, row) { return sum + row.grossAmount; }, 0);
+  var avgWeekly = c240PayrollData.length > 0 ? totalGross / c240PayrollData.length : 0;
+  
+  var html = '<div class="space-y-2">';
+  html += '<div class="flex justify-between"><span class="text-slate-600">Weeks Loaded:</span><span class="font-bold">' + c240PayrollData.length + ' of 52</span></div>';
+  html += '<div class="flex justify-between"><span class="text-slate-600">Total Days Paid:</span><span class="font-bold">' + totalDays.toFixed(0) + '</span></div>';
+  html += '<div class="flex justify-between"><span class="text-slate-600">Total Gross Paid:</span><span class="font-bold text-green-600">$' + totalGross.toLocaleString(undefined, {minimumFractionDigits: 2}) + '</span></div>';
+  html += '<div class="flex justify-between"><span class="text-slate-600">Avg Weekly Wage:</span><span class="font-bold">$' + avgWeekly.toLocaleString(undefined, {minimumFractionDigits: 2}) + '</span></div>';
+  html += '</div>';
+  
+  document.getElementById('c240-payrollSummary').innerHTML = html;
+}
+
+function updatePayrollPreview() {
+  if (c240PayrollData.length === 0) {
+    document.getElementById('c240-payrollPreview').classList.add('hidden');
+    return;
+  }
+  
+  document.getElementById('c240-payrollPreview').classList.remove('hidden');
+  var html = '';
+  c240PayrollData.slice(0, 10).forEach(function(row) {
+    var dateStr = row.weekEnding instanceof Date && !isNaN(row.weekEnding) ? row.weekEnding.toLocaleDateString() : 'N/A';
+    html += '<tr class="border-b">';
+    html += '<td class="px-3 py-2 border">' + row.week + '</td>';
+    html += '<td class="px-3 py-2 border">' + dateStr + '</td>';
+    html += '<td class="px-3 py-2 border">' + row.daysPaid + '</td>';
+    html += '<td class="px-3 py-2 border text-right">$' + row.grossAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('c240-payrollTableBody').innerHTML = html;
+}
+
+async function generateC240() {
+  var PDFLib = window.PDFLib;
+  
+  // Fetch the blank C-240 form
+  var formUrl = 'https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/C240.pdf';
+  var existingPdfBytes;
+  
+  try {
+    var response = await fetch(formUrl);
+    if (!response.ok) throw new Error('Could not load C-240 form');
+    existingPdfBytes = await response.arrayBuffer();
+  } catch (err) {
+    alert('Error loading C-240 form. Please ensure C240.pdf is uploaded to your GitHub repository.');
+    return;
+  }
+  
+  var pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+  var form = pdfDoc.getForm();
+  
+  // Helper function to safely set field values
+  function setField(fieldName, value) {
+    try {
+      var field = form.getTextField(fieldName);
+      if (field && value) field.setText(String(value));
+    } catch(e) { console.log('Field not found: ' + fieldName); }
+  }
+  
+  function setCheckbox(fieldName, checked) {
+    try {
+      var field = form.getCheckBox(fieldName);
+      if (field) {
+        if (checked) field.check();
+        else field.uncheck();
+      }
+    } catch(e) { console.log('Checkbox not found: ' + fieldName); }
+  }
+  
+  // Format date for form
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr);
+    return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+  }
+  
+  // Page 1 - Claim Information
+  setField('form1[0].#subform[1].#subform[5].injuryDate[0]', formatDate(document.getElementById('c240-injuryDate').value));
+  setField('form1[0].#subform[1].#subform[5].WCBCaseNumber[0]', document.getElementById('c240-wcbCase').value);
+  setField('form1[0].#subform[1].#subform[5].carrierCaseNumber[0]', document.getElementById('c240-carrierCase').value);
+  
+  // Injured Worker
+  setField('form1[0].#subform[1].#subform[6].claimantLastName[0]', document.getElementById('c240-claimantLast').value);
+  setField('form1[0].#subform[1].#subform[6].claimantFirstName[0]', document.getElementById('c240-claimantFirst').value);
+  setField('form1[0].#subform[1].#subform[6].claimantMiddleInitial[0]', document.getElementById('c240-claimantMI').value);
+  setField('form1[0].#subform[1].#subform[6].claimantAddr1[0]', document.getElementById('c240-claimantAddr1').value);
+  setField('form1[0].#subform[1].#subform[6].claimantAddr2[0]', document.getElementById('c240-claimantAddr2').value);
+  setField('form1[0].#subform[1].#subform[6].claimantCity[0]', document.getElementById('c240-claimantCity').value);
+  setField('form1[0].#subform[1].#subform[6].claimantState[0]', document.getElementById('c240-claimantState').value);
+  setField('form1[0].#subform[1].#subform[6].claimantZip[0]', document.getElementById('c240-claimantZip').value);
+  setField('form1[0].#subform[1].#subform[6].claimantJobTitle[0]', document.getElementById('c240-claimantJob').value);
+  setField('form1[0].#subform[1].#subform[6].claimantSSN[0]', document.getElementById('c240-claimantSSN').value);
+  
+  // Insurer
+  setField('form1[0].#subform[1].#subform[7].carrierName[0]', document.getElementById('c240-insurerName').value);
+  setField('form1[0].#subform[1].#subform[7].carrierCodeNumber[0]', document.getElementById('c240-insurerId').value);
+  setField('form1[0].#subform[1].#subform[7].carrierAddr1[0]', document.getElementById('c240-insurerAddr1').value);
+  setField('form1[0].#subform[1].#subform[7].carrierAddr2[0]', document.getElementById('c240-insurerAddr2').value);
+  setField('form1[0].#subform[1].#subform[7].carrierCity[0]', document.getElementById('c240-insurerCity').value);
+  setField('form1[0].#subform[1].#subform[7].carrierState[0]', document.getElementById('c240-insurerState').value);
+  setField('form1[0].#subform[1].#subform[7].carrierZip[0]', document.getElementById('c240-insurerZip').value);
+  setField('form1[0].#subform[1].#subform[7].carrierPhone[0]', document.getElementById('c240-insurerPhone').value);
+  setField('form1[0].#subform[1].#subform[7].carrierFax[0]', document.getElementById('c240-insurerFax').value);
+  setField('form1[0].#subform[1].#subform[7].carrierEmail[0]', document.getElementById('c240-insurerEmail').value);
+  
+  // Employer
+  setField('form1[0].#subform[1].#subform[8].employerName[0]', document.getElementById('c240-employerName').value);
+  setField('form1[0].#subform[1].#subform[8].employerAddr1[0]', document.getElementById('c240-employerAddr1').value);
+  setField('form1[0].#subform[1].#subform[8].employerAddr2[0]', document.getElementById('c240-employerAddr2').value);
+  setField('form1[0].#subform[1].#subform[8].employerCity[0]', document.getElementById('c240-employerCity').value);
+  setField('form1[0].#subform[1].#subform[8].employerState[0]', document.getElementById('c240-employerState').value);
+  setField('form1[0].#subform[1].#subform[8].employerZip[0]', document.getElementById('c240-employerZip').value);
+  setField('form1[0].#subform[1].#subform[8].employerPhone[0]', document.getElementById('c240-employerPhone').value);
+  setField('form1[0].#subform[1].#subform[8].federalIDNumber[0]', document.getElementById('c240-employerTaxId').value);
+  
+  // Pay basis checkboxes
+  var payBasis = document.querySelector('input[name="payBasis"]:checked');
+  if (payBasis) {
+    setCheckbox('form1[0].#subform[10].#subform[14].Hourly[0]', payBasis.value === 'hourly');
+    setCheckbox('form1[0].#subform[10].#subform[14].Daily[0]', payBasis.value === 'daily');
+    setCheckbox('form1[0].#subform[10].#subform[14].Weekly[0]', payBasis.value === 'weekly');
+    setCheckbox('form1[0].#subform[10].#subform[14].Monthly[0]', payBasis.value === 'monthly');
+    setCheckbox('form1[0].#subform[10].#subform[14].Annually[0]', payBasis.value === 'annually');
+  }
+  
+  // Totals from payroll
+  var totalDays = c240PayrollData.reduce(function(sum, row) { return sum + row.daysPaid; }, 0);
+  var totalGross = c240PayrollData.reduce(function(sum, row) { return sum + row.grossAmount; }, 0);
+  setField('form1[0].#subform[10].#subform[14].totalDaysPaid[0]', totalDays.toFixed(0));
+  setField('form1[0].#subform[10].#subform[14].totalGrossPaid[0]', '$' + totalGross.toLocaleString(undefined, {minimumFractionDigits: 2}));
+  
+  // Prepared By
+  setField('form1[0].#subform[10].#subform[19].preparedByLastName[0]', document.getElementById('c240-prepLast').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByFirstName[0]', document.getElementById('c240-prepFirst').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByMiddleInitial[0]', document.getElementById('c240-prepMI').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByEmployerName[0]', document.getElementById('c240-prepEmployer').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByTitle[0]', document.getElementById('c240-prepTitle').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByPhoneNumber[0]', document.getElementById('c240-prepPhone').value);
+  setField('form1[0].#subform[10].#subform[19].preparedByEmail[0]', document.getElementById('c240-prepEmail').value);
+  setField('form1[0].#subform[10].#subform[19].submitted[0]', formatDate(new Date()));
+  
+  // Page 2 - Fill in payroll table (52 weeks)
+  // The form has fields for weeks 1-52 in a specific pattern
+  var weekFieldMap = [
+    [1, 19, 37], [2, 20, 38], [3, 21, 39], [4, 22, 40], [5, 23, 41], [6, 24, 42],
+    [7, 25, 43], [8, 26, 44], [9, 27, 45], [10, 28, 46], [11, 29, 47], [12, 30, 48],
+    [13, 31, 49], [14, 32, 50], [15, 33, 51], [16, 34, 52], [17, 35], [18, 36]
+  ];
+  
+  c240PayrollData.forEach(function(row, idx) {
+    var weekNum = idx + 1;
+    var dateStr = row.weekEnding instanceof Date && !isNaN(row.weekEnding) ? formatDate(row.weekEnding) : '';
+    var rowIdx = (weekNum - 1) % 18;
+    var colIdx = Math.floor((weekNum - 1) / 18);
+    
+    if (weekNum <= 52) {
+      var suffix = weekNum;
+      if (weekNum > 18 && weekNum <= 36) suffix = weekNum;
+      else if (weekNum > 36) suffix = weekNum;
+      
+      setField('form1[0].#subform[10].#subform[21].Table1[0].Row' + ((rowIdx % 18) + 1) + '[0].weekEndingDate' + weekNum + '[0]', dateStr);
+      setField('form1[0].#subform[10].#subform[21].Table1[0].Row' + ((rowIdx % 18) + 1) + '[0].daysWorked' + weekNum + '[0]', row.daysPaid.toString());
+      setField('form1[0].#subform[10].#subform[21].Table1[0].Row' + ((rowIdx % 18) + 1) + '[0].grossAmountPaid' + weekNum + '[0]', row.grossAmount.toFixed(2));
+    }
+  });
+  
+  // Flatten and save
+  form.flatten();
+  var pdfBytes = await pdfDoc.save();
+  
+  // Download
+  var blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  var claimantName = document.getElementById('c240-claimantLast').value || 'Employee';
+  link.download = 'C240_' + claimantName + '_' + new Date().toISOString().split('T')[0] + '.pdf';
+  link.click();
 }
 
 // PDF Report Generation
