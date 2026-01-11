@@ -634,10 +634,19 @@ function analyzeData(data) {
   
   var causeCounts = {};
   data.forEach(function(row) { 
-    var c = row.ResultingInjuryDesc || 'Unknown'; 
-    // Get first 1-2 words only
-    var words = c.split(/[\s,]+/).slice(0, 2).join(' ');
-    causeCounts[words] = (causeCounts[words] || 0) + 1; 
+    var c = (row.ResultingInjuryDesc || 'Unknown').toLowerCase();
+    var category = 'Other';
+    if (c.includes('fall') || c.includes('slip')) category = 'Slip/Fall';
+    else if (c.includes('strain') || c.includes('sprain') || c.includes('pulling') || c.includes('lifting')) category = 'Strain';
+    else if (c.includes('cut') || c.includes('puncture') || c.includes('laceration')) category = 'Cut/Puncture';
+    else if (c.includes('struck') || c.includes('strike') || c.includes('hit')) category = 'Struck By';
+    else if (c.includes('caught') || c.includes('crush')) category = 'Caught/Crush';
+    else if (c.includes('burn') || c.includes('heat') || c.includes('cold')) category = 'Burn/Temp';
+    else if (c.includes('motor') || c.includes('vehicle') || c.includes('auto')) category = 'MVA';
+    else if (c.includes('repetitive') || c.includes('cumulative')) category = 'Repetitive';
+    else if (c.includes('foreign') || c.includes('eye')) category = 'Foreign Body';
+    else if (c.includes('chemical') || c.includes('exposure')) category = 'Exposure';
+    causeCounts[category] = (causeCounts[category] || 0) + 1; 
   });
   var sortedCauses = Object.entries(causeCounts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 8);
   if (chartInstances.causeChart) chartInstances.causeChart.destroy();
