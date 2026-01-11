@@ -807,6 +807,7 @@ body { font-family: 'Inter', sans-serif; }
 <button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
 <button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
 <button type="button" onclick="showTab('emr')" id="tab-emr" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">EMR Calculator</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">OSHA 300 Compliance</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">Fraud / Red Flags</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">HIPAA Generator</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">Root Cause Analysis</button>
