@@ -1322,9 +1322,9 @@ body { font-family: 'Inter', sans-serif; }
 <span class="sm:hidden">Report</span>
 </button>
 <button type="button" onclick="showTab('claims')" id="tab-claims" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-<span class="hidden sm:inline">View Claims</span>
-<span class="sm:hidden">Claims</span>
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<span class="hidden sm:inline">Claims Dashboard</span>
+<span class="sm:hidden">Dashboard</span>
 </button>
 <button type="button" onclick="showTab('analytics')" id="tab-analytics" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -1356,29 +1356,31 @@ body { font-family: 'Inter', sans-serif; }
 </div>
 <div id="form-container"></div>
 </div>
-<!-- Claims Section -->
-<div id="section-claims" class="bg-white rounded-xl shadow p-6 hidden">
-<div class="flex justify-between items-center mb-6">
-<div>
-<h3 class="text-xl font-bold text-slate-700">Claims</h3>
-<p class="text-slate-500 text-sm">All submitted injury claims</p>
+<!-- Claims Dashboard Section (Coming Soon) -->
+<div id="section-claims" class="hidden">
+<div class="bg-white rounded-xl shadow p-8 text-center">
+<div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+<svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
 </div>
-<div class="flex gap-2">
-<button onclick="loadMyClaims()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-Refresh
-</button>
-<button onclick="showTab('report')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center gap-2">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-New Claim
-</button>
+<h2 class="text-2xl font-bold text-slate-700 mb-3">Claims Dashboard</h2>
+<p class="text-slate-500 mb-6 max-w-md mx-auto">A comprehensive claims management dashboard is coming soon. Track claim status, analyze trends, and manage your workers' compensation claims all in one place.</p>
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+Coming Soon
 </div>
+<div class="mt-8 grid md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Claim Tracking</h4>
+<p class="text-sm text-slate-500">Monitor claim status in real-time</p>
 </div>
-<div id="myClaimsList" class="space-y-3">
-<div class="text-center py-12 text-slate-500">
-<svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-<p class="font-medium">No claims submitted yet</p>
-<p class="text-sm mt-1">Claims you submit will appear here</p>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Analytics</h4>
+<p class="text-sm text-slate-500">Visualize trends and patterns</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Reporting</h4>
+<p class="text-sm text-slate-500">Generate custom reports</p>
+</div>
 </div>
 </div>
 </div>
@@ -1388,7 +1390,7 @@ New Claim
 <div class="flex justify-between items-center mb-6">
 <div>
 <h3 class="text-xl font-bold text-slate-700">My Documents</h3>
-<p class="text-slate-500 text-sm">Your saved forms, reports, and generated documents</p>
+<p class="text-slate-500 text-sm">Your submitted FROIs, C-240 forms, and reports</p>
 </div>
 <button onclick="loadMyDocuments()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -1399,7 +1401,7 @@ Refresh
 <div class="text-center py-12 text-slate-500">
 <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
 <p class="font-medium">No documents saved yet</p>
-<p class="text-sm mt-1">C-240 forms and reports will appear here</p>
+<p class="text-sm mt-1">FROIs and C-240 forms will appear here</p>
 </div>
 </div>
 </div>
@@ -1866,7 +1868,6 @@ function showTab(tab) {
   
   // Trigger actions for specific tabs
   if (tab === 'report') render();
-  if (tab === 'claims') loadMyClaims();
   if (tab === 'mydocs') loadMyDocuments();
 }
 
@@ -2724,21 +2725,60 @@ async function loadMyDocuments() {
   var container = document.getElementById('myDocumentsList');
   
   if (!sessionToken) {
-    container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium">Sign in to view your documents</p><p class="text-sm mt-1">Saved forms and reports will appear here</p><button onclick="openAuthModal()" class="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div>';
+    container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium">Sign in to view your documents</p><p class="text-sm mt-1">Your FROIs and forms will appear here</p><button onclick="openAuthModal()" class="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div>';
     return;
   }
   
   container.innerHTML = '<div class="text-center py-8"><div class="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div><p class="mt-2 text-slate-500">Loading documents...</p></div>';
   
   try {
-    var res = await fetch('/api/documents', { headers: { 'X-Session-Token': sessionToken } });
-    var data = await res.json();
+    // Fetch both claims and documents
+    var claimsRes = await fetch('/api/claims', { headers: { 'X-Session-Token': sessionToken } });
+    var docsRes = await fetch('/api/documents', { headers: { 'X-Session-Token': sessionToken } });
+    var claimsData = await claimsRes.json();
+    var docsData = await docsRes.json();
     
-    if (data.documents && data.documents.length > 0) {
-      container.innerHTML = data.documents.map(function(doc) {
+    var html = '';
+    var hasClaims = claimsData.claims && claimsData.claims.length > 0;
+    var hasDocs = docsData.documents && docsData.documents.length > 0;
+    
+    // FROIs Section
+    html += '<div class="mb-6">';
+    html += '<h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>First Reports of Injury (FROIs)</h4>';
+    
+    if (hasClaims) {
+      html += '<div class="space-y-2">';
+      claimsData.claims.forEach(function(claim) {
+        var date = new Date(claim.created_at).toLocaleDateString();
+        var statusColor = claim.status === 'Submitted' ? 'bg-blue-100 text-blue-700' : claim.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700';
+        html += '<div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition bg-white">' +
+          '<div class="flex-1">' +
+            '<div class="font-semibold text-slate-800">' + (claim.employee_name || 'Unknown') + '</div>' +
+            '<div class="text-sm text-slate-500">' + claim.reference_number + ' • ' + date + '</div>' +
+            '<div class="text-sm text-slate-500">Injury: ' + (claim.injury_type || 'N/A') + ' - ' + (claim.body_part || 'N/A') + '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="px-3 py-1 rounded-full text-xs font-medium ' + statusColor + '">' + claim.status + '</span>' +
+            '<a href="/api/claims/' + claim.id + '/pdf?token=' + sessionToken + '" class="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm">Download PDF</a>' +
+          '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No FROIs submitted yet. <a href="#" onclick="showTab(\'report\')" class="text-green-600 hover:underline">Report a new injury</a></div>';
+    }
+    html += '</div>';
+    
+    // C-240 Forms & Other Documents Section
+    html += '<div>';
+    html += '<h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2"><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>C-240 Forms & Reports</h4>';
+    
+    if (hasDocs) {
+      html += '<div class="space-y-2">';
+      docsData.documents.forEach(function(doc) {
         var date = new Date(doc.created_at).toLocaleDateString();
         var typeLabel = doc.doc_type === 'c240' ? 'C-240 Form' : doc.doc_type === 'lossrun' ? 'Loss Run Report' : doc.doc_type;
-        return '<div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition">' +
+        html += '<div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition bg-white">' +
           '<div class="flex-1">' +
             '<div class="font-semibold text-slate-800">' + (doc.title || typeLabel) + '</div>' +
             '<div class="text-sm text-slate-500">' + typeLabel + ' • ' + date + '</div>' +
@@ -2749,10 +2789,14 @@ async function loadMyDocuments() {
             '<button onclick="deleteDocument(' + doc.id + ')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm">Delete</button>' +
           '</div>' +
         '</div>';
-      }).join('');
+      });
+      html += '</div>';
     } else {
-      container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg><p class="font-medium">No documents saved yet</p><p class="text-sm mt-1">C-240 forms and loss run reports will appear here</p></div>';
+      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No forms saved yet. <a href="#" onclick="showTab(\'tools\')" class="text-green-600 hover:underline">Generate a C-240 form</a></div>';
     }
+    html += '</div>';
+    
+    container.innerHTML = html;
   } catch (err) {
     container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load documents</div>';
   }
