@@ -447,6 +447,8 @@ async function generateC240() {\
     var totalGross = c240PayrollData.reduce(function(sum, row) { return sum + row.grossAmount; }, 0);\
     setField("form1[0].#subform[10].#subform[14].totalDaysPaid[0]", totalDays.toString());\
     setField("form1[0].#subform[10].#subform[14].totalGrossPaid[0]", "$" + totalGross.toLocaleString(undefined, {minimumFractionDigits: 2}));\
+    setField("form1[0].#subform[10].#subform[21].Table1[0].Row17[0].totalDaysWorked[0]", totalDays.toString());\
+    setField("form1[0].#subform[10].#subform[21].Table1[0].Row17[0].totalGrossPaid[0]", totalGross.toFixed(2));\
     form.flatten();\
     var pdfBytes = await pdfDoc.save();\
     var blob = new Blob([pdfBytes], { type: "application/pdf" });\
