@@ -633,7 +633,12 @@ function analyzeData(data) {
   });
   
   var causeCounts = {};
-  data.forEach(function(row) { var c = row.ResultingInjuryDesc || 'Unknown'; causeCounts[c.substring(0, 30)] = (causeCounts[c.substring(0, 30)] || 0) + 1; });
+  data.forEach(function(row) { 
+    var c = row.ResultingInjuryDesc || 'Unknown'; 
+    // Get first 1-2 words only
+    var words = c.split(/[\s,]+/).slice(0, 2).join(' ');
+    causeCounts[words] = (causeCounts[words] || 0) + 1; 
+  });
   var sortedCauses = Object.entries(causeCounts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 8);
   if (chartInstances.causeChart) chartInstances.causeChart.destroy();
   chartInstances.causeChart = new Chart(document.getElementById('causeChart'), { 
