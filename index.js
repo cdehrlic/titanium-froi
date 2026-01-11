@@ -2651,18 +2651,27 @@ async function saveDocument(docType, title, description, pdfBytes) {
   }
   
   try {
-    var base64 = btoa(String.fromCharCode.apply(null, pdfBytes));
+    // Convert Uint8Array to base64 in chunks to avoid call stack overflow
+    var bytes = new Uint8Array(pdfBytes);
+    var binary = '';
+    var chunkSize = 8192;
+    for (var i = 0; i < bytes.length; i += chunkSize) {
+      var chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    var base64 = btoa(binary);
+    
     var res = await fetch('/api/documents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionToken },
-      body: JSON.stringify({ docType, title, description, fileData: base64 })
+      body: JSON.stringify({ docType: docType, title: title, description: description, fileData: base64 })
     });
     var data = await res.json();
     if (data.success) {
       alert('Document saved to your account!');
       return true;
     }
-  } catch (err) {}
+  } catch (err) { console.error('Save error:', err); }
   alert('Failed to save document');
   return false;
 }
