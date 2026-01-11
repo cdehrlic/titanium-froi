@@ -1543,29 +1543,19 @@ Refresh
 <p class="text-slate-300">Professional tools for workers' compensation management</p>
 </div>
 
-<!-- Tool Selection Cards -->
-<div class="grid md:grid-cols-3 gap-4 mb-6">
-<button onclick="showTool('c240')" id="tool-btn-c240" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-green-500 hover:shadow-lg transition">
-<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-3">
-<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-</div>
-<h4 class="font-bold text-slate-800 mb-1">C-240 Form Generator</h4>
-<p class="text-sm text-slate-500">Auto-fill NY wage statement from payroll data</p>
+<!-- Tool Selection Tabs -->
+<div class="bg-white rounded-xl shadow mb-6">
+<div class="flex border-b border-slate-200">
+<button onclick="showTool('c240')" id="tool-btn-c240" class="tool-card flex-1 px-6 py-4 text-center font-semibold border-b-2 border-green-500 text-green-600 bg-green-50">
+C-240 Form Generator
 </button>
-<button onclick="showTool('emr')" id="tool-btn-emr" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-slate-200 hover:border-slate-300 hover:shadow-lg transition">
-<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
-<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-</div>
-<h4 class="font-bold text-slate-800 mb-1">EMR Calculator</h4>
-<p class="text-sm text-slate-500">Estimate your experience modification rate</p>
+<button onclick="showTool('emr')" id="tool-btn-emr" class="tool-card flex-1 px-6 py-4 text-center font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-50">
+EMR Calculator
 </button>
-<button onclick="showTool('coming')" id="tool-btn-coming" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-slate-200 hover:border-slate-300 hover:shadow-lg transition">
-<div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mb-3">
-<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-</div>
-<h4 class="font-bold text-slate-800 mb-1">More Tools Coming</h4>
-<p class="text-sm text-slate-500">OSHA 300, Settlement Estimator, and more</p>
+<button onclick="showTool('coming')" id="tool-btn-coming" class="tool-card flex-1 px-6 py-4 text-center font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-50">
+Coming Soon
 </button>
+</div>
 </div>
 
 <!-- C-240 Tool Content -->
@@ -1805,9 +1795,9 @@ Refresh
 </div>
 <h3 class="text-xl font-bold text-slate-700 mb-2">More Tools Coming Soon</h3>
 <p class="text-slate-500 mb-6">We're working on additional tools to help you manage workers' compensation more effectively.</p>
-<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-<h4 class="font-semibold text-slate-700 mb-1">OSHA 300 Log Generator</h4>
+<h4 class="font-semibold text-slate-700 mb-1">OSHA 300 Log</h4>
 <p class="text-sm text-slate-500">Auto-generate OSHA 300/300A forms</p>
 </div>
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
@@ -1815,7 +1805,7 @@ Refresh
 <p class="text-sm text-slate-500">Estimate claim settlement values</p>
 </div>
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-<h4 class="font-semibold text-slate-700 mb-1">Fraud Detection</h4>
+<h4 class="font-semibold text-slate-700 mb-1">Fraud / Red Flags</h4>
 <p class="text-sm text-slate-500">Red flag analysis for claims</p>
 </div>
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
@@ -1825,6 +1815,14 @@ Refresh
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
 <h4 class="font-semibold text-slate-700 mb-1">Root Cause Analysis</h4>
 <p class="text-sm text-slate-500">Investigate incident root causes</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Hazard Tracking</h4>
+<p class="text-sm text-slate-500">Track workplace hazards</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Safety Committee</h4>
+<p class="text-sm text-slate-500">Manage safety committee meetings</p>
 </div>
 <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
 <h4 class="font-semibold text-slate-700 mb-1">Jurisdiction Lookup</h4>
@@ -1878,16 +1876,16 @@ function showTool(tool) {
   });
   // Deactivate all tool buttons
   document.querySelectorAll('.tool-card').forEach(function(el) {
-    el.classList.remove('border-green-500');
-    el.classList.add('border-slate-200');
+    el.classList.remove('border-green-500', 'text-green-600', 'bg-green-50');
+    el.classList.add('border-transparent', 'text-slate-600');
   });
   // Show selected tool
   var toolContent = document.getElementById('tool-' + tool);
   var toolBtn = document.getElementById('tool-btn-' + tool);
   if (toolContent) toolContent.classList.remove('hidden');
   if (toolBtn) {
-    toolBtn.classList.add('border-green-500');
-    toolBtn.classList.remove('border-slate-200');
+    toolBtn.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
+    toolBtn.classList.remove('border-transparent', 'text-slate-600');
   }
   currentTool = tool;
 }
