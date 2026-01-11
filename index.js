@@ -416,7 +416,7 @@ function updatePayrollPreview() {\
     html += "<tr class=\\"border-b\\"><td class=\\"px-3 py-2 border\\">" + row.week + "</td><td class=\\"px-3 py-2 border\\">" + dateStr + "</td><td class=\\"px-3 py-2 border text-center\\">" + row.daysPaid + "</td><td class=\\"px-3 py-2 border text-right\\">$" + row.grossAmount.toLocaleString(undefined, {minimumFractionDigits: 2}) + "</td></tr>";\
   });\
   document.getElementById("c240-payrollTableBody").innerHTML = html;\
-  document.getElementById("c240-totalDays").textContent = totalDays;\
+  document.getElementById("c240-totalDays").textContent = totalDays.toFixed(0);\
   document.getElementById("c240-totalGross").textContent = "$" + totalGross.toLocaleString(undefined, {minimumFractionDigits: 2});\
 }\
 \
