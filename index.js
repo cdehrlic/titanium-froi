@@ -207,7 +207,8 @@ body { font-family: "Inter", sans-serif; }\
 </div>\
 <div id="c240-payrollPreview" class="bg-white rounded-xl shadow p-6 mb-4 hidden">\
 <h4 class="font-bold text-slate-700 mb-4">Payroll Preview (52 Weeks)</h4>\
-<div class="overflow-x-auto max-h-96"><table class="w-full text-sm border"><thead class="bg-slate-100 sticky top-0"><tr><th class="px-3 py-2 text-left border">Week #</th><th class="px-3 py-2 text-left border">Week Ending</th><th class="px-3 py-2 text-center border">Days Paid</th><th class="px-3 py-2 text-right border">Gross Amount</th></tr></thead><tbody id="c240-payrollTableBody"></tbody><tfoot class="bg-slate-200 font-bold"><tr><td class="px-3 py-2 border" colspan="2">TOTALS</td><td class="px-3 py-2 border text-center" id="c240-totalDays">0</td><td class="px-3 py-2 border text-right" id="c240-totalGross">$0.00</td></tr></tfoot></table></div>\
+<div class="overflow-x-auto max-h-96"><table class="w-full text-sm border"><thead class="bg-slate-100 sticky top-0"><tr><th class="px-3 py-2 text-left border">Week #</th><th class="px-3 py-2 text-left border">Week Ending</th><th class="px-3 py-2 text-center border">Days Paid</th><th class="px-3 py-2 text-right border">Gross Amount</th></tr></thead><tbody id="c240-payrollTableBody"></tbody></table></div>\
+<div class="bg-slate-700 text-white font-bold mt-2 rounded-lg p-3 flex justify-between"><span>TOTALS:</span><span><span id="c240-totalDays">0</span> days | <span id="c240-totalGross">$0.00</span></span></div>\
 </div>\
 <div class="bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-lg p-6 text-center">\
 <button type="button" id="btn-generate-c240" class="px-8 py-3 bg-white text-slate-800 rounded-lg hover:bg-slate-100 font-bold text-lg disabled:opacity-50" disabled>Generate C-240 PDF</button>\
