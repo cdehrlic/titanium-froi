@@ -284,46 +284,105 @@ Witness Statement Form
 <!-- Loss Run Analytics Section -->
 <div id="section-analytics" class="hidden">
 <div class="bg-white rounded-xl shadow p-6 mb-4">
-<h3 class="text-xl font-bold text-slate-700 mb-2">Loss Run Analytics</h3>
+<h3 class="text-xl font-bold text-slate-700 mb-2">Loss Run Analytics Dashboard</h3>
 <p class="text-slate-600 mb-4">Upload your loss run Excel file to get comprehensive insights and recommendations.</p>
-<div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
-<svg class="w-16 h-16 mx-auto text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+<div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer" onclick="document.getElementById('lossRunFile').click()">
+<svg class="w-16 h-16 mx-auto text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
 <p class="text-lg font-medium text-slate-700 mb-2">Drop your Loss Run Excel file here</p>
+<p class="text-sm text-slate-500 mb-4">Supports .xlsx, .xls, .csv formats</p>
 <input type="file" id="lossRunFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="processLossRun(this.files[0])">
-<button type="button" onclick="document.getElementById('lossRunFile').click()" class="px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800">Select Excel File</button>
+<button type="button" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium">Select Excel File</button>
 </div>
 </div>
 <div id="analytics-results" class="hidden">
 <!-- Action Bar -->
-<div class="bg-white rounded-xl shadow p-4 mb-4 flex flex-wrap justify-between items-center gap-4">
-<div><span class="font-bold text-slate-700">Loss Run Analysis Report</span></div>
+<div class="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-wrap justify-between items-center gap-3 border-l-4 border-purple-500">
+<div class="flex items-center gap-2">
+<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<span class="font-bold text-slate-700">Loss Run Analysis Report</span>
+</div>
 <div class="flex gap-2">
-<button type="button" onclick="exportToPDF()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Export PDF</button>
-<button type="button" onclick="window.print()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">Print</button>
-<button type="button" onclick="resetAnalytics()" class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 text-sm font-medium">New Analysis</button>
+<button type="button" onclick="exportToPDF()" class="px-3 py-1.5 bg-purple-600 text-white rounded text-sm font-medium hover:bg-purple-700">Export PDF</button>
+<button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded text-sm font-medium hover:bg-slate-200">Print</button>
+<button type="button" onclick="resetAnalytics()" class="px-3 py-1.5 bg-slate-600 text-white rounded text-sm font-medium hover:bg-slate-700">New Analysis</button>
 </div>
 </div>
-<div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 mb-4 text-white">
-<h3 class="text-2xl font-bold mb-4">Executive Summary</h3>
-<div class="grid md:grid-cols-4 gap-4">
-<div class="bg-white/10 rounded-lg p-4"><div class="text-3xl font-bold" id="stat-total-claims">0</div><div class="text-slate-300">Total Claims</div></div>
-<div class="bg-white/10 rounded-lg p-4"><div class="text-3xl font-bold" id="stat-total-incurred">$0</div><div class="text-slate-300">Total Incurred</div></div>
-<div class="bg-white/10 rounded-lg p-4"><div class="text-3xl font-bold" id="stat-avg-claim">$0</div><div class="text-slate-300">Avg Cost/Claim</div></div>
-<div class="bg-white/10 rounded-lg p-4"><div class="text-3xl font-bold" id="stat-open-claims">0</div><div class="text-slate-300">Open Claims</div></div>
+
+<!-- KPI Cards Row -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+<div class="text-sm text-slate-500 mb-1">Total Claims</div>
+<div class="text-3xl font-bold text-purple-600" id="stat-total-claims">0</div>
+<div class="text-xs text-slate-400 mt-1">All reported incidents</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+<div class="text-sm text-slate-500 mb-1">Total Incurred</div>
+<div class="text-3xl font-bold text-blue-600" id="stat-total-incurred">$0</div>
+<div class="text-xs text-slate-400 mt-1">Combined losses</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-amber-500">
+<div class="text-sm text-slate-500 mb-1">Avg Cost/Claim</div>
+<div class="text-3xl font-bold text-amber-600" id="stat-avg-claim">$0</div>
+<div class="text-xs text-slate-400 mt-1">Average severity</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-rose-500">
+<div class="text-sm text-slate-500 mb-1">Open Claims</div>
+<div class="text-3xl font-bold text-rose-600" id="stat-open-claims">0</div>
+<div class="text-xs text-slate-400 mt-1">Requiring attention</div>
 </div>
 </div>
-<div class="grid md:grid-cols-2 gap-4 mb-4">
-<div class="bg-white rounded-xl shadow p-6"><h4 class="text-lg font-bold text-slate-700 mb-4">Cost Breakdown</h4><div id="cost-breakdown"></div></div>
-<div class="bg-white rounded-xl shadow p-6"><h4 class="text-lg font-bold text-slate-700 mb-4">Claim Status</h4><canvas id="statusChart" height="200"></canvas></div>
+
+<!-- Charts Row 1 -->
+<div class="grid lg:grid-cols-3 gap-4 mb-4">
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Claim Status</h4>
+<div class="h-48"><canvas id="statusChart"></canvas></div>
 </div>
-<div class="grid md:grid-cols-2 gap-4 mb-4">
-<div class="bg-white rounded-xl shadow p-6"><h4 class="text-lg font-bold text-slate-700 mb-4">Top Injury Types</h4><canvas id="injuryChart" height="250"></canvas></div>
-<div class="bg-white rounded-xl shadow p-6"><h4 class="text-lg font-bold text-slate-700 mb-4">Body Parts Affected</h4><canvas id="bodyPartChart" height="250"></canvas></div>
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Cost Breakdown</h4>
+<div id="cost-breakdown"></div>
 </div>
-<div class="bg-white rounded-xl shadow p-6 mb-4"><h4 class="text-lg font-bold text-slate-700 mb-4">Root Cause Analysis</h4><canvas id="causeChart" height="150"></canvas></div>
-<div class="bg-white rounded-xl shadow p-6 mb-4"><h4 class="text-lg font-bold text-slate-700 mb-4">Claims Detail</h4><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th class="px-4 py-3 text-left">Date</th><th class="px-4 py-3 text-left">Claimant</th><th class="px-4 py-3 text-left">Injury</th><th class="px-4 py-3 text-left">Body Part</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-right">Total Incurred</th></tr></thead><tbody id="claims-table-body"></tbody></table></div></div>
-<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 mb-4 text-white"><h3 class="text-2xl font-bold mb-4">Prevention Recommendations</h3><div id="recommendations"></div></div>
-<div class="bg-white rounded-xl shadow p-6"><h4 class="text-lg font-bold text-slate-700 mb-4">Highest Cost Claims</h4><div id="top-claims"></div></div>
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Monthly Trend</h4>
+<div class="h-48"><canvas id="trendChart"></canvas></div>
+</div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="grid lg:grid-cols-2 gap-4 mb-4">
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Injury Types by Cost</h4>
+<div class="h-64"><canvas id="injuryChart"></canvas></div>
+</div>
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Body Parts Affected</h4>
+<div class="h-64"><canvas id="bodyPartChart"></canvas></div>
+</div>
+</div>
+
+<!-- Charts Row 3 -->
+<div class="bg-white rounded-xl shadow-sm p-5 mb-4">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Root Cause Analysis</h4>
+<div class="h-48"><canvas id="causeChart"></canvas></div>
+</div>
+
+<!-- Top Claims & Recommendations -->
+<div class="grid lg:grid-cols-2 gap-4 mb-4">
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Highest Cost Claims</h4>
+<div id="top-claims"></div>
+</div>
+<div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl shadow-sm p-5 text-white">
+<h4 class="text-sm font-bold mb-3 uppercase tracking-wide">AI Recommendations</h4>
+<div id="recommendations" class="text-sm"></div>
+</div>
+</div>
+
+<!-- Claims Table -->
+<div class="bg-white rounded-xl shadow-sm p-5">
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Claims Detail</h4>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-800 text-white"><tr><th class="px-4 py-3 text-left rounded-tl-lg">Date</th><th class="px-4 py-3 text-left">Claimant</th><th class="px-4 py-3 text-left">Injury</th><th class="px-4 py-3 text-left">Body Part</th><th class="px-4 py-3 text-center">Status</th><th class="px-4 py-3 text-right rounded-tr-lg">Total Incurred</th></tr></thead><tbody id="claims-table-body"></tbody></table></div>
+</div>
 </div>
 </div>
 
@@ -498,7 +557,48 @@ function analyzeData(data) {
     statusCounts[status] = (statusCounts[status] || 0) + 1;
   });
   if (chartInstances.statusChart) chartInstances.statusChart.destroy();
-  chartInstances.statusChart = new Chart(document.getElementById('statusChart'), { type: 'doughnut', data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#f59e0b', '#22c55e', '#94a3b8'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+  chartInstances.statusChart = new Chart(document.getElementById('statusChart'), { 
+    type: 'doughnut', 
+    data: { 
+      labels: Object.keys(statusCounts), 
+      datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#f59e0b', '#8b5cf6', '#94a3b8'], borderWidth: 0 }] 
+    }, 
+    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } } 
+  });
+  
+  // Monthly Trend Chart
+  var monthlyData = {};
+  data.forEach(function(row) {
+    if (row.LossDate) {
+      var d = new Date(row.LossDate);
+      if (!isNaN(d)) {
+        var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        if (!monthlyData[key]) monthlyData[key] = { count: 0, cost: 0 };
+        monthlyData[key].count++;
+        monthlyData[key].cost += parseFloat(row.TotalIncurred) || 0;
+      }
+    }
+  });
+  var sortedMonths = Object.keys(monthlyData).sort();
+  if (chartInstances.trendChart) chartInstances.trendChart.destroy();
+  chartInstances.trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: sortedMonths.map(function(m) { var p = m.split('-'); return p[1] + '/' + p[0].slice(2); }),
+      datasets: [{
+        label: 'Claims',
+        data: sortedMonths.map(function(m) { return monthlyData[m].count; }),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: '#8b5cf6'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+  });
   
   var injuryCounts = {};
   var injuryCosts = {};
@@ -510,19 +610,40 @@ function analyzeData(data) {
   var sortedInjuries = Object.entries(injuryCounts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 6);
   var sortedInjuriesByCost = Object.entries(injuryCosts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 6);
   if (chartInstances.injuryChart) chartInstances.injuryChart.destroy();
-  chartInstances.injuryChart = new Chart(document.getElementById('injuryChart'), { type: 'bar', data: { labels: sortedInjuriesByCost.map(function(x) { return x[0].length > 30 ? x[0].substring(0,30) + '...' : x[0]; }), datasets: [{ label: 'Cost ($)', data: sortedInjuriesByCost.map(function(x) { return x[1]; }), backgroundColor: '#3b82f6' }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } } });
+  chartInstances.injuryChart = new Chart(document.getElementById('injuryChart'), { 
+    type: 'bar', 
+    data: { 
+      labels: sortedInjuriesByCost.map(function(x) { return x[0].length > 25 ? x[0].substring(0,25) + '...' : x[0]; }), 
+      datasets: [{ label: 'Cost ($)', data: sortedInjuriesByCost.map(function(x) { return x[1]; }), backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff'], borderRadius: 4 }] 
+    }, 
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } } 
+  });
   
   var bodyPartCounts = {};
   data.forEach(function(row) { var bp = row.PartInjuredDesc || 'Unknown'; bodyPartCounts[bp] = (bodyPartCounts[bp] || 0) + 1; });
   var sortedBodyParts = Object.entries(bodyPartCounts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 6);
   if (chartInstances.bodyPartChart) chartInstances.bodyPartChart.destroy();
-  chartInstances.bodyPartChart = new Chart(document.getElementById('bodyPartChart'), { type: 'bar', data: { labels: sortedBodyParts.map(function(x) { return x[0]; }), datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: '#10b981' }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } } });
+  chartInstances.bodyPartChart = new Chart(document.getElementById('bodyPartChart'), { 
+    type: 'bar', 
+    data: { 
+      labels: sortedBodyParts.map(function(x) { return x[0]; }), 
+      datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: ['#f472b6', '#f9a8d4', '#fbcfe8', '#fce7f3', '#fdf2f8', '#fefce8'], borderRadius: 4 }] 
+    }, 
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } } 
+  });
   
   var causeCounts = {};
-  data.forEach(function(row) { var c = row.ResultingInjuryDesc || 'Unknown'; causeCounts[c.substring(0, 40)] = (causeCounts[c.substring(0, 40)] || 0) + 1; });
+  data.forEach(function(row) { var c = row.ResultingInjuryDesc || 'Unknown'; causeCounts[c.substring(0, 30)] = (causeCounts[c.substring(0, 30)] || 0) + 1; });
   var sortedCauses = Object.entries(causeCounts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 8);
   if (chartInstances.causeChart) chartInstances.causeChart.destroy();
-  chartInstances.causeChart = new Chart(document.getElementById('causeChart'), { type: 'bar', data: { labels: sortedCauses.map(function(x) { return x[0]; }), datasets: [{ label: 'Claims', data: sortedCauses.map(function(x) { return x[1]; }), backgroundColor: '#8b5cf6' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+  chartInstances.causeChart = new Chart(document.getElementById('causeChart'), { 
+    type: 'bar', 
+    data: { 
+      labels: sortedCauses.map(function(x) { return x[0]; }), 
+      datasets: [{ label: 'Claims', data: sortedCauses.map(function(x) { return x[1]; }), backgroundColor: '#fbbf24', borderRadius: 4 }] 
+    }, 
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } 
+  });
   
   var sortedData = data.slice().sort(function(a,b) { return (b.TotalIncurred || 0) - (a.TotalIncurred || 0); });
   var tableHtml = '';
