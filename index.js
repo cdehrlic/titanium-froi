@@ -286,36 +286,36 @@ Witness Statement Form
 <div class="bg-white rounded-xl shadow p-6 mb-4">
 <h3 class="text-xl font-bold text-slate-700 mb-2">Loss Run Analytics Dashboard</h3>
 <p class="text-slate-600 mb-4">Upload your loss run Excel file to get comprehensive insights and recommendations.</p>
-<div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-400 hover:bg-purple-50 transition-all cursor-pointer" onclick="document.getElementById('lossRunFile').click()">
-<svg class="w-16 h-16 mx-auto text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+<div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-500 hover:bg-slate-50 transition-all cursor-pointer" onclick="document.getElementById('lossRunFile').click()">
+<svg class="w-16 h-16 mx-auto text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
 <p class="text-lg font-medium text-slate-700 mb-2">Drop your Loss Run Excel file here</p>
 <p class="text-sm text-slate-500 mb-4">Supports .xlsx, .xls, .csv formats</p>
 <input type="file" id="lossRunFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="processLossRun(this.files[0])">
-<button type="button" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium">Select Excel File</button>
+<button type="button" class="px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-medium">Select Excel File</button>
 </div>
 </div>
 <div id="analytics-results" class="hidden">
 <!-- Action Bar -->
-<div class="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-wrap justify-between items-center gap-3 border-l-4 border-purple-500">
+<div class="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-wrap justify-between items-center gap-3 border-l-4 border-slate-700">
 <div class="flex items-center gap-2">
-<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
 <span class="font-bold text-slate-700">Loss Run Analysis Report</span>
 </div>
 <div class="flex gap-2">
-<button type="button" onclick="exportToPDF()" class="px-3 py-1.5 bg-purple-600 text-white rounded text-sm font-medium hover:bg-purple-700">Export PDF</button>
+<button type="button" onclick="exportToPDF()" class="px-3 py-1.5 bg-slate-700 text-white rounded text-sm font-medium hover:bg-slate-800">Export PDF</button>
 <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded text-sm font-medium hover:bg-slate-200">Print</button>
-<button type="button" onclick="resetAnalytics()" class="px-3 py-1.5 bg-slate-600 text-white rounded text-sm font-medium hover:bg-slate-700">New Analysis</button>
+<button type="button" onclick="resetAnalytics()" class="px-3 py-1.5 bg-slate-500 text-white rounded text-sm font-medium hover:bg-slate-600">New Analysis</button>
 </div>
 </div>
 
 <!-- KPI Cards Row -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-slate-700">
 <div class="text-sm text-slate-500 mb-1">Total Claims</div>
-<div class="text-3xl font-bold text-purple-600" id="stat-total-claims">0</div>
+<div class="text-3xl font-bold text-slate-700" id="stat-total-claims">0</div>
 <div class="text-xs text-slate-400 mt-1">All reported incidents</div>
 </div>
-<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-600">
 <div class="text-sm text-slate-500 mb-1">Total Incurred</div>
 <div class="text-3xl font-bold text-blue-600" id="stat-total-incurred">$0</div>
 <div class="text-xs text-slate-400 mt-1">Combined losses</div>
@@ -325,9 +325,9 @@ Witness Statement Form
 <div class="text-3xl font-bold text-amber-600" id="stat-avg-claim">$0</div>
 <div class="text-xs text-slate-400 mt-1">Average severity</div>
 </div>
-<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-rose-500">
+<div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
 <div class="text-sm text-slate-500 mb-1">Open Claims</div>
-<div class="text-3xl font-bold text-rose-600" id="stat-open-claims">0</div>
+<div class="text-3xl font-bold text-green-600" id="stat-open-claims">0</div>
 <div class="text-xs text-slate-400 mt-1">Requiring attention</div>
 </div>
 </div>
@@ -372,7 +372,7 @@ Witness Statement Form
 <h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Highest Cost Claims</h4>
 <div id="top-claims"></div>
 </div>
-<div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl shadow-sm p-5 text-white">
+<div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl shadow-sm p-5 text-white">
 <h4 class="text-sm font-bold mb-3 uppercase tracking-wide">AI Recommendations</h4>
 <div id="recommendations" class="text-sm"></div>
 </div>
@@ -561,7 +561,7 @@ function analyzeData(data) {
     type: 'doughnut', 
     data: { 
       labels: Object.keys(statusCounts), 
-      datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#f59e0b', '#8b5cf6', '#94a3b8'], borderWidth: 0 }] 
+      datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#22c55e', '#ef4444', '#94a3b8'], borderWidth: 0 }] 
     }, 
     options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } } 
   });
@@ -588,13 +588,13 @@ function analyzeData(data) {
       datasets: [{
         label: 'Claims',
         data: sortedMonths.map(function(m) { return monthlyData[m].count; }),
-        borderColor: '#8b5cf6',
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        borderColor: '#334155',
+        backgroundColor: 'rgba(51, 65, 85, 0.1)',
         fill: true,
         tension: 0.4,
         borderWidth: 2,
         pointRadius: 3,
-        pointBackgroundColor: '#8b5cf6'
+        pointBackgroundColor: '#334155'
       }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
@@ -614,7 +614,7 @@ function analyzeData(data) {
     type: 'bar', 
     data: { 
       labels: sortedInjuriesByCost.map(function(x) { return x[0].length > 25 ? x[0].substring(0,25) + '...' : x[0]; }), 
-      datasets: [{ label: 'Cost ($)', data: sortedInjuriesByCost.map(function(x) { return x[1]; }), backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff'], borderRadius: 4 }] 
+      datasets: [{ label: 'Cost ($)', data: sortedInjuriesByCost.map(function(x) { return x[1]; }), backgroundColor: ['#1e3a5f', '#2d4a6f', '#3d5a7f', '#4d6a8f', '#5d7a9f', '#6d8aaf'], borderRadius: 4 }] 
     }, 
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } } 
   });
@@ -627,7 +627,7 @@ function analyzeData(data) {
     type: 'bar', 
     data: { 
       labels: sortedBodyParts.map(function(x) { return x[0]; }), 
-      datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: ['#f472b6', '#f9a8d4', '#fbcfe8', '#fce7f3', '#fdf2f8', '#fefce8'], borderRadius: 4 }] 
+      datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: ['#0f766e', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#ccfbf1'], borderRadius: 4 }] 
     }, 
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } } 
   });
@@ -640,7 +640,7 @@ function analyzeData(data) {
     type: 'bar', 
     data: { 
       labels: sortedCauses.map(function(x) { return x[0]; }), 
-      datasets: [{ label: 'Claims', data: sortedCauses.map(function(x) { return x[1]; }), backgroundColor: '#fbbf24', borderRadius: 4 }] 
+      datasets: [{ label: 'Claims', data: sortedCauses.map(function(x) { return x[1]; }), backgroundColor: '#475569', borderRadius: 4 }] 
     }, 
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } } 
   });
@@ -648,7 +648,7 @@ function analyzeData(data) {
   var sortedData = data.slice().sort(function(a,b) { return (b.TotalIncurred || 0) - (a.TotalIncurred || 0); });
   var tableHtml = '';
   sortedData.forEach(function(row, idx) {
-    var statusClass = row.ClaimantStatus === 'O' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800';
+    var statusClass = row.ClaimantStatus === 'O' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
     var statusText = row.ClaimantStatus === 'O' ? 'Open' : 'Closed';
     var lossDate = row.LossDate ? new Date(row.LossDate).toLocaleDateString() : 'N/A';
     var rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50';
@@ -658,8 +658,8 @@ function analyzeData(data) {
   
   var topClaimsHtml = '';
   sortedData.slice(0, 5).forEach(function(row, idx) {
-    var statusBadge = row.ClaimantStatus === 'O' ? '<span class="ml-2 px-2 py-0.5 bg-amber-400 text-amber-900 rounded-full text-xs font-bold">OPEN</span>' : '<span class="ml-2 px-2 py-0.5 bg-green-400 text-green-900 rounded-full text-xs font-bold">CLOSED</span>';
-    topClaimsHtml += '<div class="p-4 bg-slate-50 rounded-lg border-l-4 border-red-500 mb-2"><div class="flex justify-between items-center"><div><div class="font-bold text-slate-800">#' + (idx+1) + ' ' + (row.ClaimantFirstName || '') + ' ' + (row.ClaimantLastName || '') + statusBadge + '</div><div class="text-sm text-slate-600">' + (row.LossTypeDesc || '') + ' - ' + (row.PartInjuredDesc || '') + '</div><div class="text-xs text-slate-500 mt-1">Loss Date: ' + (row.LossDate ? new Date(row.LossDate).toLocaleDateString() : 'N/A') + '</div></div><div class="text-2xl font-bold text-red-600">$' + (row.TotalIncurred || 0).toLocaleString() + '</div></div></div>';
+    var statusBadge = row.ClaimantStatus === 'O' ? '<span class="ml-2 px-2 py-0.5 bg-green-500 text-white rounded-full text-xs font-bold">OPEN</span>' : '<span class="ml-2 px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-bold">CLOSED</span>';
+    topClaimsHtml += '<div class="p-3 bg-slate-50 rounded-lg border-l-4 border-slate-400 mb-2"><div class="flex justify-between items-center"><div><div class="font-bold text-slate-800 text-sm">#' + (idx+1) + ' ' + (row.ClaimantFirstName || '') + ' ' + (row.ClaimantLastName || '') + statusBadge + '</div><div class="text-xs text-slate-600">' + (row.LossTypeDesc || '') + ' - ' + (row.PartInjuredDesc || '') + '</div></div><div class="text-lg font-bold text-slate-700">$' + (row.TotalIncurred || 0).toLocaleString() + '</div></div></div>';
   });
   document.getElementById('top-claims').innerHTML = topClaimsHtml;
   
