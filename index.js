@@ -997,6 +997,23 @@ app.get('/api/health', function(req, res) {
   res.json({ status: 'ok', db: pool ? 'connected' : 'not connected' });
 });
 
+// Debug endpoint - check claims count (temporary)
+app.get('/api/debug/claims', authenticateSession, async function(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT id, reference_number, employee_name, status, created_at FROM claims WHERE user_id = $1',
+      [req.userId]
+    );
+    res.json({ 
+      userId: req.userId,
+      claimCount: result.rows.length,
+      claims: result.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, res) {
   try {
     var formData = JSON.parse(req.body.formData);
@@ -1009,9 +1026,12 @@ app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, re
     if (req.userId) {
       try {
         var location = formData.facilityCity ? (formData.facilityCity + (formData.facilityState ? ', ' + formData.facilityState : '')) : null;
-        await pool.query(
+        console.log('Attempting to save claim to DB for user:', req.userId);
+        console.log('Claim data:', { referenceNumber, employeeName: (formData.firstName || '') + ' ' + (formData.lastName || ''), status: 'Reported' });
+        
+        const insertResult = await pool.query(
           `INSERT INTO claims (user_id, reference_number, employee_name, date_of_injury, injury_type, body_part, status, location, form_data, pdf_data)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
           [
             req.userId,
             referenceNumber,
@@ -1025,10 +1045,13 @@ app.post('/api/submit-claim', optionalAuth, upload.any(), async function(req, re
             pdfBuffer
           ]
         );
-        console.log('Claim saved to database for user ' + req.userId);
+        console.log('Claim saved to database with ID:', insertResult.rows[0].id, 'for user', req.userId);
       } catch (dbErr) {
         console.error('Failed to save claim to DB:', dbErr.message);
+        console.error('Full error:', dbErr);
       }
+    } else {
+      console.log('No userId - claim not saved to database (user not logged in)');
     }
     
     var attachments = [{ filename: referenceNumber + '-Summary.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
@@ -2684,8 +2707,13 @@ async function loadClaimsList() {
     
     var url = '/api/claims?status=' + encodeURIComponent(status) + '&search=' + encodeURIComponent(search) + '&sortBy=' + sortBy + '&sortOrder=' + sortOrder;
     
+    console.log('Loading claims from:', url);
+    console.log('Session token:', sessionToken ? 'present' : 'missing');
+    
     var res = await fetch(url, { headers: { 'X-Session-Token': sessionToken } });
     var data = await res.json();
+    
+    console.log('Claims API response:', data);
     
     if (data.claims && data.claims.length > 0) {
       emptyState.classList.add('hidden');
@@ -3680,8 +3708,9 @@ function submitClaim() {
   fetch('/api/submit-claim', fetchOpts)
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      console.log('Claim submission response:', data);
       if (data.success) {
-        var savedMsg = data.saved ? '<p class="text-green-600 mb-4">✓ Claim saved to your account</p>' : (sessionToken ? '' : '<p class="text-amber-600 mb-4">Sign in to save future claims to your account</p>');
+        var savedMsg = data.saved ? '<p class="text-green-600 mb-4">✓ Claim saved to your account</p>' : (sessionToken ? '<p class="text-amber-600 mb-4">⚠ Claim was NOT saved (check console)</p>' : '<p class="text-amber-600 mb-4">Sign in to save future claims to your account</p>');
         document.getElementById('form-container').innerHTML = '<div class="text-center py-8"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mb-2">Claim Submitted!</h2><p class="text-slate-600 mb-4">Reference: ' + data.referenceNumber + '</p>' + savedMsg + '<button type="button" onclick="location.reload()" class="px-6 py-2 bg-slate-700 text-white rounded-lg">Submit Another</button></div>';
       } else {
         alert('Error: ' + data.error);
