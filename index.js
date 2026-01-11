@@ -117,6 +117,34 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
       CREATE INDEX IF NOT EXISTS idx_documents_claim ON documents(claim_id);
     `);
+    
+    // Migration: Add new columns to existing claims table if they don't exist
+    const migrations = [
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS location VARCHAR(255)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS carrier_claim_number VARCHAR(100)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS carrier_name VARCHAR(255)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS tpa_name VARCHAR(255)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_name VARCHAR(255)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_phone VARCHAR(50)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_email VARCHAR(255)",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_notes TEXT",
+      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+      "ALTER TABLE documents ADD COLUMN IF NOT EXISTS claim_id INTEGER REFERENCES claims(id) ON DELETE SET NULL",
+      // Update old 'Submitted' status to 'Reported'
+      "UPDATE claims SET status = 'Reported' WHERE status = 'Submitted'"
+    ];
+    
+    for (const sql of migrations) {
+      try {
+        await pool.query(sql);
+      } catch (migErr) {
+        // Ignore errors (column may already exist or syntax varies by PG version)
+        if (!migErr.message.includes('already exists')) {
+          console.log('Migration note:', migErr.message);
+        }
+      }
+    }
+    
     console.log('Database tables initialized');
   } catch (err) {
     console.error('Database initialization error:', err.message);
