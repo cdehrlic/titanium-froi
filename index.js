@@ -1840,6 +1840,8 @@ Coming Soon
 </footer>
 
 <script>
+console.log('WCReporting: Script starting...');
+
 // Tab Navigation
 var allTabs = ['report', 'claims', 'analytics', 'mydocs', 'forms', 'tools'];
 var currentTool = 'c240';
@@ -2426,7 +2428,11 @@ function submitClaim() {
 }
 
 // Initialize
-render();
+try {
+  render();
+} catch(e) {
+  console.error('Initial render() error:', e);
+}
 
 // EMR Calculator Functions
 var emrClaimCounter = 1;
@@ -2764,7 +2770,7 @@ async function loadMyDocuments() {
       });
       html += '</div>';
     } else {
-      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No FROIs submitted yet. <a href="#" onclick="showTab(\'report\')" class="text-green-600 hover:underline">Report a new injury</a></div>';
+      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No FROIs submitted yet. <a href="#" onclick="showTab(&#39;report&#39;)" class="text-green-600 hover:underline">Report a new injury</a></div>';
     }
     html += '</div>';
     
@@ -2791,7 +2797,7 @@ async function loadMyDocuments() {
       });
       html += '</div>';
     } else {
-      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No forms saved yet. <a href="#" onclick="showTab(\'tools\')" class="text-green-600 hover:underline">Generate a C-240 form</a></div>';
+      html += '<div class="p-4 bg-slate-50 rounded-lg text-slate-500 text-sm">No forms saved yet. <a href="#" onclick="showTab(&#39;tools&#39;)" class="text-green-600 hover:underline">Generate a C-240 form</a></div>';
     }
     html += '</div>';
     
@@ -2855,7 +2861,13 @@ document.addEventListener('click', function(e) {
 updateAuthUI();
 
 // Initialize the Report New Injury form
-render();
+try {
+  render();
+} catch(e) {
+  console.error('render() error:', e);
+  var fc = document.getElementById('form-container');
+  if (fc) fc.innerHTML = '<div class="text-red-500 p-4">Error loading form: ' + e.message + '</div>';
+}
 
 // Verify session on load
 if (sessionToken) {
