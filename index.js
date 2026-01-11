@@ -2167,12 +2167,41 @@ async function generateC240() {
     setField('form1[0].#subform[10].#subform[21].Table1[0].Row17[0].totalGrossPaid[0]', totalGross.toFixed(2));
     form.flatten();
     var pdfBytes = await pdfDoc.save();
+    var workerName = document.getElementById('c240-workerName').value || 'Unknown';
+    var injuryDate = document.getElementById('c240-injuryDate').value || '';
+    
+    // Store for potential save
+    window.lastC240 = { pdfBytes: pdfBytes, workerName: workerName, injuryDate: injuryDate };
+    
+    // Download immediately
     var blob = new Blob([pdfBytes], { type: 'application/pdf' });
     var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'C240_' + new Date().toISOString().split('T')[0] + '.pdf';
+    link.download = 'C240_' + workerName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.pdf';
     link.click();
+    
+    // Show save prompt if logged in
+    if (sessionToken) {
+      setTimeout(function() {
+        if (confirm('C-240 downloaded! Would you also like to save it to your My Documents for future access?')) {
+          saveC240ToDocuments();
+        }
+      }, 500);
+    }
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+async function saveC240ToDocuments() {
+  if (!window.lastC240 || !sessionToken) {
+    alert('Please generate a C-240 first and make sure you are signed in.');
+    return;
+  }
+  var title = 'C-240 - ' + window.lastC240.workerName;
+  var description = window.lastC240.injuryDate ? 'Injury Date: ' + window.lastC240.injuryDate : '';
+  var saved = await saveDocument('c240', title, description, window.lastC240.pdfBytes);
+  if (saved) {
+    window.lastC240 = null;
+  }
 }
 
 // FROI Claim Form
