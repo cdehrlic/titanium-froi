@@ -1302,8 +1302,7 @@ body { font-family: 'Inter', sans-serif; }
 <span id="userInitial">U</span>
 </button>
 <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 py-2">
-<a href="#" onclick="showTab('my-claims'); toggleUserMenu();" class="block px-4 py-2 text-slate-700 hover:bg-slate-50">My Claims</a>
-<a href="#" onclick="showTab('my-documents'); toggleUserMenu();" class="block px-4 py-2 text-slate-700 hover:bg-slate-50">My Documents</a>
+<a href="#" onclick="showTab('mydocs'); toggleUserMenu();" class="block px-4 py-2 text-slate-700 hover:bg-slate-50">My Documents</a>
 <hr class="my-2">
 <a href="#" onclick="handleLogout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sign Out</a>
 </div>
