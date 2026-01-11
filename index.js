@@ -563,7 +563,7 @@ function analyzeData(data) {
   sortedYears.forEach(function(year) {
     var yd = yearData[year];
     costHtml += '<div class="bg-slate-50 rounded-lg p-3">';
-    costHtml += '<div class="flex justify-between items-center mb-2"><span class="font-bold text-slate-800">' + year + '</span><span class="font-bold text-slate-700">$' + yd.total.toLocaleString() + '</span></div>';
+    costHtml += '<div class="flex justify-between items-center mb-2"><span class="font-bold text-slate-800">' + year + ' <span class="text-xs font-normal text-slate-500">(' + yd.claims + ' claims)</span></span><span class="font-bold text-slate-700">$' + yd.total.toLocaleString() + '</span></div>';
     costHtml += '<div class="grid grid-cols-3 gap-2 text-xs">';
     costHtml += '<div class="text-center"><div class="text-blue-600 font-semibold">$' + yd.indemnity.toLocaleString() + '</div><div class="text-slate-500">Indemnity</div></div>';
     costHtml += '<div class="text-center"><div class="text-green-600 font-semibold">$' + yd.medical.toLocaleString() + '</div><div class="text-slate-500">Medical</div></div>';
