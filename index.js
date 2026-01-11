@@ -578,7 +578,8 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
   try {
     const { 
       status, location, carrier_claim_number, carrier_name, tpa_name,
-      adjuster_name, adjuster_phone, adjuster_email, adjuster_notes 
+      adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
+      date_of_injury, injury_type, body_part
     } = req.body;
     
     // Get current claim to check ownership and get old status
@@ -604,11 +605,15 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
         adjuster_phone = COALESCE($7, adjuster_phone),
         adjuster_email = COALESCE($8, adjuster_email),
         adjuster_notes = COALESCE($9, adjuster_notes),
+        date_of_injury = COALESCE($10, date_of_injury),
+        injury_type = COALESCE($11, injury_type),
+        body_part = COALESCE($12, body_part),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $10 AND user_id = $11
+      WHERE id = $13 AND user_id = $14
       RETURNING *`,
       [status, location, carrier_claim_number, carrier_name, tpa_name,
        adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
+       date_of_injury || null, injury_type || null, body_part || null,
        req.params.id, req.userId]
     );
     
@@ -896,6 +901,135 @@ app.get('/api/tasks', authenticateSession, async function(req, res) {
     res.json({ tasks: result.rows });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
+});
+
+// ==================== CLAIM DOCUMENTS API ====================
+
+// Get documents for a specific claim
+app.get('/api/claims/:id/documents', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const result = await pool.query(
+      `SELECT id, doc_type, title, description, metadata, created_at 
+       FROM documents WHERE claim_id = $1 ORDER BY created_at DESC`,
+      [req.params.id]
+    );
+    res.json({ documents: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// Upload documents to a claim
+app.post('/api/claims/:id/documents', authenticateSession, upload.array('files', 10), async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const files = req.files || [];
+    if (files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+    
+    const savedDocs = [];
+    for (const file of files) {
+      // Determine doc type from mime type
+      let docType = 'other';
+      if (file.mimetype === 'application/pdf') docType = 'pdf';
+      else if (file.mimetype.startsWith('image/')) docType = 'image';
+      else if (file.mimetype.includes('word') || file.originalname.endsWith('.doc') || file.originalname.endsWith('.docx')) docType = 'word';
+      else if (file.mimetype === 'message/rfc822' || file.originalname.endsWith('.eml') || file.originalname.endsWith('.msg')) docType = 'email';
+      
+      const result = await pool.query(
+        `INSERT INTO documents (user_id, claim_id, doc_type, title, file_data, metadata)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, doc_type, title, created_at`,
+        [req.userId, req.params.id, docType, file.originalname, file.buffer, { 
+          originalName: file.originalname, 
+          mimeType: file.mimetype, 
+          size: file.size 
+        }]
+      );
+      savedDocs.push(result.rows[0]);
+    }
+    
+    // Update claim's updated_at
+    await pool.query(
+      'UPDATE claims SET updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+      [req.params.id]
+    );
+    
+    res.json({ success: true, documents: savedDocs });
+  } catch (err) {
+    console.error('Upload documents error:', err);
+    res.status(500).json({ error: 'Failed to upload documents' });
+  }
+});
+
+// Download a claim document
+app.get('/api/claims/:claimId/documents/:docId/download', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.claimId, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    const result = await pool.query(
+      'SELECT file_data, title, metadata FROM documents WHERE id = $1 AND claim_id = $2',
+      [req.params.docId, req.params.claimId]
+    );
+    if (result.rows.length === 0 || !result.rows[0].file_data) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    const doc = result.rows[0];
+    const mimeType = doc.metadata?.mimeType || 'application/octet-stream';
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.title || 'document'}"`);
+    res.send(doc.file_data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
+// Delete a claim document
+app.delete('/api/claims/:claimId/documents/:docId', authenticateSession, async function(req, res) {
+  try {
+    // Verify claim ownership
+    const claim = await pool.query(
+      'SELECT id FROM claims WHERE id = $1 AND user_id = $2',
+      [req.params.claimId, req.userId]
+    );
+    if (claim.rows.length === 0) {
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+    
+    await pool.query(
+      'DELETE FROM documents WHERE id = $1 AND claim_id = $2',
+      [req.params.docId, req.params.claimId]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete document' });
   }
 });
 
@@ -1987,7 +2121,14 @@ Download PDF
 </div>
 
 <!-- Claim Overview Grid -->
-<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200">
+<div class="mt-6 pt-6 border-t border-slate-200">
+<div class="flex justify-between items-center mb-3">
+<h3 class="text-sm font-semibold text-slate-600 uppercase">Claim Details</h3>
+<button onclick="toggleClaimDetailsEdit()" id="claim-details-edit-btn" class="text-sm text-green-600 hover:text-green-700 font-medium">Edit</button>
+</div>
+
+<!-- View Mode -->
+<div id="claim-details-view" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 <div>
 <div class="text-xs text-slate-500 uppercase mb-1">Date of Injury</div>
 <div class="font-semibold text-slate-800" id="detail-doi">---</div>
@@ -2003,6 +2144,33 @@ Download PDF
 <div>
 <div class="text-xs text-slate-500 uppercase mb-1">Location</div>
 <div class="font-semibold text-slate-800" id="detail-location">---</div>
+</div>
+</div>
+
+<!-- Edit Mode -->
+<div id="claim-details-edit" class="hidden">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Date of Injury</label>
+<input type="date" id="edit-doi" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Injury Type</label>
+<input type="text" id="edit-injury-type" placeholder="e.g., Strain, Cut, Fracture" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Body Part</label>
+<input type="text" id="edit-body-part" placeholder="e.g., Lower Back, Hand, Knee" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Location</label>
+<input type="text" id="edit-location" placeholder="e.g., Warehouse, Office" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+</div>
+<div class="flex gap-2">
+<button onclick="saveClaimDetails()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium">Save Changes</button>
+<button onclick="toggleClaimDetailsEdit()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm">Cancel</button>
+</div>
 </div>
 </div>
 </div>
@@ -2174,9 +2342,37 @@ Tasks & Follow-ups
 </div>
 </div>
 
+<!-- Documents & Attachments Section (Full Width) -->
+<div class="bg-white rounded-xl shadow p-6 mt-4">
+<h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+Documents & Attachments
+<span class="text-sm font-normal text-slate-400" id="docs-count">(0)</span>
+</h3>
+
+<!-- Drop Zone -->
+<div id="claim-drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-green-400 hover:bg-green-50 transition cursor-pointer mb-4" onclick="document.getElementById('claim-file-input').click()" ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+<input type="file" id="claim-file-input" multiple class="hidden" onchange="uploadClaimFiles(this.files)">
+<svg class="w-10 h-10 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+<p class="text-slate-600 font-medium">Drop files here or click to upload</p>
+<p class="text-slate-400 text-sm mt-1">PDF, images, Word docs, emails (.eml, .msg) up to 10MB each</p>
 </div>
 
-<!-- My Documents Section -->
+<!-- Upload Progress -->
+<div id="upload-progress" class="hidden mb-4">
+<div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+<div class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+<span class="text-blue-700 text-sm">Uploading files...</span>
+</div>
+</div>
+
+<!-- Documents List -->
+<div id="claim-docs-list" class="space-y-2">
+<p class="text-slate-500 text-sm text-center py-4">No documents attached. Drag and drop files above to add supporting documents.</p>
+</div>
+</div>
+
+</div>
 <div id="section-mydocs" class="bg-white rounded-xl shadow p-6 hidden">
 <div class="flex justify-between items-center mb-6">
 <div>
@@ -2817,6 +3013,14 @@ async function viewClaimDetail(claimId) {
   document.getElementById('claims-list-view').classList.add('hidden');
   document.getElementById('claim-detail-view').classList.remove('hidden');
   
+  // Reset edit modes
+  document.getElementById('claim-details-view').classList.remove('hidden');
+  document.getElementById('claim-details-edit').classList.add('hidden');
+  document.getElementById('claim-details-edit-btn').textContent = 'Edit';
+  document.getElementById('adjuster-view').classList.remove('hidden');
+  document.getElementById('adjuster-edit').classList.add('hidden');
+  document.getElementById('adjuster-edit-btn').textContent = 'Edit';
+  
   // Load claim data
   try {
     var res = await fetch('/api/claims/' + claimId, { headers: { 'X-Session-Token': sessionToken } });
@@ -2832,11 +3036,22 @@ async function viewClaimDetail(claimId) {
       document.getElementById('detail-status').value = claim.status || 'Reported';
       document.getElementById('detail-pdf-link').href = '/api/claims/' + claimId + '/pdf?token=' + sessionToken;
       
-      // Populate overview
-      document.getElementById('detail-doi').textContent = claim.date_of_injury ? new Date(claim.date_of_injury).toLocaleDateString() : 'N/A';
-      document.getElementById('detail-injury-type').textContent = claim.injury_type || formData.natureOfInjury || 'N/A';
-      document.getElementById('detail-body-part').textContent = claim.body_part || formData.bodyPartInjured || 'N/A';
-      document.getElementById('detail-location').textContent = claim.location || formData.facilityCity || 'N/A';
+      // Populate overview (view mode)
+      var doiDisplay = claim.date_of_injury ? new Date(claim.date_of_injury).toLocaleDateString() : 'N/A';
+      var injuryTypeDisplay = claim.injury_type || formData.natureOfInjury || 'N/A';
+      var bodyPartDisplay = claim.body_part || formData.bodyPartInjured || 'N/A';
+      var locationDisplay = claim.location || formData.facilityCity || 'N/A';
+      
+      document.getElementById('detail-doi').textContent = doiDisplay;
+      document.getElementById('detail-injury-type').textContent = injuryTypeDisplay;
+      document.getElementById('detail-body-part').textContent = bodyPartDisplay;
+      document.getElementById('detail-location').textContent = locationDisplay;
+      
+      // Populate overview (edit mode)
+      document.getElementById('edit-doi').value = claim.date_of_injury ? claim.date_of_injury.split('T')[0] : '';
+      document.getElementById('edit-injury-type').value = claim.injury_type || formData.natureOfInjury || '';
+      document.getElementById('edit-body-part').value = claim.body_part || formData.bodyPartInjured || '';
+      document.getElementById('edit-location').value = claim.location || formData.facilityCity || '';
       
       // Populate adjuster info (view mode)
       document.getElementById('adj-carrier-view').textContent = claim.carrier_name || 'Not set';
@@ -2870,6 +3085,7 @@ async function viewClaimDetail(claimId) {
       loadClaimNotes(claimId);
       loadClaimTasks(claimId);
       loadStatusHistory(claimId);
+      loadClaimDocuments(claimId);
     }
   } catch (err) {
     console.error('Failed to load claim:', err);
@@ -3209,6 +3425,210 @@ async function deleteTask(taskId) {
   } catch (err) {
     console.error('Delete task error:', err);
   }
+}
+
+// Toggle claim details edit mode
+function toggleClaimDetailsEdit() {
+  var viewEl = document.getElementById('claim-details-view');
+  var editEl = document.getElementById('claim-details-edit');
+  var btnEl = document.getElementById('claim-details-edit-btn');
+  
+  if (viewEl.classList.contains('hidden')) {
+    viewEl.classList.remove('hidden');
+    editEl.classList.add('hidden');
+    btnEl.textContent = 'Edit';
+  } else {
+    viewEl.classList.add('hidden');
+    editEl.classList.remove('hidden');
+    btnEl.textContent = 'Cancel';
+  }
+}
+
+// Save claim details
+async function saveClaimDetails() {
+  if (!currentClaimId) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({
+        date_of_injury: document.getElementById('edit-doi').value || null,
+        injury_type: document.getElementById('edit-injury-type').value || null,
+        body_part: document.getElementById('edit-body-part').value || null,
+        location: document.getElementById('edit-location').value || null
+      })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      // Update view mode
+      var doi = data.claim.date_of_injury ? new Date(data.claim.date_of_injury).toLocaleDateString() : 'N/A';
+      document.getElementById('detail-doi').textContent = doi;
+      document.getElementById('detail-injury-type').textContent = data.claim.injury_type || 'N/A';
+      document.getElementById('detail-body-part').textContent = data.claim.body_part || 'N/A';
+      document.getElementById('detail-location').textContent = data.claim.location || 'N/A';
+      
+      toggleClaimDetailsEdit();
+    } else {
+      alert('Failed to save: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Save claim details error:', err);
+    alert('Failed to save claim details.');
+  }
+}
+
+// Handle drag over for file drop zone
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var dropZone = document.getElementById('claim-drop-zone');
+  dropZone.classList.add('border-green-500', 'bg-green-50');
+}
+
+// Handle drag leave for file drop zone
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var dropZone = document.getElementById('claim-drop-zone');
+  dropZone.classList.remove('border-green-500', 'bg-green-50');
+}
+
+// Handle file drop
+function handleFileDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var dropZone = document.getElementById('claim-drop-zone');
+  dropZone.classList.remove('border-green-500', 'bg-green-50');
+  
+  var files = e.dataTransfer.files;
+  if (files.length > 0) {
+    uploadClaimFiles(files);
+  }
+}
+
+// Upload files to current claim
+async function uploadClaimFiles(files) {
+  if (!currentClaimId || !files || files.length === 0) return;
+  
+  // Show progress
+  document.getElementById('upload-progress').classList.remove('hidden');
+  
+  try {
+    var formData = new FormData();
+    for (var i = 0; i < files.length; i++) {
+      // Check file size (10MB limit)
+      if (files[i].size > 10 * 1024 * 1024) {
+        alert('File "' + files[i].name + '" is too large. Maximum size is 10MB.');
+        continue;
+      }
+      formData.append('files', files[i]);
+    }
+    
+    var res = await fetch('/api/claims/' + currentClaimId + '/documents', {
+      method: 'POST',
+      headers: { 'X-Session-Token': sessionToken },
+      body: formData
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadClaimDocuments(currentClaimId);
+    } else {
+      alert('Failed to upload: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Upload error:', err);
+    alert('Failed to upload files.');
+  } finally {
+    document.getElementById('upload-progress').classList.add('hidden');
+    document.getElementById('claim-file-input').value = '';
+  }
+}
+
+// Load documents for current claim
+async function loadClaimDocuments(claimId) {
+  try {
+    var res = await fetch('/api/claims/' + claimId + '/documents', { 
+      headers: { 'X-Session-Token': sessionToken } 
+    });
+    var data = await res.json();
+    
+    var container = document.getElementById('claim-docs-list');
+    document.getElementById('docs-count').textContent = '(' + (data.documents ? data.documents.length : 0) + ')';
+    
+    if (data.documents && data.documents.length > 0) {
+      container.innerHTML = data.documents.map(function(doc) {
+        var date = new Date(doc.created_at).toLocaleString();
+        var icon = getDocIcon(doc.doc_type);
+        var size = doc.metadata && doc.metadata.size ? formatFileSize(doc.metadata.size) : '';
+        
+        return '<div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100">' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">' + icon + '</div>' +
+            '<div>' +
+              '<div class="font-medium text-slate-800">' + escapeHtml(doc.title || 'Untitled') + '</div>' +
+              '<div class="text-xs text-slate-500">' + doc.doc_type.toUpperCase() + (size ? ' • ' + size : '') + ' • ' + date + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-2">' +
+            '<a href="/api/claims/' + currentClaimId + '/documents/' + doc.id + '/download?token=' + sessionToken + '" class="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm">Download</a>' +
+            '<button onclick="deleteClaimDocument(' + doc.id + ')" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm">Delete</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">No documents attached. Drag and drop files above to add supporting documents.</p>';
+    }
+  } catch (err) {
+    console.error('Load documents error:', err);
+  }
+}
+
+// Delete a claim document
+async function deleteClaimDocument(docId) {
+  if (!currentClaimId || !confirm('Are you sure you want to delete this document?')) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId + '/documents/' + docId, {
+      method: 'DELETE',
+      headers: { 'X-Session-Token': sessionToken }
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      loadClaimDocuments(currentClaimId);
+    }
+  } catch (err) {
+    console.error('Delete document error:', err);
+  }
+}
+
+// Get icon for document type
+function getDocIcon(docType) {
+  switch (docType) {
+    case 'pdf':
+      return '<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+    case 'image':
+      return '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
+    case 'word':
+      return '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+    case 'email':
+      return '<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>';
+    default:
+      return '<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>';
+  }
+}
+
+// Format file size
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
 // Escape HTML to prevent XSS
