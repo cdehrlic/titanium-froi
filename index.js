@@ -339,7 +339,7 @@ Witness Statement Form
 <div class="h-48"><canvas id="statusChart"></canvas></div>
 </div>
 <div class="bg-white rounded-xl shadow-sm p-5">
-<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Cost Breakdown</h4>
+<h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Cost by Accident Year</h4>
 <div id="cost-breakdown"></div>
 </div>
 <div class="bg-white rounded-xl shadow-sm p-5">
@@ -537,17 +537,28 @@ function analyzeData(data) {
   document.getElementById('stat-avg-claim').textContent = '$' + avgClaim.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
   document.getElementById('stat-open-claims').textContent = openClaims;
   
-  var indemnity = data.reduce(function(sum, row) { return sum + (parseFloat(row.IndemnityIncurred) || 0); }, 0);
-  var medical = data.reduce(function(sum, row) { return sum + (parseFloat(row.MedicalIncurred) || 0); }, 0);
-  var legal = data.reduce(function(sum, row) { return sum + (parseFloat(row.LegalIncurred) || 0); }, 0);
-  var expense = data.reduce(function(sum, row) { return sum + (parseFloat(row.ExpenseIncurred) || 0); }, 0);
+  // Cost Breakdown by Accident Year
+  var yearCosts = {};
+  data.forEach(function(row) {
+    var year = 'Unknown';
+    if (row.LossDate) {
+      var d = new Date(row.LossDate);
+      if (!isNaN(d)) year = d.getFullYear().toString();
+    }
+    if (!yearCosts[year]) yearCosts[year] = 0;
+    yearCosts[year] += parseFloat(row.TotalIncurred) || 0;
+  });
+  var sortedYears = Object.entries(yearCosts).sort(function(a, b) { return b[0].localeCompare(a[0]); }); // Most recent first
+  var yearColors = ['#1e3a5f', '#2d5a87', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'];
   
   var costHtml = '<div class="space-y-2">';
-  costHtml += '<div class="flex justify-between p-3 bg-blue-50 rounded-lg"><span class="text-blue-800 font-medium">Indemnity</span><span class="font-bold text-blue-900">$' + indemnity.toLocaleString() + ' <span class="text-xs text-blue-600">(' + (totalIncurred > 0 ? Math.round(indemnity/totalIncurred*100) : 0) + '%)</span></span></div>';
-  costHtml += '<div class="flex justify-between p-3 bg-green-50 rounded-lg"><span class="text-green-800 font-medium">Medical</span><span class="font-bold text-green-900">$' + medical.toLocaleString() + ' <span class="text-xs text-green-600">(' + (totalIncurred > 0 ? Math.round(medical/totalIncurred*100) : 0) + '%)</span></span></div>';
-  costHtml += '<div class="flex justify-between p-3 bg-purple-50 rounded-lg"><span class="text-purple-800 font-medium">Legal</span><span class="font-bold text-purple-900">$' + legal.toLocaleString() + ' <span class="text-xs text-purple-600">(' + (totalIncurred > 0 ? Math.round(legal/totalIncurred*100) : 0) + '%)</span></span></div>';
-  costHtml += '<div class="flex justify-between p-3 bg-orange-50 rounded-lg"><span class="text-orange-800 font-medium">Expenses</span><span class="font-bold text-orange-900">$' + expense.toLocaleString() + ' <span class="text-xs text-orange-600">(' + (totalIncurred > 0 ? Math.round(expense/totalIncurred*100) : 0) + '%)</span></span></div>';
-  costHtml += '<div class="flex justify-between p-3 bg-slate-700 rounded-lg text-white"><span class="font-bold">TOTAL INCURRED</span><span class="font-bold text-xl">$' + totalIncurred.toLocaleString() + '</span></div>';
+  sortedYears.forEach(function(item, idx) {
+    var year = item[0];
+    var cost = item[1];
+    var colorClass = idx < yearColors.length ? yearColors[idx] : '#94a3b8';
+    costHtml += '<div class="flex justify-between items-center p-2 rounded-lg" style="background-color: ' + colorClass + '20;"><span class="font-medium" style="color: ' + colorClass + ';">' + year + '</span><span class="font-bold" style="color: ' + colorClass + ';">$' + cost.toLocaleString() + ' <span class="text-xs opacity-75">(' + (totalIncurred > 0 ? Math.round(cost/totalIncurred*100) : 0) + '%)</span></span></div>';
+  });
+  costHtml += '<div class="flex justify-between p-2 bg-slate-700 rounded-lg text-white mt-2"><span class="font-bold">TOTAL</span><span class="font-bold">$' + totalIncurred.toLocaleString() + '</span></div>';
   costHtml += '</div>';
   document.getElementById('cost-breakdown').innerHTML = costHtml;
   
