@@ -714,13 +714,13 @@ body { font-family: 'Inter', sans-serif; }
 <body class="bg-slate-100 min-h-screen">
 <header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white p-4 shadow-lg">
 <div class="max-w-6xl mx-auto flex justify-between items-center">
-<div class="flex items-center gap-4">
+<a href="/" class="flex items-center gap-4 hover:opacity-90 transition">
 <img src="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Titanium%20logo.webp" alt="Titanium Defense Group" class="h-16">
 <div class="border-l border-white/30 pl-4">
 <div class="text-xs text-white/80 uppercase tracking-widest font-medium">Workers Compensation</div>
 <div class="text-xl font-bold">Claims Management Portal</div>
 </div>
-</div>
+</a>
 </div>
 </header>
 
