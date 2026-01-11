@@ -2363,7 +2363,6 @@ Tasks & Follow-ups
 
 </div>
 </div>
-</div>
 
 <!-- Documents & Attachments Section (Full Width) -->
 <div class="bg-white rounded-xl shadow p-6 mt-4">
