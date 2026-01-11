@@ -2023,6 +2023,23 @@ body { font-family: 'Inter', sans-serif; }
 </div>
 </div>
 
+<!-- Pending Tasks Panel -->
+<div id="pending-tasks-panel" class="bg-white rounded-xl shadow p-4 mb-4">
+<div class="flex justify-between items-center mb-3">
+<h3 class="font-bold text-slate-700 flex items-center gap-2">
+<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+Pending Tasks
+<span class="text-sm font-normal text-slate-400" id="pending-tasks-count">(0)</span>
+</h3>
+<button onclick="loadPendingTasks()" class="text-sm text-slate-500 hover:text-slate-700">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+</button>
+</div>
+<div id="pending-tasks-list" class="space-y-2 max-h-48 overflow-y-auto">
+<p class="text-slate-500 text-sm text-center py-2">No pending tasks</p>
+</div>
+</div>
+
 <!-- Filters and Search -->
 <div class="bg-white rounded-xl shadow p-4 mb-4">
 <div class="flex flex-wrap gap-3 items-center justify-between">
@@ -2891,10 +2908,13 @@ var claimsSearchTimeout = null;
 function loadClaimsDashboard() {
   if (!sessionToken) {
     document.getElementById('claims-table-body').innerHTML = '<tr><td colspan="7" class="px-4 py-12 text-center"><div class="text-slate-500"><svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium mb-2">Sign in to view your claims</p><button onclick="openAuthModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div></td></tr>';
+    document.getElementById('pending-tasks-panel').classList.add('hidden');
     return;
   }
+  document.getElementById('pending-tasks-panel').classList.remove('hidden');
   loadClaimsStats();
   loadClaimsList();
+  loadPendingTasks();
 }
 
 // Load claims statistics
@@ -2912,6 +2932,44 @@ async function loadClaimsStats() {
     }
   } catch (err) {
     console.error('Failed to load claims stats:', err);
+  }
+}
+
+// Load pending tasks for dashboard
+async function loadPendingTasks() {
+  try {
+    var res = await fetch('/api/tasks', { headers: { 'X-Session-Token': sessionToken } });
+    var data = await res.json();
+    
+    var container = document.getElementById('pending-tasks-list');
+    var countEl = document.getElementById('pending-tasks-count');
+    
+    if (data.tasks && data.tasks.length > 0) {
+      countEl.textContent = '(' + data.tasks.length + ')';
+      
+      container.innerHTML = data.tasks.map(function(task) {
+        var isOverdue = task.due_date && new Date(task.due_date) < new Date();
+        var dueStr = task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date';
+        var bgClass = isOverdue ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200';
+        var dueClass = isOverdue ? 'text-red-600 font-medium' : 'text-slate-500';
+        
+        return '<div class="flex items-center justify-between p-3 rounded-lg border ' + bgClass + '">' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="font-medium text-slate-800 truncate">' + escapeHtml(task.title) + '</div>' +
+            '<div class="text-xs text-slate-500 truncate">' + escapeHtml(task.employee_name || 'Unknown') + ' • ' + (task.reference_number || '') + '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-3 ml-3">' +
+            '<span class="text-xs whitespace-nowrap ' + dueClass + '">' + (isOverdue ? '⚠ Overdue: ' : 'Due: ') + dueStr + '</span>' +
+            '<button onclick="viewClaimDetail(' + task.claim_id + ')" class="px-3 py-1 bg-slate-700 text-white rounded text-xs hover:bg-slate-800 whitespace-nowrap">View Claim</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      countEl.textContent = '(0)';
+      container.innerHTML = '<p class="text-slate-500 text-sm text-center py-2">No pending tasks. You are all caught up! 🎉</p>';
+    }
+  } catch (err) {
+    console.error('Failed to load pending tasks:', err);
   }
 }
 
