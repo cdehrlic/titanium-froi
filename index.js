@@ -537,28 +537,40 @@ function analyzeData(data) {
   document.getElementById('stat-avg-claim').textContent = '$' + avgClaim.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
   document.getElementById('stat-open-claims').textContent = openClaims;
   
-  // Cost Breakdown by Accident Year
-  var yearCosts = {};
+  // Calculate totals for AI recommendations
+  var indemnity = data.reduce(function(sum, row) { return sum + (parseFloat(row.IndemnityIncurred) || 0); }, 0);
+  var medical = data.reduce(function(sum, row) { return sum + (parseFloat(row.MedicalIncurred) || 0); }, 0);
+  var expense = data.reduce(function(sum, row) { return sum + (parseFloat(row.ExpenseIncurred) || 0); }, 0);
+  
+  // Cost Breakdown by Accident Year with Indemnity/Medical/Expense
+  var yearData = {};
   data.forEach(function(row) {
     var year = 'Unknown';
     if (row.LossDate) {
       var d = new Date(row.LossDate);
       if (!isNaN(d)) year = d.getFullYear().toString();
     }
-    if (!yearCosts[year]) yearCosts[year] = 0;
-    yearCosts[year] += parseFloat(row.TotalIncurred) || 0;
+    if (!yearData[year]) yearData[year] = { total: 0, indemnity: 0, medical: 0, expense: 0, claims: 0 };
+    yearData[year].total += parseFloat(row.TotalIncurred) || 0;
+    yearData[year].indemnity += parseFloat(row.IndemnityIncurred) || 0;
+    yearData[year].medical += parseFloat(row.MedicalIncurred) || 0;
+    yearData[year].expense += (parseFloat(row.ExpenseIncurred) || 0) + (parseFloat(row.LegalIncurred) || 0);
+    yearData[year].claims++;
   });
-  var sortedYears = Object.entries(yearCosts).sort(function(a, b) { return b[0].localeCompare(a[0]); }); // Most recent first
-  var yearColors = ['#1e3a5f', '#2d5a87', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'];
+  var sortedYears = Object.keys(yearData).sort().reverse(); // Most recent first
   
-  var costHtml = '<div class="space-y-2">';
-  sortedYears.forEach(function(item, idx) {
-    var year = item[0];
-    var cost = item[1];
-    var colorClass = idx < yearColors.length ? yearColors[idx] : '#94a3b8';
-    costHtml += '<div class="flex justify-between items-center p-2 rounded-lg" style="background-color: ' + colorClass + '20;"><span class="font-medium" style="color: ' + colorClass + ';">' + year + '</span><span class="font-bold" style="color: ' + colorClass + ';">$' + cost.toLocaleString() + ' <span class="text-xs opacity-75">(' + (totalIncurred > 0 ? Math.round(cost/totalIncurred*100) : 0) + '%)</span></span></div>';
+  var costHtml = '<div class="space-y-3 text-sm">';
+  sortedYears.forEach(function(year) {
+    var yd = yearData[year];
+    costHtml += '<div class="bg-slate-50 rounded-lg p-3">';
+    costHtml += '<div class="flex justify-between items-center mb-2"><span class="font-bold text-slate-800">' + year + '</span><span class="font-bold text-slate-700">$' + yd.total.toLocaleString() + '</span></div>';
+    costHtml += '<div class="grid grid-cols-3 gap-2 text-xs">';
+    costHtml += '<div class="text-center"><div class="text-blue-600 font-semibold">$' + yd.indemnity.toLocaleString() + '</div><div class="text-slate-500">Indemnity</div></div>';
+    costHtml += '<div class="text-center"><div class="text-green-600 font-semibold">$' + yd.medical.toLocaleString() + '</div><div class="text-slate-500">Medical</div></div>';
+    costHtml += '<div class="text-center"><div class="text-orange-600 font-semibold">$' + yd.expense.toLocaleString() + '</div><div class="text-slate-500">Expense</div></div>';
+    costHtml += '</div></div>';
   });
-  costHtml += '<div class="flex justify-between p-2 bg-slate-700 rounded-lg text-white mt-2"><span class="font-bold">TOTAL</span><span class="font-bold">$' + totalIncurred.toLocaleString() + '</span></div>';
+  costHtml += '<div class="flex justify-between p-2 bg-slate-700 rounded-lg text-white"><span class="font-bold">TOTAL</span><span class="font-bold">$' + totalIncurred.toLocaleString() + '</span></div>';
   costHtml += '</div>';
   document.getElementById('cost-breakdown').innerHTML = costHtml;
   
@@ -725,7 +737,7 @@ function analyzeData(data) {
     var topInjCount = sortedInjuries[0][1];
     var topInjPct = Math.round(topInjCount / totalClaims * 100);
     var topInjCost = injuryCosts[topInj] || 0;
-    recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">🎯 Primary Injury Pattern: ' + topInj + '</div><p class="text-green-100">This injury type accounts for <strong>' + topInjPct + '%</strong> of all claims (' + topInjCount + ' claims) and <strong>$' + topInjCost.toLocaleString() + '</strong> in costs. <strong>Action:</strong> Implement targeted prevention program focusing specifically on ' + topInj.toLowerCase() + ' hazards.</p></div>');
+    recs.push('<div class="p-3 bg-white/10 rounded-lg mb-2"><div class="font-bold mb-1">🎯 Primary Injury: ' + topInj + '</div><p class="text-slate-300 text-xs">' + topInjPct + '% of claims (' + topInjCount + ') totaling $' + topInjCost.toLocaleString() + '. Focus prevention efforts here.</p></div>');
   }
   
   // Analyze top body part
@@ -734,36 +746,31 @@ function analyzeData(data) {
     var topBPCount = sortedBodyParts[0][1];
     var bpAdvice = 'Implement targeted protection measures.';
     if (topBP.toLowerCase().includes('back') || topBP.toLowerCase().includes('lumbar')) {
-      bpAdvice = 'Implement ergonomic assessments, provide mechanical lifting aids, mandate proper lifting training, and consider job rotation for high-risk tasks.';
+      bpAdvice = 'Ergonomic assessments, mechanical lifting aids, proper lifting training.';
     } else if (topBP.toLowerCase().includes('knee')) {
-      bpAdvice = 'Require knee pads for floor-level work, address slip hazards, and evaluate repetitive kneeling tasks.';
+      bpAdvice = 'Knee pads, address slip hazards, evaluate repetitive kneeling.';
     } else if (topBP.toLowerCase().includes('shoulder')) {
-      bpAdvice = 'Evaluate overhead work requirements, implement stretching programs, and consider tool counterbalances.';
+      bpAdvice = 'Evaluate overhead work, stretching programs, tool counterbalances.';
     } else if (topBP.toLowerCase().includes('hand') || topBP.toLowerCase().includes('finger')) {
-      bpAdvice = 'Review cut-resistant glove requirements, implement lockout/tagout procedures, and conduct machine guarding audits.';
+      bpAdvice = 'Cut-resistant gloves, lockout/tagout, machine guarding audits.';
     } else if (topBP.toLowerCase().includes('ankle') || topBP.toLowerCase().includes('foot')) {
-      bpAdvice = 'Require proper footwear, improve walking surfaces, and address tripping hazards.';
+      bpAdvice = 'Proper footwear, improve walking surfaces, address tripping hazards.';
     }
-    recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">🦴 Body Part Focus: ' + topBP + '</div><p class="text-green-100">' + topBPCount + ' claims affecting ' + topBP + '. <strong>Action:</strong> ' + bpAdvice + '</p></div>');
+    recs.push('<div class="p-3 bg-white/10 rounded-lg mb-2"><div class="font-bold mb-1">🦴 Body Part: ' + topBP + ' (' + topBPCount + ' claims)</div><p class="text-slate-300 text-xs">' + bpAdvice + '</p></div>');
   }
   
   // Indemnity ratio analysis
-  if (totalIncurred > 0 && indemnity / totalIncurred > 0.5) {
-    recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">💰 High Lost-Time Costs</div><p class="text-green-100">Indemnity represents <strong>' + Math.round(indemnity/totalIncurred*100) + '%</strong> of total costs, indicating significant lost work time. <strong>Action:</strong> Implement modified duty/transitional work program - studies show this can reduce indemnity costs by 30-50%.</p></div>');
+  if (totalIncurred > 0 && indemnity / totalIncurred > 0.4) {
+    recs.push('<div class="p-3 bg-white/10 rounded-lg mb-2"><div class="font-bold mb-1">💰 High Indemnity (' + Math.round(indemnity/totalIncurred*100) + '%)</div><p class="text-slate-300 text-xs">Implement modified duty/return-to-work program to reduce lost time costs by 30-50%.</p></div>');
   }
   
   // Open claims analysis
-  if (openClaims > totalClaims * 0.3) {
-    recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">📋 Open Claim Management</div><p class="text-green-100"><strong>' + openClaims + '</strong> claims (' + Math.round(openClaims/totalClaims*100) + '%) remain open with <strong>$' + openReserve.toLocaleString() + '</strong> in reserves. <strong>Action:</strong> Review all claims open > 90 days for closure opportunities and ensure active medical management.</p></div>');
+  if (openClaims > 0) {
+    recs.push('<div class="p-3 bg-white/10 rounded-lg mb-2"><div class="font-bold mb-1">📋 ' + openClaims + ' Open Claims ($' + openReserve.toLocaleString() + ')</div><p class="text-slate-300 text-xs">Review claims open >90 days for closure opportunities. Ensure active medical management.</p></div>');
   }
   
-  // Average claim cost insight
-  if (avgClaim > 25000) {
-    recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">⚠️ Elevated Severity</div><p class="text-green-100">Average claim cost of <strong>$' + Math.round(avgClaim).toLocaleString() + '</strong> exceeds industry benchmarks. <strong>Action:</strong> Implement 24-hour injury reporting and nurse triage to reduce severity through early intervention.</p></div>');
-  }
-  
-  // Always include best practices
-  recs.push('<div class="p-4 bg-white/20 rounded-lg mb-3"><div class="font-bold text-lg mb-2">✓ Best Practices</div><p class="text-green-100"><strong>Early Reporting:</strong> Claims reported within 24 hours cost 18-30% less. Train supervisors on immediate response protocols. <strong>Return-to-Work:</strong> Establish modified duty programs to reduce lost time duration.</p></div>');
+  // Best practices
+  recs.push('<div class="p-3 bg-white/10 rounded-lg mb-2"><div class="font-bold mb-1">✓ Best Practices</div><p class="text-slate-300 text-xs">24-hour reporting reduces costs 18-30%. Train supervisors on immediate response.</p></div>');
   
   document.getElementById('recommendations').innerHTML = recs.join('');
 }
