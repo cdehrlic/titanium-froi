@@ -18,6 +18,9 @@ const pool = new Pool({
 // Initialize database tables
 async function initDB() {
   try {
+    // Create tables one at a time to handle existing tables gracefully
+    
+    // Users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -29,16 +32,22 @@ async function initDB() {
         phone VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_login TIMESTAMP
-      );
-      
+      )
+    `);
+    
+    // Sessions table
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         token VARCHAR(255) UNIQUE NOT NULL,
         expires_at TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
+      )
+    `);
+    
+    // Claims table (basic structure)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS claims (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -50,18 +59,26 @@ async function initDB() {
         status VARCHAR(50) DEFAULT 'Reported',
         form_data JSONB,
         pdf_data BYTEA,
-        location VARCHAR(255),
-        carrier_claim_number VARCHAR(100),
-        carrier_name VARCHAR(255),
-        tpa_name VARCHAR(255),
-        adjuster_name VARCHAR(255),
-        adjuster_phone VARCHAR(50),
-        adjuster_email VARCHAR(255),
-        adjuster_notes TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Documents table (basic structure without claim_id first)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        doc_type VARCHAR(50) NOT NULL,
+        title VARCHAR(255),
+        description TEXT,
+        file_data BYTEA,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Claim notes table
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS claim_notes (
         id SERIAL PRIMARY KEY,
         claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
@@ -69,8 +86,11 @@ async function initDB() {
         user_name VARCHAR(255),
         note_text TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
+      )
+    `);
+    
+    // Claim tasks table
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS claim_tasks (
         id SERIAL PRIMARY KEY,
         claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
@@ -83,8 +103,11 @@ async function initDB() {
         completed_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
+      )
+    `);
+    
+    // Claim status history table
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS claim_status_history (
         id SERIAL PRIMARY KEY,
         claim_id INTEGER REFERENCES claims(id) ON DELETE CASCADE,
@@ -93,59 +116,64 @@ async function initDB() {
         old_status VARCHAR(50),
         new_status VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE TABLE IF NOT EXISTS documents (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        claim_id INTEGER REFERENCES claims(id) ON DELETE SET NULL,
-        doc_type VARCHAR(50) NOT NULL,
-        title VARCHAR(255),
-        description TEXT,
-        file_data BYTEA,
-        metadata JSONB,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
-      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
-      CREATE INDEX IF NOT EXISTS idx_claims_user ON claims(user_id);
-      CREATE INDEX IF NOT EXISTS idx_claims_status ON claims(status);
-      CREATE INDEX IF NOT EXISTS idx_claim_notes_claim ON claim_notes(claim_id);
-      CREATE INDEX IF NOT EXISTS idx_claim_tasks_claim ON claim_tasks(claim_id);
-      CREATE INDEX IF NOT EXISTS idx_claim_tasks_due ON claim_tasks(due_date);
-      CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
-      CREATE INDEX IF NOT EXISTS idx_documents_claim ON documents(claim_id);
+      )
     `);
     
-    // Migration: Add new columns to existing claims table if they don't exist
+    console.log('Base tables created');
+    
+    // Now run migrations to add columns to existing tables
     const migrations = [
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS location VARCHAR(255)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS carrier_claim_number VARCHAR(100)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS carrier_name VARCHAR(255)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS tpa_name VARCHAR(255)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_name VARCHAR(255)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_phone VARCHAR(50)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_email VARCHAR(255)",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS adjuster_notes TEXT",
-      "ALTER TABLE claims ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-      "ALTER TABLE documents ADD COLUMN IF NOT EXISTS claim_id INTEGER REFERENCES claims(id) ON DELETE SET NULL",
-      // Update old 'Submitted' status to 'Reported'
-      "UPDATE claims SET status = 'Reported' WHERE status = 'Submitted'"
+      // Claims table columns
+      { sql: "ALTER TABLE claims ADD COLUMN location VARCHAR(255)", desc: "claims.location" },
+      { sql: "ALTER TABLE claims ADD COLUMN carrier_claim_number VARCHAR(100)", desc: "claims.carrier_claim_number" },
+      { sql: "ALTER TABLE claims ADD COLUMN carrier_name VARCHAR(255)", desc: "claims.carrier_name" },
+      { sql: "ALTER TABLE claims ADD COLUMN tpa_name VARCHAR(255)", desc: "claims.tpa_name" },
+      { sql: "ALTER TABLE claims ADD COLUMN adjuster_name VARCHAR(255)", desc: "claims.adjuster_name" },
+      { sql: "ALTER TABLE claims ADD COLUMN adjuster_phone VARCHAR(50)", desc: "claims.adjuster_phone" },
+      { sql: "ALTER TABLE claims ADD COLUMN adjuster_email VARCHAR(255)", desc: "claims.adjuster_email" },
+      { sql: "ALTER TABLE claims ADD COLUMN adjuster_notes TEXT", desc: "claims.adjuster_notes" },
+      { sql: "ALTER TABLE claims ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP", desc: "claims.updated_at" },
+      // Documents table columns
+      { sql: "ALTER TABLE documents ADD COLUMN claim_id INTEGER", desc: "documents.claim_id" },
+      // Update old status
+      { sql: "UPDATE claims SET status = 'Reported' WHERE status = 'Submitted'", desc: "status migration" }
     ];
     
-    for (const sql of migrations) {
+    for (const mig of migrations) {
       try {
-        await pool.query(sql);
+        await pool.query(mig.sql);
+        console.log('Migration applied:', mig.desc);
       } catch (migErr) {
-        // Ignore errors (column may already exist or syntax varies by PG version)
-        if (!migErr.message.includes('already exists')) {
-          console.log('Migration note:', migErr.message);
+        // Column already exists is fine
+        if (migErr.message.includes('already exists') || migErr.message.includes('duplicate column')) {
+          // Silent - column exists
+        } else {
+          console.log('Migration skipped (' + mig.desc + '):', migErr.message);
         }
       }
     }
     
-    console.log('Database tables initialized');
+    // Create indexes (these are safe to run multiple times)
+    const indexes = [
+      "CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token)",
+      "CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)",
+      "CREATE INDEX IF NOT EXISTS idx_claims_user ON claims(user_id)",
+      "CREATE INDEX IF NOT EXISTS idx_claims_status ON claims(status)",
+      "CREATE INDEX IF NOT EXISTS idx_claim_notes_claim ON claim_notes(claim_id)",
+      "CREATE INDEX IF NOT EXISTS idx_claim_tasks_claim ON claim_tasks(claim_id)",
+      "CREATE INDEX IF NOT EXISTS idx_claim_tasks_due ON claim_tasks(due_date)",
+      "CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id)"
+    ];
+    
+    for (const idx of indexes) {
+      try {
+        await pool.query(idx);
+      } catch (idxErr) {
+        // Ignore index errors
+      }
+    }
+    
+    console.log('Database initialization complete');
   } catch (err) {
     console.error('Database initialization error:', err.message);
   }
