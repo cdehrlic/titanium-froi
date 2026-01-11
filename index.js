@@ -304,25 +304,100 @@ Watch Demo
 </div>
 </div>
 <div class="relative float hidden lg:block">
-<div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 shadow-2xl">
-<div class="flex items-center gap-2 mb-4">
+<div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-4 shadow-2xl">
+<div class="flex items-center gap-2 mb-3">
 <div class="w-3 h-3 rounded-full bg-red-500"></div>
 <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
 <div class="w-3 h-3 rounded-full bg-green-500"></div>
+<span class="text-slate-500 text-xs ml-2">wcreporting.com/app</span>
 </div>
-<img src="https://placehold.co/500x350/1e293b/94a3b8?text=Dashboard+Preview" alt="Dashboard Preview" class="rounded-lg">
-<div class="grid grid-cols-3 gap-3 mt-4">
-<div class="bg-slate-700/50 rounded-lg p-3 text-center">
-<div class="text-2xl font-bold text-blue-400">23</div>
-<div class="text-xs text-slate-400">Active Claims</div>
+<!-- Mini Dashboard Preview -->
+<div class="bg-slate-100 rounded-lg overflow-hidden" style="width:480px;">
+<!-- Header -->
+<div class="bg-gradient-to-r from-slate-800 to-slate-700 px-3 py-2 flex items-center gap-2">
+<div class="w-6 h-6 bg-slate-600 rounded flex items-center justify-center">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
-<div class="bg-slate-700/50 rounded-lg p-3 text-center">
-<div class="text-2xl font-bold text-slate-300">0.87</div>
-<div class="text-xs text-slate-400">EMR Score</div>
+<span class="text-white font-semibold text-xs">Claims Portal</span>
 </div>
-<div class="bg-slate-700/50 rounded-lg p-3 text-center">
-<div class="text-2xl font-bold text-teal-400">$124K</div>
-<div class="text-xs text-slate-400">Savings YTD</div>
+<!-- Tabs -->
+<div class="bg-white px-2 py-1.5 flex gap-1 border-b">
+<span class="px-2 py-1 bg-slate-700 text-white text-xs rounded font-medium">Analytics</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-xs rounded">Claims</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-xs rounded">C-240</span>
+<span class="px-2 py-1 bg-slate-100 text-slate-500 text-xs rounded">EMR</span>
+</div>
+<!-- Content -->
+<div class="p-3">
+<!-- KPIs -->
+<div class="grid grid-cols-4 gap-2 mb-3">
+<div class="bg-white rounded p-2 border-l-4 border-slate-700 shadow-sm">
+<div class="text-xs text-slate-500">Claims</div>
+<div class="text-lg font-bold text-slate-800">25</div>
+</div>
+<div class="bg-white rounded p-2 border-l-4 border-blue-500 shadow-sm">
+<div class="text-xs text-slate-500">Incurred</div>
+<div class="text-lg font-bold text-blue-600">$402K</div>
+</div>
+<div class="bg-white rounded p-2 border-l-4 border-amber-500 shadow-sm">
+<div class="text-xs text-slate-500">Avg Cost</div>
+<div class="text-lg font-bold text-amber-600">$16K</div>
+</div>
+<div class="bg-white rounded p-2 border-l-4 border-green-500 shadow-sm">
+<div class="text-xs text-slate-500">Open</div>
+<div class="text-lg font-bold text-green-600">8</div>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-3 gap-2 mb-3">
+<!-- Donut -->
+<div class="bg-white rounded p-2 shadow-sm">
+<div class="text-xs font-semibold text-slate-600 mb-1">STATUS</div>
+<svg width="80" height="80" viewBox="0 0 80 80" class="mx-auto">
+<circle cx="40" cy="40" r="30" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="131 188" transform="rotate(-90 40 40)"/>
+<circle cx="40" cy="40" r="30" fill="none" stroke="#22c55e" stroke-width="12" stroke-dasharray="38 188" stroke-dashoffset="-131" transform="rotate(-90 40 40)"/>
+<circle cx="40" cy="40" r="30" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="19 188" stroke-dashoffset="-169" transform="rotate(-90 40 40)"/>
+</svg>
+</div>
+<!-- Bar Chart -->
+<div class="bg-white rounded p-2 shadow-sm">
+<div class="text-xs font-semibold text-slate-600 mb-1">INJURY TYPE</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1"><span class="text-xs text-slate-500 w-12 truncate">Fracture</span><div class="flex-1 bg-slate-200 rounded-full h-2"><div class="bg-slate-700 h-2 rounded-full" style="width:85%"></div></div></div>
+<div class="flex items-center gap-1"><span class="text-xs text-slate-500 w-12 truncate">Contusion</span><div class="flex-1 bg-slate-200 rounded-full h-2"><div class="bg-slate-700 h-2 rounded-full" style="width:60%"></div></div></div>
+<div class="flex items-center gap-1"><span class="text-xs text-slate-500 w-12 truncate">Strain</span><div class="flex-1 bg-slate-200 rounded-full h-2"><div class="bg-slate-700 h-2 rounded-full" style="width:45%"></div></div></div>
+</div>
+</div>
+<!-- Line Chart -->
+<div class="bg-white rounded p-2 shadow-sm">
+<div class="text-xs font-semibold text-slate-600 mb-1">TREND</div>
+<svg width="100%" height="50" viewBox="0 0 120 50">
+<polyline fill="none" stroke="#334155" stroke-width="2" points="5,40 20,35 35,30 50,15 65,20 80,25 95,18 110,30"/>
+<g fill="#334155"><circle cx="5" cy="40" r="2"/><circle cx="20" cy="35" r="2"/><circle cx="35" cy="30" r="2"/><circle cx="50" cy="15" r="2"/><circle cx="65" cy="20" r="2"/><circle cx="80" cy="25" r="2"/><circle cx="95" cy="18" r="2"/><circle cx="110" cy="30" r="2"/></g>
+</svg>
+</div>
+</div>
+<!-- Bottom Row -->
+<div class="grid grid-cols-2 gap-2">
+<!-- Claims List -->
+<div class="bg-white rounded p-2 shadow-sm">
+<div class="text-xs font-semibold text-slate-600 mb-1">TOP CLAIMS</div>
+<div class="space-y-1 text-xs">
+<div class="flex justify-between"><span>Rosa V. <span class="px-1 bg-green-100 text-green-700 rounded text-xs">OPEN</span></span><span class="font-bold">$118K</span></div>
+<div class="flex justify-between"><span>Kimberly R. <span class="px-1 bg-green-100 text-green-700 rounded text-xs">OPEN</span></span><span class="font-bold">$81K</span></div>
+<div class="flex justify-between"><span>Catina W. <span class="px-1 bg-red-100 text-red-700 rounded text-xs">CLOSED</span></span><span class="font-bold">$54K</span></div>
+</div>
+</div>
+<!-- AI Box -->
+<div class="bg-gradient-to-br from-slate-700 to-slate-800 rounded p-2">
+<div class="text-xs font-semibold text-white mb-1">🤖 AI INSIGHTS</div>
+<div class="space-y-1">
+<div class="bg-white/10 rounded p-1 text-xs text-slate-200">⚠️ Contusion: 32% of claims</div>
+<div class="bg-white/10 rounded p-1 text-xs text-slate-200">🦵 Knee injuries trending up</div>
+<div class="bg-white/10 rounded p-1 text-xs text-slate-200">💰 51% indemnity ratio</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
