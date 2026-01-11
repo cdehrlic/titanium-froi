@@ -1209,8 +1209,9 @@ var HTML = `<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; }
-.tab-active { background: #1e3a5f; color: white; }
-.tab-inactive { background: #e2e8f0; color: #1e3a5f; }
+.tab-active { background: #1e3a5f; color: white; box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3); }
+.tab-inactive { background: transparent; color: #475569; }
+.tab-inactive:hover { background: #f1f5f9; }
 .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
 .modal-overlay { background: rgba(0,0,0,0.5); }
@@ -1314,32 +1315,64 @@ body { font-family: 'Inter', sans-serif; }
 
 <div class="max-w-6xl mx-auto p-4">
 <!-- Navigation Tabs -->
-<div class="flex gap-2 mb-4 flex-wrap">
-<button type="button" onclick="showTab('forms')" id="tab-forms" class="px-6 py-3 rounded-t-lg font-semibold tab-active">Download Forms</button>
-<button type="button" onclick="showTab('claim')" id="tab-claim" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Submit a Claim</button>
-<button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
-<button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
-<button type="button" onclick="showTab('emr')" id="tab-emr" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">EMR Calculator</button>
-<button type="button" onclick="showTab('my-claims')" id="tab-my-claims" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive hidden auth-required">My Claims</button>
-<button type="button" onclick="showTab('my-documents')" id="tab-my-documents" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive hidden auth-required">My Documents</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">OSHA 300 Compliance</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Fraud / Red Flags</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">HIPAA Generator</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Root Cause Analysis</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Hazard Tracking</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Safety Committee</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Settlement Estimator</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Jurisdiction / Compliance</button>
+<div class="flex flex-wrap gap-1 mb-4 bg-slate-200 p-1 rounded-xl">
+<button type="button" onclick="showTab('report')" id="tab-report" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-active flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+<span class="hidden sm:inline">Report New Injury</span>
+<span class="sm:hidden">Report</span>
+</button>
+<button type="button" onclick="showTab('claims')" id="tab-claims" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+<span class="hidden sm:inline">View Claims</span>
+<span class="sm:hidden">Claims</span>
+</button>
+<button type="button" onclick="showTab('analytics')" id="tab-analytics" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+<span class="hidden sm:inline">Dashboard Analytics</span>
+<span class="sm:hidden">Analytics</span>
+</button>
+<button type="button" onclick="showTab('mydocs')" id="tab-mydocs" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+<span class="hidden sm:inline">My Documents</span>
+<span class="sm:hidden">My Docs</span>
+</button>
+<button type="button" onclick="showTab('forms')" id="tab-forms" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+<span class="hidden sm:inline">Documents</span>
+<span class="sm:hidden">Forms</span>
+</button>
+<button type="button" onclick="showTab('tools')" id="tab-tools" class="flex-1 min-w-max px-4 py-3 rounded-lg font-semibold transition-all tab-inactive flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+<span class="hidden sm:inline">Tools & Calculators</span>
+<span class="sm:hidden">Tools</span>
+</button>
 </div>
 
-<!-- My Claims Section -->
-<div id="section-my-claims" class="bg-white rounded-xl shadow p-6 hidden">
+<!-- Report New Injury Section (Default/First Tab) -->
+<div id="section-report" class="bg-white rounded-xl shadow p-6">
+<div class="bg-gradient-to-r from-green-600 to-green-500 -m-6 mb-6 p-6 rounded-t-xl">
+<h2 class="text-2xl font-bold text-white">Report New Injury</h2>
+<p class="text-green-100">Submit a First Report of Injury (FROI) for workplace incidents</p>
+</div>
+<div id="form-container"></div>
+</div>
+<!-- Claims Section -->
+<div id="section-claims" class="bg-white rounded-xl shadow p-6 hidden">
 <div class="flex justify-between items-center mb-6">
-<h3 class="text-xl font-bold text-slate-700">My Submitted Claims</h3>
+<div>
+<h3 class="text-xl font-bold text-slate-700">Claims</h3>
+<p class="text-slate-500 text-sm">All submitted injury claims</p>
+</div>
+<div class="flex gap-2">
 <button onclick="loadMyClaims()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
 Refresh
 </button>
+<button onclick="showTab('report')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+New Claim
+</button>
+</div>
 </div>
 <div id="myClaimsList" class="space-y-3">
 <div class="text-center py-12 text-slate-500">
@@ -1351,9 +1384,12 @@ Refresh
 </div>
 
 <!-- My Documents Section -->
-<div id="section-my-documents" class="bg-white rounded-xl shadow p-6 hidden">
+<div id="section-mydocs" class="bg-white rounded-xl shadow p-6 hidden">
 <div class="flex justify-between items-center mb-6">
-<h3 class="text-xl font-bold text-slate-700">My Saved Documents</h3>
+<div>
+<h3 class="text-xl font-bold text-slate-700">My Documents</h3>
+<p class="text-slate-500 text-sm">Your saved forms, reports, and generated documents</p>
+</div>
 <button onclick="loadMyDocuments()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
 Refresh
@@ -1363,32 +1399,39 @@ Refresh
 <div class="text-center py-12 text-slate-500">
 <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
 <p class="font-medium">No documents saved yet</p>
-<p class="text-sm mt-1">C-240 forms and loss run reports will appear here</p>
+<p class="text-sm mt-1">C-240 forms and reports will appear here</p>
 </div>
 </div>
 </div>
 
-<!-- Forms Section -->
-<div id="section-forms" class="bg-white rounded-xl shadow p-6">
-<h3 class="text-xl font-bold text-slate-700 mb-4">Downloadable Forms</h3>
-<div class="flex gap-4 flex-wrap">
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-Employee Incident Report
+<!-- Downloadable Forms Section -->
+<div id="section-forms" class="hidden">
+<div class="bg-white rounded-xl shadow p-6">
+<h3 class="text-xl font-bold text-slate-700 mb-2">Downloadable Forms</h3>
+<p class="text-slate-500 text-sm mb-6">Standard incident reporting and compliance forms for your workplace</p>
+<div class="grid md:grid-cols-2 gap-4">
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition border border-slate-200">
+<div class="w-12 h-12 bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+</div>
+<div>
+<h4 class="font-semibold text-slate-800">Employee Incident Report</h4>
+<p class="text-sm text-slate-500">Standard form for documenting workplace incidents</p>
+</div>
 </a>
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-Witness Statement Form
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition border border-slate-200">
+<div class="w-12 h-12 bg-slate-600 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+</div>
+<div>
+<h4 class="font-semibold text-slate-800">Witness Statement Form</h4>
+<p class="text-sm text-slate-500">Collect witness accounts of workplace incidents</p>
+</div>
 </a>
 </div>
 </div>
 
-<!-- Claim Form Section -->
-<div id="section-claim" class="bg-white rounded-xl shadow p-6 hidden">
-<div id="form-container"></div>
-</div>
-
-<!-- Loss Run Analytics Section -->
+<!-- Analytics Section -->
 <div id="section-analytics" class="hidden">
 <div class="bg-white rounded-xl shadow p-6 mb-4">
 <h3 class="text-xl font-bold text-slate-700 mb-2">Loss Run Analytics Dashboard</h3>
@@ -1493,8 +1536,40 @@ Witness Statement Form
 </div>
 </div>
 
-<!-- C-240 Form Section -->
-<div id="section-c240" class="hidden">
+<!-- Tools & Calculators Section -->
+<div id="section-tools" class="hidden space-y-6">
+<div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-6 text-white mb-6">
+<h2 class="text-2xl font-bold mb-2">Tools & Calculators</h2>
+<p class="text-slate-300">Professional tools for workers' compensation management</p>
+</div>
+
+<!-- Tool Selection Cards -->
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+<button onclick="showTool('c240')" id="tool-btn-c240" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-green-500 hover:shadow-lg transition">
+<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+</div>
+<h4 class="font-bold text-slate-800 mb-1">C-240 Form Generator</h4>
+<p class="text-sm text-slate-500">Auto-fill NY wage statement from payroll data</p>
+</button>
+<button onclick="showTool('emr')" id="tool-btn-emr" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-slate-200 hover:border-slate-300 hover:shadow-lg transition">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+</div>
+<h4 class="font-bold text-slate-800 mb-1">EMR Calculator</h4>
+<p class="text-sm text-slate-500">Estimate your experience modification rate</p>
+</button>
+<button onclick="showTool('coming')" id="tool-btn-coming" class="tool-card bg-white rounded-xl p-5 text-left border-2 border-slate-200 hover:border-slate-300 hover:shadow-lg transition">
+<div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mb-3">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+</div>
+<h4 class="font-bold text-slate-800 mb-1">More Tools Coming</h4>
+<p class="text-sm text-slate-500">OSHA 300, Settlement Estimator, and more</p>
+</button>
+</div>
+
+<!-- C-240 Tool Content -->
+<div id="tool-c240" class="tool-content">
 <div class="bg-white rounded-xl shadow p-6 mb-4">
 <h3 class="text-xl font-bold text-slate-700 mb-2">C-240 Employers Statement of Wage Earnings</h3>
 <p class="text-slate-600 mb-4">Auto-populate the 52-week payroll table (Page 2) of the NY Workers Compensation C-240 form.</p>
@@ -1531,10 +1606,9 @@ Witness Statement Form
 <p class="text-slate-300 text-sm mt-2">Generates only Page 2 with your payroll data</p>
 </div>
 </div>
-</div>
 
-<!-- EMR Calculator Section -->
-<div id="section-emr" class="hidden">
+<!-- EMR Calculator Tool Content -->
+<div id="tool-emr" class="tool-content hidden">
 <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 mb-4">
 <p class="text-amber-800 text-sm"><strong>⚠️ Disclaimer:</strong> This calculator is for <strong>educational and planning purposes only</strong> and does not constitute an official NYCIRB, NCCI, or any state rating bureau modification factor. Actual EMR calculations involve additional factors and should be obtained from your insurance carrier or rating bureau.</p>
 </div>
@@ -1721,6 +1795,45 @@ Witness Statement Form
 </div>
 </div>
 </div>
+</div>
+
+<!-- Coming Soon Tools -->
+<div id="tool-coming" class="tool-content hidden">
+<div class="bg-white rounded-xl shadow p-8 text-center">
+<div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+<svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-700 mb-2">More Tools Coming Soon</h3>
+<p class="text-slate-500 mb-6">We're working on additional tools to help you manage workers' compensation more effectively.</p>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">OSHA 300 Log Generator</h4>
+<p class="text-sm text-slate-500">Auto-generate OSHA 300/300A forms</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Settlement Estimator</h4>
+<p class="text-sm text-slate-500">Estimate claim settlement values</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Fraud Detection</h4>
+<p class="text-sm text-slate-500">Red flag analysis for claims</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">HIPAA Generator</h4>
+<p class="text-sm text-slate-500">Create medical authorization forms</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Root Cause Analysis</h4>
+<p class="text-sm text-slate-500">Investigate incident root causes</p>
+</div>
+<div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+<h4 class="font-semibold text-slate-700 mb-1">Jurisdiction Lookup</h4>
+<p class="text-sm text-slate-500">State-specific compliance info</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 <footer class="bg-slate-800 text-green-300 py-6 mt-8 text-center text-sm">
 <p>2025 Titanium Defense Group. All rights reserved.</p>
@@ -1728,40 +1841,55 @@ Witness Statement Form
 
 <script>
 // Tab Navigation
+var allTabs = ['report', 'claims', 'analytics', 'mydocs', 'forms', 'tools'];
+var currentTool = 'c240';
+
 function showTab(tab) {
-  document.getElementById('section-forms').classList.add('hidden');
-  document.getElementById('section-claim').classList.add('hidden');
-  document.getElementById('section-analytics').classList.add('hidden');
-  document.getElementById('section-c240').classList.add('hidden');
-  document.getElementById('section-emr').classList.add('hidden');
-  document.getElementById('section-my-claims').classList.add('hidden');
-  document.getElementById('section-my-documents').classList.add('hidden');
-  document.getElementById('tab-forms').classList.remove('tab-active');
-  document.getElementById('tab-forms').classList.add('tab-inactive');
-  document.getElementById('tab-claim').classList.remove('tab-active');
-  document.getElementById('tab-claim').classList.add('tab-inactive');
-  document.getElementById('tab-analytics').classList.remove('tab-active');
-  document.getElementById('tab-analytics').classList.add('tab-inactive');
-  document.getElementById('tab-c240').classList.remove('tab-active');
-  document.getElementById('tab-c240').classList.add('tab-inactive');
-  document.getElementById('tab-emr').classList.remove('tab-active');
-  document.getElementById('tab-emr').classList.add('tab-inactive');
-  if (document.getElementById('tab-my-claims')) {
-    document.getElementById('tab-my-claims').classList.remove('tab-active');
-    document.getElementById('tab-my-claims').classList.add('tab-inactive');
-  }
-  if (document.getElementById('tab-my-documents')) {
-    document.getElementById('tab-my-documents').classList.remove('tab-active');
-    document.getElementById('tab-my-documents').classList.add('tab-inactive');
+  // Hide all sections and deactivate all tabs
+  allTabs.forEach(function(t) {
+    var section = document.getElementById('section-' + t);
+    var tabBtn = document.getElementById('tab-' + t);
+    if (section) section.classList.add('hidden');
+    if (tabBtn) {
+      tabBtn.classList.remove('tab-active');
+      tabBtn.classList.add('tab-inactive');
+    }
+  });
+  
+  // Show selected section and activate tab
+  var activeSection = document.getElementById('section-' + tab);
+  var activeTab = document.getElementById('tab-' + tab);
+  if (activeSection) activeSection.classList.remove('hidden');
+  if (activeTab) {
+    activeTab.classList.add('tab-active');
+    activeTab.classList.remove('tab-inactive');
   }
   
-  document.getElementById('section-' + tab).classList.remove('hidden');
-  document.getElementById('tab-' + tab).classList.add('tab-active');
-  document.getElementById('tab-' + tab).classList.remove('tab-inactive');
-  
-  if (tab === 'claim') render();
-  if (tab === 'my-claims') loadMyClaims();
-  if (tab === 'my-documents') loadMyDocuments();
+  // Trigger actions for specific tabs
+  if (tab === 'report') render();
+  if (tab === 'claims') loadMyClaims();
+  if (tab === 'mydocs') loadMyDocuments();
+}
+
+function showTool(tool) {
+  // Hide all tool contents
+  document.querySelectorAll('.tool-content').forEach(function(el) {
+    el.classList.add('hidden');
+  });
+  // Deactivate all tool buttons
+  document.querySelectorAll('.tool-card').forEach(function(el) {
+    el.classList.remove('border-green-500');
+    el.classList.add('border-slate-200');
+  });
+  // Show selected tool
+  var toolContent = document.getElementById('tool-' + tool);
+  var toolBtn = document.getElementById('tool-btn-' + tool);
+  if (toolContent) toolContent.classList.remove('hidden');
+  if (toolBtn) {
+    toolBtn.classList.add('border-green-500');
+    toolBtn.classList.remove('border-slate-200');
+  }
+  currentTool = tool;
 }
 
 // PDF Export function
@@ -2535,7 +2663,7 @@ async function handleLogout() {
   localStorage.removeItem('wcr_token');
   localStorage.removeItem('wcr_user');
   updateAuthUI();
-  showTab('forms');
+  showTab('report');
 }
 
 function toggleUserMenu() {
@@ -2549,26 +2677,20 @@ function updateAuthUI() {
     document.getElementById('userName').textContent = (currentUser.firstName || '') + ' ' + (currentUser.lastName || currentUser.email);
     document.getElementById('userCompany').textContent = currentUser.companyName || '';
     document.getElementById('userInitial').textContent = (currentUser.firstName || currentUser.email || 'U')[0].toUpperCase();
-    
-    // Show auth-required tabs
-    document.querySelectorAll('.auth-required').forEach(function(el) {
-      el.classList.remove('hidden');
-    });
   } else {
     document.getElementById('guestButtons').classList.remove('hidden');
     document.getElementById('userSection').classList.add('hidden');
-    
-    // Hide auth-required tabs
-    document.querySelectorAll('.auth-required').forEach(function(el) {
-      el.classList.add('hidden');
-    });
   }
 }
 
 async function loadMyClaims() {
-  if (!sessionToken) return;
-  
   var container = document.getElementById('myClaimsList');
+  
+  if (!sessionToken) {
+    container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium">Sign in to view your claims</p><p class="text-sm mt-1">Your submitted claims will appear here</p><button onclick="openAuthModal()" class="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div>';
+    return;
+  }
+  
   container.innerHTML = '<div class="text-center py-8"><div class="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div><p class="mt-2 text-slate-500">Loading claims...</p></div>';
   
   try {
@@ -2600,9 +2722,13 @@ async function loadMyClaims() {
 }
 
 async function loadMyDocuments() {
-  if (!sessionToken) return;
-  
   var container = document.getElementById('myDocumentsList');
+  
+  if (!sessionToken) {
+    container.innerHTML = '<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg><p class="font-medium">Sign in to view your documents</p><p class="text-sm mt-1">Saved forms and reports will appear here</p><button onclick="openAuthModal()" class="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Sign In</button></div>';
+    return;
+  }
+  
   container.innerHTML = '<div class="text-center py-8"><div class="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div><p class="mt-2 text-slate-500">Loading documents...</p></div>';
   
   try {
@@ -2685,6 +2811,9 @@ document.addEventListener('click', function(e) {
 
 // Initialize auth state on load
 updateAuthUI();
+
+// Initialize the Report New Injury form
+render();
 
 // Verify session on load
 if (sessionToken) {
