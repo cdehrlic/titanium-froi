@@ -38,11 +38,11 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.fontSize(20).font('Helvetica-Bold').text('WCREPORTING', { align: 'center' });
     doc.fontSize(14).font('Helvetica').text('First Report of Work-Related Injury/Illness', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).font('Helvetica-Bold').fillColor('#0d9488').text('Reference #: ' + referenceNumber, { align: 'center' });
+    doc.fontSize(12).font('Helvetica-Bold').fillColor('#1e3a5f').text('Reference #: ' + referenceNumber, { align: 'center' });
     doc.fontSize(10).font('Helvetica').fillColor('black').text('Generated: ' + new Date().toLocaleString(), { align: 'center' });
     doc.moveDown(2);
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('EMPLOYEE PERSONAL INFORMATION');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('EMPLOYEE PERSONAL INFORMATION');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -57,7 +57,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.text('Preferred Language: ' + (formData.preferredLanguage || 'N/A'));
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('CLAIM INFORMATION');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('CLAIM INFORMATION');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -68,7 +68,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.text('Employee Work Type: ' + (formData.employeeWorkType || 'N/A'));
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('INJURY DETAILS');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('INJURY DETAILS');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -83,7 +83,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.font('Helvetica').text(formData.accidentDescription || 'N/A');
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('WORK STATUS');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('WORK STATUS');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -92,7 +92,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.text('Return to Work Status: ' + (formData.returnStatus || 'N/A'));
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('LOCATIONS');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('LOCATIONS');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -100,7 +100,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.text('Accident Location: ' + (formData.accidentStreet || '') + ' ' + (formData.accidentCity || '') + ', ' + (formData.accidentState || '') + ' ' + (formData.accidentZip || ''));
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('WITNESSES');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('WITNESSES');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -115,7 +115,7 @@ function generateClaimPDF(formData, referenceNumber) {
     }
     doc.moveDown();
 
-    doc.fontSize(14).font('Helvetica-Bold').fillColor('#0d9488').text('SUBMITTED BY');
+    doc.fontSize(14).font('Helvetica-Bold').fillColor('#1e3a5f').text('SUBMITTED BY');
     doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').fillColor('black');
@@ -229,34 +229,34 @@ var LANDING_HTML = `<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { font-family: 'Inter', sans-serif; }
-.gradient-hero { background: linear-gradient(135deg, #042f2e 0%, #0f766e 50%, #042f2e 100%); }
-.gradient-cta { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); }
-.gradient-card { background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%); }
-.feature-icon { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); }
-.glow { box-shadow: 0 0 60px rgba(20, 184, 166, 0.4); }
+.gradient-hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
+.gradient-cta { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+.gradient-card { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+.feature-icon { background: linear-gradient(135deg, #1e3a5f 0%, #334155 100%); }
+.glow { box-shadow: 0 0 60px rgba(34, 197, 94, 0.4); }
 .float { animation: float 6s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
 .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; }
 @keyframes slideUp { to { opacity: 1; transform: translateY(0); } from { transform: translateY(30px); } }
 </style>
 </head>
-<body class="bg-teal-50">
+<body class="bg-slate-50">
 
 <!-- Navigation -->
-<nav class="fixed w-full z-50 bg-teal-950/95 backdrop-blur-sm border-b border-teal-900">
+<nav class="fixed w-full z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
 <div class="max-w-7xl mx-auto px-6 py-4">
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+<div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
-<span class="text-2xl font-bold text-white">WC<span class="text-teal-400">Reporting</span></span>
+<span class="text-2xl font-bold text-white">WC<span class="text-green-400">Reporting</span></span>
 </div>
 <div class="hidden md:flex items-center gap-8">
-<a href="#features" class="text-teal-200 hover:text-white transition">Features</a>
-<a href="#benefits" class="text-teal-200 hover:text-white transition">Benefits</a>
-<a href="#pricing" class="text-teal-200 hover:text-white transition">Pricing</a>
-<a href="/app" class="px-5 py-2 bg-teal-500 text-white rounded-lg font-semibold hover:bg-teal-400 transition">Launch App</a>
+<a href="#features" class="text-slate-300 hover:text-white transition">Features</a>
+<a href="#benefits" class="text-slate-300 hover:text-white transition">Benefits</a>
+<a href="#pricing" class="text-slate-300 hover:text-white transition">Pricing</a>
+<a href="/app" class="px-5 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-400 transition">Launch App</a>
 </div>
 <button class="md:hidden text-white">
 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -270,15 +270,15 @@ var LANDING_HTML = `<!DOCTYPE html>
 <div class="max-w-7xl mx-auto px-6 py-20">
 <div class="grid lg:grid-cols-2 gap-12 items-center">
 <div class="slide-up">
-<div class="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/10 border border-teal-500/30 rounded-full mb-6">
-<span class="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
-<span class="text-teal-300 text-sm font-medium">Now Available for Employers & Brokers</span>
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full mb-6">
+<span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+<span class="text-green-300 text-sm font-medium">Now Available for Employers & Brokers</span>
 </div>
 <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
 Workers' Comp<br>
-<span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-300">Made Simple.</span>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-300">Made Simple.</span>
 </h1>
-<p class="text-xl text-teal-100 mb-8 leading-relaxed">
+<p class="text-xl text-slate-100 mb-8 leading-relaxed">
 The modern all-in-one platform that eliminates paperwork, simplifies reporting, and gives you instant visibility into every claim. Replace outdated spreadsheets with a portal your team will actually use.
 </p>
 <div class="flex flex-col sm:flex-row gap-4">
@@ -290,52 +290,52 @@ Start Free Trial
 Watch Demo
 </a>
 </div>
-<div class="flex items-center gap-8 mt-10 pt-10 border-t border-teal-700">
+<div class="flex items-center gap-8 mt-10 pt-10 border-t border-slate-700">
 <div>
 <div class="text-3xl font-bold text-white">98%</div>
-<div class="text-teal-300 text-sm">Faster Reporting</div>
+<div class="text-green-300 text-sm">Faster Reporting</div>
 </div>
 <div>
 <div class="text-3xl font-bold text-white">45%</div>
-<div class="text-teal-300 text-sm">Cost Reduction</div>
+<div class="text-green-300 text-sm">Cost Reduction</div>
 </div>
 <div>
 <div class="text-3xl font-bold text-white">24/7</div>
-<div class="text-teal-300 text-sm">Access Anywhere</div>
+<div class="text-green-300 text-sm">Access Anywhere</div>
 </div>
 </div>
 </div>
 <div class="relative float hidden lg:block">
-<div class="bg-teal-900/50 backdrop-blur-sm rounded-2xl border border-teal-700 p-4 shadow-2xl">
+<div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-4 shadow-2xl">
 <div class="flex items-center gap-2 mb-3">
 <div class="w-3 h-3 rounded-full bg-red-500"></div>
 <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
 <div class="w-3 h-3 rounded-full bg-green-500"></div>
-<span class="text-teal-400 text-xs ml-2">wcreporting.com/app</span>
+<span class="text-green-400 text-xs ml-2">wcreporting.com/app</span>
 </div>
 <!-- Mini Dashboard Preview -->
-<div class="bg-teal-50 rounded-lg overflow-hidden" style="width:480px;">
+<div class="bg-slate-50 rounded-lg overflow-hidden" style="width:480px;">
 <!-- Header -->
-<div class="bg-gradient-to-r from-teal-700 to-teal-600 px-3 py-2 flex items-center gap-2">
-<div class="w-6 h-6 bg-teal-500 rounded flex items-center justify-center">
+<div class="bg-gradient-to-r from-slate-700 to-slate-600 px-3 py-2 flex items-center gap-2">
+<div class="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
 <span class="text-white font-semibold text-xs">Claims Portal</span>
 </div>
 <!-- Tabs -->
 <div class="bg-white px-2 py-1.5 flex gap-1 border-b">
-<span class="px-2 py-1 bg-teal-600 text-white text-xs rounded font-medium">Analytics</span>
-<span class="px-2 py-1 bg-teal-50 text-teal-600 text-xs rounded">Claims</span>
-<span class="px-2 py-1 bg-teal-50 text-teal-600 text-xs rounded">C-240</span>
-<span class="px-2 py-1 bg-teal-50 text-teal-600 text-xs rounded">EMR</span>
+<span class="px-2 py-1 bg-slate-600 text-white text-xs rounded font-medium">Analytics</span>
+<span class="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded">Claims</span>
+<span class="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded">C-240</span>
+<span class="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded">EMR</span>
 </div>
 <!-- Content -->
 <div class="p-3">
 <!-- KPIs -->
 <div class="grid grid-cols-4 gap-2 mb-3">
-<div class="bg-white rounded p-2 border-l-4 border-teal-600 shadow-sm">
-<div class="text-xs text-teal-600">Claims</div>
-<div class="text-lg font-bold text-teal-800">25</div>
+<div class="bg-white rounded p-2 border-l-4 border-slate-600 shadow-sm">
+<div class="text-xs text-slate-600">Claims</div>
+<div class="text-lg font-bold text-slate-700">25</div>
 </div>
 <div class="bg-white rounded p-2 border-l-4 border-cyan-500 shadow-sm">
 <div class="text-xs text-cyan-600">Incurred</div>
@@ -354,7 +354,7 @@ Watch Demo
 <div class="grid grid-cols-3 gap-2 mb-3">
 <!-- Donut -->
 <div class="bg-white rounded p-2 shadow-sm">
-<div class="text-xs font-semibold text-teal-700 mb-1">STATUS</div>
+<div class="text-xs font-semibold text-slate-700 mb-1">STATUS</div>
 <svg width="80" height="80" viewBox="0 0 80 80" class="mx-auto">
 <circle cx="40" cy="40" r="30" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="131 188" transform="rotate(-90 40 40)"/>
 <circle cx="40" cy="40" r="30" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="38 188" stroke-dashoffset="-131" transform="rotate(-90 40 40)"/>
@@ -363,19 +363,19 @@ Watch Demo
 </div>
 <!-- Bar Chart -->
 <div class="bg-white rounded p-2 shadow-sm">
-<div class="text-xs font-semibold text-teal-700 mb-1">INJURY TYPE</div>
+<div class="text-xs font-semibold text-slate-700 mb-1">INJURY TYPE</div>
 <div class="space-y-1">
-<div class="flex items-center gap-1"><span class="text-xs text-teal-600 w-12 truncate">Fracture</span><div class="flex-1 bg-teal-100 rounded-full h-2"><div class="bg-teal-600 h-2 rounded-full" style="width:85%"></div></div></div>
-<div class="flex items-center gap-1"><span class="text-xs text-teal-600 w-12 truncate">Contusion</span><div class="flex-1 bg-teal-100 rounded-full h-2"><div class="bg-teal-600 h-2 rounded-full" style="width:60%"></div></div></div>
-<div class="flex items-center gap-1"><span class="text-xs text-teal-600 w-12 truncate">Strain</span><div class="flex-1 bg-teal-100 rounded-full h-2"><div class="bg-teal-600 h-2 rounded-full" style="width:45%"></div></div></div>
+<div class="flex items-center gap-1"><span class="text-xs text-slate-600 w-12 truncate">Fracture</span><div class="flex-1 bg-slate-100 rounded-full h-2"><div class="bg-slate-600 h-2 rounded-full" style="width:85%"></div></div></div>
+<div class="flex items-center gap-1"><span class="text-xs text-slate-600 w-12 truncate">Contusion</span><div class="flex-1 bg-slate-100 rounded-full h-2"><div class="bg-slate-600 h-2 rounded-full" style="width:60%"></div></div></div>
+<div class="flex items-center gap-1"><span class="text-xs text-slate-600 w-12 truncate">Strain</span><div class="flex-1 bg-slate-100 rounded-full h-2"><div class="bg-slate-600 h-2 rounded-full" style="width:45%"></div></div></div>
 </div>
 </div>
 <!-- Line Chart -->
 <div class="bg-white rounded p-2 shadow-sm">
-<div class="text-xs font-semibold text-teal-700 mb-1">TREND</div>
+<div class="text-xs font-semibold text-slate-700 mb-1">TREND</div>
 <svg width="100%" height="50" viewBox="0 0 120 50">
-<polyline fill="none" stroke="#0d9488" stroke-width="2" points="5,40 20,35 35,30 50,15 65,20 80,25 95,18 110,30"/>
-<g fill="#0d9488"><circle cx="5" cy="40" r="2"/><circle cx="20" cy="35" r="2"/><circle cx="35" cy="30" r="2"/><circle cx="50" cy="15" r="2"/><circle cx="65" cy="20" r="2"/><circle cx="80" cy="25" r="2"/><circle cx="95" cy="18" r="2"/><circle cx="110" cy="30" r="2"/></g>
+<polyline fill="none" stroke="#1e3a5f" stroke-width="2" points="5,40 20,35 35,30 50,15 65,20 80,25 95,18 110,30"/>
+<g fill="#1e3a5f"><circle cx="5" cy="40" r="2"/><circle cx="20" cy="35" r="2"/><circle cx="35" cy="30" r="2"/><circle cx="50" cy="15" r="2"/><circle cx="65" cy="20" r="2"/><circle cx="80" cy="25" r="2"/><circle cx="95" cy="18" r="2"/><circle cx="110" cy="30" r="2"/></g>
 </svg>
 </div>
 </div>
@@ -383,7 +383,7 @@ Watch Demo
 <div class="grid grid-cols-2 gap-2">
 <!-- Claims List -->
 <div class="bg-white rounded p-2 shadow-sm">
-<div class="text-xs font-semibold text-teal-700 mb-1">TOP CLAIMS</div>
+<div class="text-xs font-semibold text-slate-700 mb-1">TOP CLAIMS</div>
 <div class="space-y-1 text-xs">
 <div class="flex justify-between"><span>Rosa V. <span class="px-1 bg-emerald-100 text-emerald-700 rounded text-xs">OPEN</span></span><span class="font-bold">$118K</span></div>
 <div class="flex justify-between"><span>Kimberly R. <span class="px-1 bg-emerald-100 text-emerald-700 rounded text-xs">OPEN</span></span><span class="font-bold">$81K</span></div>
@@ -391,12 +391,12 @@ Watch Demo
 </div>
 </div>
 <!-- AI Box -->
-<div class="bg-gradient-to-br from-teal-700 to-teal-800 rounded p-2">
+<div class="bg-gradient-to-br from-slate-700 to-slate-700 rounded p-2">
 <div class="text-xs font-semibold text-white mb-1">🤖 AI INSIGHTS</div>
 <div class="space-y-1">
-<div class="bg-white/10 rounded p-1 text-xs text-teal-100">⚠️ Contusion: 32% of claims</div>
-<div class="bg-white/10 rounded p-1 text-xs text-teal-100">🦵 Knee injuries trending up</div>
-<div class="bg-white/10 rounded p-1 text-xs text-teal-100">💰 51% indemnity ratio</div>
+<div class="bg-white/10 rounded p-1 text-xs text-slate-100">⚠️ Contusion: 32% of claims</div>
+<div class="bg-white/10 rounded p-1 text-xs text-slate-100">🦵 Knee injuries trending up</div>
+<div class="bg-white/10 rounded p-1 text-xs text-slate-100">💰 51% indemnity ratio</div>
 </div>
 </div>
 </div>
@@ -409,15 +409,15 @@ Watch Demo
 </section>
 
 <!-- Logos -->
-<section class="py-12 bg-white border-b border-teal-100">
+<section class="py-12 bg-white border-b border-slate-100">
 <div class="max-w-7xl mx-auto px-6">
-<p class="text-center text-teal-600 text-sm mb-8">TRUSTED BY LEADING EMPLOYERS AND BROKERS</p>
+<p class="text-center text-slate-500 text-sm mb-8">TRUSTED BY LEADING EMPLOYERS AND BROKERS</p>
 <div class="flex flex-wrap justify-center items-center gap-12 opacity-50">
-<div class="text-2xl font-bold text-teal-300">ACME Corp</div>
-<div class="text-2xl font-bold text-teal-300">BuildRight</div>
-<div class="text-2xl font-bold text-teal-300">SafeWorks</div>
-<div class="text-2xl font-bold text-teal-300">Premier HR</div>
-<div class="text-2xl font-bold text-teal-300">Atlas Insurance</div>
+<div class="text-2xl font-bold text-slate-400">ACME Corp</div>
+<div class="text-2xl font-bold text-slate-400">BuildRight</div>
+<div class="text-2xl font-bold text-slate-400">SafeWorks</div>
+<div class="text-2xl font-bold text-slate-400">Premier HR</div>
+<div class="text-2xl font-bold text-slate-400">Atlas Insurance</div>
 </div>
 </div>
 </section>
@@ -462,36 +462,36 @@ Stop drowning in<br>
 </div>
 </div>
 <div>
-<h2 class="text-3xl md:text-4xl font-bold text-teal-900 mb-6">
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
 One platform for<br>
-<span class="text-teal-600">complete control</span>
+<span class="text-slate-600">complete control</span>
 </h2>
 <div class="space-y-4">
-<div class="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
-<div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+<div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
 </div>
 <div>
-<div class="font-semibold text-teal-900">Digital incident submission</div>
-<div class="text-teal-700 text-sm">Mobile-friendly forms with instant notifications</div>
+<div class="font-semibold text-slate-800">Digital incident submission</div>
+<div class="text-slate-700 text-sm">Mobile-friendly forms with instant notifications</div>
 </div>
 </div>
-<div class="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
-<div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-</div>
-<div>
-<div class="font-semibold text-teal-900">Centralized dashboard</div>
-<div class="text-teal-700 text-sm">All claims, documents, and analytics in one place</div>
-</div>
-</div>
-<div class="flex items-start gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
-<div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+<div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
 </div>
 <div>
-<div class="font-semibold text-teal-900">AI-powered insights</div>
-<div class="text-teal-700 text-sm">Identify trends and prevent incidents before they happen</div>
+<div class="font-semibold text-slate-800">Centralized dashboard</div>
+<div class="text-slate-700 text-sm">All claims, documents, and analytics in one place</div>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">AI-powered insights</div>
+<div class="text-slate-700 text-sm">Identify trends and prevent incidents before they happen</div>
 </div>
 </div>
 </div>
@@ -501,81 +501,81 @@ One platform for<br>
 </section>
 
 <!-- Features Grid -->
-<section id="features" class="py-20 bg-teal-50">
+<section id="features" class="py-20 bg-slate-50">
 <div class="max-w-7xl mx-auto px-6">
 <div class="text-center mb-16">
-<h2 class="text-3xl md:text-4xl font-bold text-teal-900 mb-4">Everything you need in one platform</h2>
-<p class="text-xl text-teal-700 max-w-2xl mx-auto">Powerful tools designed to streamline compliance, reduce costs, and keep your workforce safe.</p>
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Everything you need in one platform</h2>
+<p class="text-xl text-slate-700 max-w-2xl mx-auto">Powerful tools designed to streamline compliance, reduce costs, and keep your workforce safe.</p>
 </div>
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">Digital Claim Submission</h3>
-<p class="text-teal-700">Submit FROI claims instantly from any device. Auto-generated PDFs sent directly to your carrier.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Digital Claim Submission</h3>
+<p class="text-slate-700">Submit FROI claims instantly from any device. Auto-generated PDFs sent directly to your carrier.</p>
 </div>
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">Loss Run Analytics</h3>
-<p class="text-teal-700">Upload loss runs and get instant visualizations, trend analysis, and AI-powered recommendations.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Loss Run Analytics</h3>
+<p class="text-slate-700">Upload loss runs and get instant visualizations, trend analysis, and AI-powered recommendations.</p>
 </div>
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">EMR Calculator</h3>
-<p class="text-teal-700">Estimate your experience modification rate with automatic primary/excess splits and what-if scenarios.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">EMR Calculator</h3>
+<p class="text-slate-700">Estimate your experience modification rate with automatic primary/excess splits and what-if scenarios.</p>
 </div>
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">Fraud Detection</h3>
-<p class="text-teal-700">AI-powered red flag indicators automatically identify suspicious claims for further review.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Fraud Detection</h3>
+<p class="text-slate-700">AI-powered red flag indicators automatically identify suspicious claims for further review.</p>
 </div>
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">Auto Form Generation</h3>
-<p class="text-teal-700">Generate C-240 wage statements, HIPAA authorizations, and compliance forms automatically.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Auto Form Generation</h3>
+<p class="text-slate-700">Generate C-240 wage statements, HIPAA authorizations, and compliance forms automatically.</p>
 </div>
-<div class="gradient-card rounded-2xl p-8 border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="gradient-card rounded-2xl p-8 border border-slate-100 hover:shadow-xl transition-all hover:-translate-y-1">
 <div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
 </div>
-<h3 class="text-xl font-bold text-teal-900 mb-3">Root Cause Analysis</h3>
-<p class="text-teal-700">Identify patterns, track hazards, and implement preventive measures with actionable insights.</p>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Root Cause Analysis</h3>
+<p class="text-slate-700">Identify patterns, track hazards, and implement preventive measures with actionable insights.</p>
 </div>
 </div>
 </div>
 </section>
 
 <!-- Benefits -->
-<section id="benefits" class="py-20 bg-teal-900">
+<section id="benefits" class="py-20 bg-slate-800">
 <div class="max-w-7xl mx-auto px-6">
 <div class="text-center mb-16">
 <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Results that speak for themselves</h2>
-<p class="text-xl text-slate-400 max-w-2xl mx-auto">Companies using WCReporting see dramatic improvements in efficiency, compliance, and cost savings.</p>
+<p class="text-xl text-slate-300 max-w-2xl mx-auto">Companies using WCReporting see dramatic improvements in efficiency, compliance, and cost savings.</p>
 </div>
 <div class="grid md:grid-cols-3 gap-8">
 <div class="text-center p-8">
-<div class="text-6xl font-bold text-teal-300 mb-4">98%</div>
+<div class="text-6xl font-bold text-green-400 mb-4">98%</div>
 <div class="text-xl font-semibold text-white mb-2">Faster Claim Reporting</div>
-<p class="text-slate-400">Digital submissions eliminate delays from paper forms and manual data entry.</p>
+<p class="text-slate-300">Digital submissions eliminate delays from paper forms and manual data entry.</p>
 </div>
 <div class="text-center p-8">
-<div class="text-6xl font-bold text-teal-300 mb-4">45%</div>
+<div class="text-6xl font-bold text-green-400 mb-4">45%</div>
 <div class="text-xl font-semibold text-white mb-2">Reduction in Claim Costs</div>
-<p class="text-slate-400">Early intervention and fraud detection significantly reduce total incurred losses.</p>
+<p class="text-slate-300">Early intervention and fraud detection significantly reduce total incurred losses.</p>
 </div>
 <div class="text-center p-8">
-<div class="text-6xl font-bold text-teal-300 mb-4">12hrs</div>
+<div class="text-6xl font-bold text-green-400 mb-4">12hrs</div>
 <div class="text-xl font-semibold text-white mb-2">Saved Per Week</div>
-<p class="text-slate-400">Automated forms and centralized data eliminate tedious administrative work.</p>
+<p class="text-slate-300">Automated forms and centralized data eliminate tedious administrative work.</p>
 </div>
 </div>
 </div>
@@ -665,19 +665,19 @@ One platform for<br>
 </ul>
 <a href="/app" class="block w-full py-3 text-center bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition">Get Started Free</a>
 </div>
-<div class="bg-teal-900 rounded-2xl p-8 border-2 border-teal-500 relative">
-<div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-teal-500 text-white text-sm font-semibold rounded-full">MOST POPULAR</div>
+<div class="bg-slate-800 rounded-2xl p-8 border-2 border-green-500 relative">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-500 text-white text-sm font-semibold rounded-full">MOST POPULAR</div>
 <div class="text-lg font-semibold text-slate-400 mb-2">Professional</div>
 <div class="flex items-baseline gap-1 mb-6">
 <span class="text-5xl font-bold text-white">$99</span>
 <span class="text-slate-400">/month</span>
 </div>
 <ul class="space-y-3 mb-8">
-<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited claims</li>
-<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Advanced analytics & AI</li>
-<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Auto form generation</li>
-<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Fraud detection</li>
-<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority support</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited claims</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Advanced analytics & AI</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Auto form generation</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Fraud detection</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority support</li>
 </ul>
 <a href="/app" class="block w-full py-3 text-center gradient-cta text-white rounded-xl font-semibold hover:opacity-90 transition">Start 14-Day Trial</a>
 </div>
@@ -717,21 +717,21 @@ Schedule a Demo
 </section>
 
 <!-- Footer -->
-<footer class="bg-teal-950 py-16 border-t border-teal-900">
+<footer class="bg-slate-900 py-16 border-t border-slate-800">
 <div class="max-w-7xl mx-auto px-6">
 <div class="grid md:grid-cols-4 gap-12 mb-12">
 <div>
 <div class="flex items-center gap-3 mb-4">
-<div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl flex items-center justify-center">
+<div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
-<span class="text-xl font-bold text-white">WC<span class="text-teal-400">Reporting</span></span>
+<span class="text-xl font-bold text-white">WC<span class="text-green-400">Reporting</span></span>
 </div>
-<p class="text-teal-300 text-sm">The modern all-in-one workers' compensation platform for employers and brokers.</p>
+<p class="text-slate-400 text-sm">The modern all-in-one workers' compensation platform for employers and brokers.</p>
 </div>
 <div>
 <div class="font-semibold text-white mb-4">Product</div>
-<ul class="space-y-2 text-teal-300 text-sm">
+<ul class="space-y-2 text-slate-400 text-sm">
 <li><a href="#features" class="hover:text-white transition">Features</a></li>
 <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
 <li><a href="#" class="hover:text-white transition">Security</a></li>
@@ -740,7 +740,7 @@ Schedule a Demo
 </div>
 <div>
 <div class="font-semibold text-white mb-4">Resources</div>
-<ul class="space-y-2 text-teal-300 text-sm">
+<ul class="space-y-2 text-slate-400 text-sm">
 <li><a href="#" class="hover:text-white transition">Documentation</a></li>
 <li><a href="#" class="hover:text-white transition">Blog</a></li>
 <li><a href="#" class="hover:text-white transition">Webinars</a></li>
@@ -749,7 +749,7 @@ Schedule a Demo
 </div>
 <div>
 <div class="font-semibold text-white mb-4">Company</div>
-<ul class="space-y-2 text-teal-300 text-sm">
+<ul class="space-y-2 text-slate-400 text-sm">
 <li><a href="#" class="hover:text-white transition">About</a></li>
 <li><a href="#" class="hover:text-white transition">Contact</a></li>
 <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
@@ -757,11 +757,11 @@ Schedule a Demo
 </ul>
 </div>
 </div>
-<div class="pt-8 border-t border-teal-800 flex flex-col md:flex-row justify-between items-center gap-4">
-<p class="text-teal-400 text-sm">© 2025 WCReporting. All rights reserved.</p>
+<div class="pt-8 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-slate-500 text-sm">© 2025 WCReporting. All rights reserved.</p>
 <div class="flex gap-4">
-<a href="#" class="text-teal-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg></a>
-<a href="#" class="text-teal-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg></a>
+<a href="#" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg></a>
+<a href="#" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg></a>
 </div>
 </div>
 </div>
@@ -784,22 +784,22 @@ var HTML = `<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; }
-.tab-active { background: #0d9488; color: white; }
-.tab-inactive { background: #ccfbf1; color: #0f766e; }
+.tab-active { background: #1e3a5f; color: white; }
+.tab-inactive { background: #e2e8f0; color: #1e3a5f; }
 .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
 </style>
 </head>
-<body class="bg-teal-50 min-h-screen">
-<header class="bg-gradient-to-r from-teal-700 via-teal-600 to-teal-700 text-white p-4 shadow-lg">
+<body class="bg-slate-100 min-h-screen">
+<header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white p-4 shadow-lg">
 <div class="max-w-6xl mx-auto flex justify-between items-center">
 <a href="/" class="flex items-center gap-4 hover:opacity-90 transition">
-<div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+<div class="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center">
 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
 </div>
 <div class="border-l border-white/30 pl-4">
-<div class="text-2xl font-bold">WC<span class="text-teal-200">Reporting</span></div>
-<div class="text-xs text-teal-100 uppercase tracking-widest font-medium">Claims Management Portal</div>
+<div class="text-2xl font-bold">WC<span class="text-green-400">Reporting</span></div>
+<div class="text-xs text-slate-300 uppercase tracking-widest font-medium">Claims Management Portal</div>
 </div>
 </a>
 </div>
@@ -813,25 +813,25 @@ body { font-family: 'Inter', sans-serif; }
 <button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
 <button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
 <button type="button" onclick="showTab('emr')" id="tab-emr" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">EMR Calculator</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">OSHA 300 Compliance</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Fraud / Red Flags</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">HIPAA Generator</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Root Cause Analysis</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Hazard Tracking</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Safety Committee</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Settlement Estimator</button>
-<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-teal-100 text-teal-400 cursor-not-allowed">Jurisdiction / Compliance</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">OSHA 300 Compliance</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Fraud / Red Flags</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">HIPAA Generator</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Root Cause Analysis</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Hazard Tracking</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Safety Committee</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Settlement Estimator</button>
+<button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-200 text-slate-400 cursor-not-allowed">Jurisdiction / Compliance</button>
 </div>
 
 <!-- Forms Section -->
 <div id="section-forms" class="bg-white rounded-xl shadow p-6">
-<h3 class="text-xl font-bold text-teal-800 mb-4">Downloadable Forms</h3>
+<h3 class="text-xl font-bold text-slate-700 mb-4">Downloadable Forms</h3>
 <div class="flex gap-4 flex-wrap">
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 Employee Incident Report
 </a>
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 Witness Statement Form
 </a>
@@ -853,7 +853,7 @@ Witness Statement Form
 <p class="text-lg font-medium text-slate-700 mb-2">Drop your Loss Run Excel file here</p>
 <p class="text-sm text-slate-500 mb-4">Supports .xlsx, .xls, .csv formats</p>
 <input type="file" id="lossRunFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="processLossRun(this.files[0])">
-<button type="button" class="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium">Select Excel File</button>
+<button type="button" class="px-6 py-3 bg-slate-600 text-white rounded-lg hover:bg-slate-700 font-medium">Select Excel File</button>
 </div>
 </div>
 <div id="analytics-results" class="hidden">
@@ -966,7 +966,7 @@ Witness Statement Form
 <p class="text-slate-700 font-medium mb-2">Upload Payroll File</p>
 <p class="text-slate-500 text-sm mb-3">Excel (.xlsx, .xls, .csv)</p>
 <input type="file" id="c240-payrollFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="processPayrollFile(this.files[0])">
-<button type="button" onclick="document.getElementById('c240-payrollFile').click()" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm">Select File</button>
+<button type="button" onclick="document.getElementById('c240-payrollFile').click()" class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 text-sm">Select File</button>
 </div>
 <div id="c240-fileStatus" class="hidden p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-green-800 text-sm font-medium"><span id="c240-fileName"></span> loaded successfully</p></div>
 </div>
@@ -977,7 +977,7 @@ Witness Statement Form
 </div>
 </div>
 <div id="c240-payrollPreview" class="bg-white rounded-xl shadow p-6 mb-4 hidden">
-<h4 class="font-bold text-teal-800 mb-4">Payroll Preview (52 Weeks)</h4>
+<h4 class="font-bold text-slate-700 mb-4">Payroll Preview (52 Weeks)</h4>
 <div class="overflow-x-auto max-h-96"><table class="w-full text-sm border"><thead class="bg-slate-100 sticky top-0"><tr><th class="px-3 py-2 text-left border">Week #</th><th class="px-3 py-2 text-left border">Week Ending</th><th class="px-3 py-2 text-center border">Days Paid</th><th class="px-3 py-2 text-right border">Gross Amount</th></tr></thead><tbody id="c240-payrollTableBody"></tbody></table></div>
 <div class="bg-slate-700 text-white font-bold mt-2 rounded-lg p-3 flex justify-between"><span>TOTALS:</span><span><span id="c240-totalDays">0</span> days | <span id="c240-totalGross">$0.00</span></span></div>
 </div>
@@ -1035,7 +1035,7 @@ Witness Statement Form
 
 <!-- Payroll Entry by Year -->
 <div class="bg-white rounded-xl shadow p-6 mb-4">
-<h4 class="font-bold text-teal-800 mb-4">Payroll & Class Codes by Policy Year</h4>
+<h4 class="font-bold text-slate-700 mb-4">Payroll & Class Codes by Policy Year</h4>
 <div class="grid lg:grid-cols-3 gap-4">
 <!-- Year 1 -->
 <div class="border border-slate-200 rounded-lg p-4">
@@ -1079,7 +1079,7 @@ Witness Statement Form
 
 <!-- Claims Entry -->
 <div class="bg-white rounded-xl shadow p-6 mb-4">
-<h4 class="font-bold text-teal-800 mb-4">Claims Data (All 3 Years Combined)</h4>
+<h4 class="font-bold text-slate-700 mb-4">Claims Data (All 3 Years Combined)</h4>
 <div class="overflow-x-auto">
 <table class="w-full text-sm">
 <thead class="bg-slate-100">
@@ -1111,7 +1111,7 @@ Witness Statement Form
 
 <!-- D-Ratio Configuration -->
 <div class="bg-white rounded-xl shadow p-6 mb-4">
-<h4 class="font-bold text-teal-800 mb-4">D-Ratio (Primary Loss Weight)</h4>
+<h4 class="font-bold text-slate-700 mb-4">D-Ratio (Primary Loss Weight)</h4>
 <div class="grid grid-cols-3 gap-4">
 <div>
 <label class="block text-xs font-medium text-slate-600 mb-1">Year 1 D-Ratio</label>
@@ -1137,7 +1137,7 @@ Witness Statement Form
 <!-- Results -->
 <div id="emr-results" class="hidden">
 <div class="bg-white rounded-xl shadow p-6 mb-4">
-<h4 class="font-bold text-teal-800 mb-4">EMR Calculation Results</h4>
+<h4 class="font-bold text-slate-700 mb-4">EMR Calculation Results</h4>
 
 <div class="grid md:grid-cols-2 gap-6 mb-6">
 <div>
@@ -1177,7 +1177,7 @@ Witness Statement Form
 </div>
 </div>
 
-<footer class="bg-teal-900 text-teal-300 py-6 mt-8 text-center text-sm">
+<footer class="bg-slate-800 text-green-300 py-6 mt-8 text-center text-sm">
 <p>2025 Titanium Defense Group. All rights reserved.</p>
 </footer>
 
@@ -1415,7 +1415,7 @@ function analyzeData(data) {
     type: 'bar', 
     data: { 
       labels: sortedBodyParts.map(function(x) { return x[0]; }), 
-      datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: ['#0f766e', '#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#ccfbf1'], borderRadius: 4 }] 
+      datasets: [{ label: 'Claims', data: sortedBodyParts.map(function(x) { return x[1]; }), backgroundColor: ['#1e3a5f', '#22c55e', '#2dd4bf', '#5eead4', '#99f6e4', '#ccfbf1'], borderRadius: 4 }] 
     }, 
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } } 
   });
