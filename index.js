@@ -2396,6 +2396,9 @@ Documents & Attachments
 </div>
 
 </div>
+</div>
+
+<!-- My Documents Section -->
 <div id="section-mydocs" class="bg-white rounded-xl shadow p-6 hidden">
 <div class="flex justify-between items-center mb-6">
 <div>
