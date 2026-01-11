@@ -553,15 +553,26 @@ function analyzeData(data) {
   
   var statusCounts = {};
   data.forEach(function(row) {
-    var status = row.ClaimantStatus === 'O' ? 'Open' : row.ClaimantStatus === 'C' ? 'Closed' : 'Other';
+    var rawStatus = row.ClaimantStatus || '';
+    var status;
+    if (rawStatus === 'O') status = 'Open';
+    else if (rawStatus === 'C') status = 'Closed';
+    else status = rawStatus ? rawStatus : 'Unknown';
     statusCounts[status] = (statusCounts[status] || 0) + 1;
+  });
+  // Set colors based on status - Open=green, Closed=red, others=amber
+  var statusLabels = Object.keys(statusCounts);
+  var statusColors = statusLabels.map(function(s) {
+    if (s === 'Open') return '#22c55e';
+    if (s === 'Closed') return '#ef4444';
+    return '#f59e0b';
   });
   if (chartInstances.statusChart) chartInstances.statusChart.destroy();
   chartInstances.statusChart = new Chart(document.getElementById('statusChart'), { 
     type: 'doughnut', 
     data: { 
-      labels: Object.keys(statusCounts), 
-      datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#22c55e', '#ef4444', '#94a3b8'], borderWidth: 0 }] 
+      labels: statusLabels, 
+      datasets: [{ data: Object.values(statusCounts), backgroundColor: statusColors, borderWidth: 0 }] 
     }, 
     options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } } } 
   });
@@ -662,8 +673,18 @@ function analyzeData(data) {
   var sortedData = data.slice().sort(function(a,b) { return (b.TotalIncurred || 0) - (a.TotalIncurred || 0); });
   var tableHtml = '';
   sortedData.forEach(function(row, idx) {
-    var statusClass = row.ClaimantStatus === 'O' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-    var statusText = row.ClaimantStatus === 'O' ? 'Open' : 'Closed';
+    var statusClass, statusText;
+    var rawStatus = row.ClaimantStatus || '';
+    if (rawStatus === 'O') {
+      statusClass = 'bg-green-100 text-green-800';
+      statusText = 'Open';
+    } else if (rawStatus === 'C') {
+      statusClass = 'bg-red-100 text-red-800';
+      statusText = 'Closed';
+    } else {
+      statusClass = 'bg-amber-100 text-amber-800';
+      statusText = rawStatus ? rawStatus : 'Unknown';
+    }
     var lossDate = row.LossDate ? new Date(row.LossDate).toLocaleDateString() : 'N/A';
     var rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50';
     tableHtml += '<tr class="' + rowBg + ' hover:bg-blue-50"><td class="px-4 py-3">' + lossDate + '</td><td class="px-4 py-3 font-medium">' + (row.ClaimantFirstName || '') + ' ' + (row.ClaimantLastName || '') + '</td><td class="px-4 py-3">' + (row.LossTypeDesc || 'N/A') + '</td><td class="px-4 py-3">' + (row.PartInjuredDesc || 'N/A') + '</td><td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold ' + statusClass + '">' + statusText + '</span></td><td class="px-4 py-3 text-right font-bold">$' + (row.TotalIncurred || 0).toLocaleString() + '</td></tr>';
@@ -672,7 +693,14 @@ function analyzeData(data) {
   
   var topClaimsHtml = '';
   sortedData.slice(0, 5).forEach(function(row, idx) {
-    var statusBadge = row.ClaimantStatus === 'O' ? '<span class="ml-2 px-2 py-0.5 bg-green-500 text-white rounded-full text-xs font-bold">OPEN</span>' : '<span class="ml-2 px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-bold">CLOSED</span>';
+    var statusBadge;
+    if (row.ClaimantStatus === 'O') {
+      statusBadge = '<span class="ml-2 px-2 py-0.5 bg-green-500 text-white rounded-full text-xs font-bold">OPEN</span>';
+    } else if (row.ClaimantStatus === 'C') {
+      statusBadge = '<span class="ml-2 px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-bold">CLOSED</span>';
+    } else {
+      statusBadge = '<span class="ml-2 px-2 py-0.5 bg-slate-400 text-white rounded-full text-xs font-bold">' + (row.ClaimantStatus || 'N/A') + '</span>';
+    }
     topClaimsHtml += '<div class="p-3 bg-slate-50 rounded-lg border-l-4 border-slate-400 mb-2"><div class="flex justify-between items-center"><div><div class="font-bold text-slate-800 text-sm">#' + (idx+1) + ' ' + (row.ClaimantFirstName || '') + ' ' + (row.ClaimantLastName || '') + statusBadge + '</div><div class="text-xs text-slate-600">' + (row.LossTypeDesc || '') + ' - ' + (row.PartInjuredDesc || '') + '</div></div><div class="text-lg font-bold text-slate-700">$' + (row.TotalIncurred || 0).toLocaleString() + '</div></div></div>';
   });
   document.getElementById('top-claims').innerHTML = topClaimsHtml;
