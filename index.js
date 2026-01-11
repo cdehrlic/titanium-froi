@@ -219,6 +219,478 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
   }
 });
 
+var LANDING_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WCReporting | Modern Workers' Compensation Platform</title>
+<script src="https://cdn.tailwindcss.com"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { font-family: 'Inter', sans-serif; }
+.gradient-hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
+.gradient-cta { background: linear-gradient(135deg, #1e3a5f 0%, #334155 100%); }
+.gradient-card { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+.feature-icon { background: linear-gradient(135deg, #1e3a5f 0%, #334155 100%); }
+.glow { box-shadow: 0 0 60px rgba(30, 58, 95, 0.4); }
+.float { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+.slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } from { transform: translateY(30px); } }
+</style>
+</head>
+<body class="bg-slate-50">
+
+<!-- Navigation -->
+<nav class="fixed w-full z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-6 py-4">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<img src="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Titanium%20logo.webp" alt="WCReporting" class="h-10 rounded-lg">
+<span class="text-2xl font-bold text-white">WC<span class="text-slate-400">Reporting</span></span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a href="#features" class="text-slate-300 hover:text-white transition">Features</a>
+<a href="#benefits" class="text-slate-300 hover:text-white transition">Benefits</a>
+<a href="#pricing" class="text-slate-300 hover:text-white transition">Pricing</a>
+<a href="/app" class="px-5 py-2 bg-slate-600 text-white rounded-lg font-semibold hover:bg-slate-700 transition">Launch App</a>
+</div>
+<button class="md:hidden text-white">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+</button>
+</div>
+</div>
+</nav>
+
+<!-- Hero Section -->
+<section class="gradient-hero min-h-screen flex items-center pt-20">
+<div class="max-w-7xl mx-auto px-6 py-20">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="slide-up">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-500/10 border border-slate-500/30 rounded-full mb-6">
+<span class="w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
+<span class="text-slate-400 text-sm font-medium">Now Available for Employers & Brokers</span>
+</div>
+<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+Workers' Comp<br>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-blue-300">Made Simple.</span>
+</h1>
+<p class="text-xl text-slate-300 mb-8 leading-relaxed">
+The modern all-in-one platform that eliminates paperwork, simplifies reporting, and gives you instant visibility into every claim. Replace outdated spreadsheets with a portal your team will actually use.
+</p>
+<div class="flex flex-col sm:flex-row gap-4">
+<a href="/app" class="px-8 py-4 gradient-cta text-white rounded-xl font-semibold text-lg hover:opacity-90 transition text-center glow">
+Start Free Trial
+</a>
+<a href="#demo" class="px-8 py-4 bg-white/10 border border-white/20 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition text-center flex items-center justify-center gap-2">
+<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+Watch Demo
+</a>
+</div>
+<div class="flex items-center gap-8 mt-10 pt-10 border-t border-slate-700">
+<div>
+<div class="text-3xl font-bold text-white">98%</div>
+<div class="text-slate-400 text-sm">Faster Reporting</div>
+</div>
+<div>
+<div class="text-3xl font-bold text-white">45%</div>
+<div class="text-slate-400 text-sm">Cost Reduction</div>
+</div>
+<div>
+<div class="text-3xl font-bold text-white">24/7</div>
+<div class="text-slate-400 text-sm">Access Anywhere</div>
+</div>
+</div>
+</div>
+<div class="relative float hidden lg:block">
+<div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 shadow-2xl">
+<div class="flex items-center gap-2 mb-4">
+<div class="w-3 h-3 rounded-full bg-red-500"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+<div class="w-3 h-3 rounded-full bg-green-500"></div>
+</div>
+<img src="https://placehold.co/500x350/1e293b/94a3b8?text=Dashboard+Preview" alt="Dashboard Preview" class="rounded-lg">
+<div class="grid grid-cols-3 gap-3 mt-4">
+<div class="bg-slate-700/50 rounded-lg p-3 text-center">
+<div class="text-2xl font-bold text-blue-400">23</div>
+<div class="text-xs text-slate-400">Active Claims</div>
+</div>
+<div class="bg-slate-700/50 rounded-lg p-3 text-center">
+<div class="text-2xl font-bold text-slate-300">0.87</div>
+<div class="text-xs text-slate-400">EMR Score</div>
+</div>
+<div class="bg-slate-700/50 rounded-lg p-3 text-center">
+<div class="text-2xl font-bold text-teal-400">$124K</div>
+<div class="text-xs text-slate-400">Savings YTD</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Logos -->
+<section class="py-12 bg-white border-b border-slate-200">
+<div class="max-w-7xl mx-auto px-6">
+<p class="text-center text-slate-500 text-sm mb-8">TRUSTED BY LEADING EMPLOYERS AND BROKERS</p>
+<div class="flex flex-wrap justify-center items-center gap-12 opacity-50">
+<div class="text-2xl font-bold text-slate-400">ACME Corp</div>
+<div class="text-2xl font-bold text-slate-400">BuildRight</div>
+<div class="text-2xl font-bold text-slate-400">SafeWorks</div>
+<div class="text-2xl font-bold text-slate-400">Premier HR</div>
+<div class="text-2xl font-bold text-slate-400">Atlas Insurance</div>
+</div>
+</div>
+</section>
+
+<!-- Problem/Solution -->
+<section class="py-20 bg-white">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid lg:grid-cols-2 gap-16 items-center">
+<div>
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
+Stop drowning in<br>
+<span class="text-red-500">paperwork & spreadsheets</span>
+</h2>
+<div class="space-y-4">
+<div class="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-100">
+<div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">Manual incident forms</div>
+<div class="text-slate-600 text-sm">Paper forms get lost, delayed, or filled out incorrectly</div>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-100">
+<div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">Scattered loss data</div>
+<div class="text-slate-600 text-sm">Claims info buried in emails, PDFs, and outdated spreadsheets</div>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-100">
+<div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">No visibility into trends</div>
+<div class="text-slate-600 text-sm">Can't identify patterns or prevent future incidents</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
+One platform for<br>
+<span class="text-slate-700">complete control</span>
+</h2>
+<div class="space-y-4">
+<div class="flex items-start gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200">
+<div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">Digital incident submission</div>
+<div class="text-slate-600 text-sm">Mobile-friendly forms with instant notifications</div>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200">
+<div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">Centralized dashboard</div>
+<div class="text-slate-600 text-sm">All claims, documents, and analytics in one place</div>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-slate-100 rounded-xl border border-slate-200">
+<div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+</div>
+<div>
+<div class="font-semibold text-slate-800">AI-powered insights</div>
+<div class="text-slate-600 text-sm">Identify trends and prevent incidents before they happen</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Features Grid -->
+<section id="features" class="py-20 bg-slate-50">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Everything you need in one platform</h2>
+<p class="text-xl text-slate-600 max-w-2xl mx-auto">Powerful tools designed to streamline compliance, reduce costs, and keep your workforce safe.</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Digital Claim Submission</h3>
+<p class="text-slate-600">Submit FROI claims instantly from any device. Auto-generated PDFs sent directly to your carrier.</p>
+</div>
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Loss Run Analytics</h3>
+<p class="text-slate-600">Upload loss runs and get instant visualizations, trend analysis, and AI-powered recommendations.</p>
+</div>
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">EMR Calculator</h3>
+<p class="text-slate-600">Estimate your experience modification rate with automatic primary/excess splits and what-if scenarios.</p>
+</div>
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Fraud Detection</h3>
+<p class="text-slate-600">AI-powered red flag indicators automatically identify suspicious claims for further review.</p>
+</div>
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Auto Form Generation</h3>
+<p class="text-slate-600">Generate C-240 wage statements, HIPAA authorizations, and compliance forms automatically.</p>
+</div>
+<div class="gradient-card rounded-2xl p-8 border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+<div class="feature-icon w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+<svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-3">Root Cause Analysis</h3>
+<p class="text-slate-600">Identify patterns, track hazards, and implement preventive measures with actionable insights.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Benefits -->
+<section id="benefits" class="py-20 bg-slate-900">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Results that speak for themselves</h2>
+<p class="text-xl text-slate-400 max-w-2xl mx-auto">Companies using WCReporting see dramatic improvements in efficiency, compliance, and cost savings.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="text-center p-8">
+<div class="text-6xl font-bold text-blue-400 mb-4">98%</div>
+<div class="text-xl font-semibold text-white mb-2">Faster Claim Reporting</div>
+<p class="text-slate-400">Digital submissions eliminate delays from paper forms and manual data entry.</p>
+</div>
+<div class="text-center p-8">
+<div class="text-6xl font-bold text-blue-400 mb-4">45%</div>
+<div class="text-xl font-semibold text-white mb-2">Reduction in Claim Costs</div>
+<p class="text-slate-400">Early intervention and fraud detection significantly reduce total incurred losses.</p>
+</div>
+<div class="text-center p-8">
+<div class="text-6xl font-bold text-blue-400 mb-4">12hrs</div>
+<div class="text-xl font-semibold text-white mb-2">Saved Per Week</div>
+<p class="text-slate-400">Automated forms and centralized data eliminate tedious administrative work.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-20 bg-white">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Loved by risk managers everywhere</h2>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+<div class="flex items-center gap-1 mb-4">
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+</div>
+<p class="text-slate-600 mb-6">"WCReporting transformed how we handle claims. What used to take hours now takes minutes. Our EMR dropped from 1.24 to 0.91 in one year."</p>
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-slate-300 rounded-full"></div>
+<div>
+<div class="font-semibold text-slate-800">Sarah Mitchell</div>
+<div class="text-slate-500 text-sm">HR Director, BuildRight Construction</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+<div class="flex items-center gap-1 mb-4">
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+</div>
+<p class="text-slate-600 mb-6">"The analytics alone are worth it. We identified that 60% of our claims came from one department and implemented targeted training."</p>
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-slate-300 rounded-full"></div>
+<div>
+<div class="font-semibold text-slate-800">Michael Torres</div>
+<div class="text-slate-500 text-sm">Risk Manager, Premier Manufacturing</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+<div class="flex items-center gap-1 mb-4">
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+<svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+</div>
+<p class="text-slate-600 mb-6">"As a broker, I can now offer clients real value beyond just placing coverage. The EMR calculator helps us win accounts."</p>
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-slate-300 rounded-full"></div>
+<div>
+<div class="font-semibold text-slate-800">Jennifer Adams</div>
+<div class="text-slate-500 text-sm">Principal, Adams Insurance Group</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" class="py-20 bg-slate-50">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Simple, transparent pricing</h2>
+<p class="text-xl text-slate-600">Start free. Upgrade when you need more power.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+<div class="bg-white rounded-2xl p-8 border border-slate-200">
+<div class="text-lg font-semibold text-slate-600 mb-2">Starter</div>
+<div class="flex items-baseline gap-1 mb-6">
+<span class="text-5xl font-bold text-slate-800">$0</span>
+<span class="text-slate-500">/month</span>
+</div>
+<ul class="space-y-3 mb-8">
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Up to 10 claims/year</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Digital claim submission</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Basic analytics</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>EMR calculator</li>
+</ul>
+<a href="/app" class="block w-full py-3 text-center bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition">Get Started Free</a>
+</div>
+<div class="bg-slate-900 rounded-2xl p-8 border-2 border-slate-500 relative">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-slate-600 text-white text-sm font-semibold rounded-full">MOST POPULAR</div>
+<div class="text-lg font-semibold text-slate-400 mb-2">Professional</div>
+<div class="flex items-baseline gap-1 mb-6">
+<span class="text-5xl font-bold text-white">$99</span>
+<span class="text-slate-400">/month</span>
+</div>
+<ul class="space-y-3 mb-8">
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited claims</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Advanced analytics & AI</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Auto form generation</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Fraud detection</li>
+<li class="flex items-center gap-2 text-slate-300"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority support</li>
+</ul>
+<a href="/app" class="block w-full py-3 text-center gradient-cta text-white rounded-xl font-semibold hover:opacity-90 transition">Start 14-Day Trial</a>
+</div>
+<div class="bg-white rounded-2xl p-8 border border-slate-200">
+<div class="text-lg font-semibold text-slate-600 mb-2">Enterprise</div>
+<div class="flex items-baseline gap-1 mb-6">
+<span class="text-5xl font-bold text-slate-800">Custom</span>
+</div>
+<ul class="space-y-3 mb-8">
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Everything in Pro</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Multi-location support</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>SSO & API access</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dedicated success manager</li>
+<li class="flex items-center gap-2 text-slate-600"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Custom integrations</li>
+</ul>
+<a href="#contact" class="block w-full py-3 text-center bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition">Contact Sales</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 gradient-hero">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to modernize your workers' comp program?</h2>
+<p class="text-xl text-slate-300 mb-8">Join hundreds of employers and brokers who've made the switch to WCReporting.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<a href="/app" class="px-8 py-4 gradient-cta text-white rounded-xl font-semibold text-lg hover:opacity-90 transition glow">
+Start Your Free Trial
+</a>
+<a href="#demo" class="px-8 py-4 bg-white/10 border border-white/20 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition">
+Schedule a Demo
+</a>
+</div>
+<p class="text-slate-400 text-sm mt-6">No credit card required - Setup in under 5 minutes</p>
+</div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-slate-900 py-16 border-t border-slate-800">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid md:grid-cols-4 gap-12 mb-12">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<img src="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Titanium%20logo.webp" alt="WCReporting" class="h-10 rounded-lg">
+<span class="text-xl font-bold text-white">WC<span class="text-slate-400">Reporting</span></span>
+</div>
+<p class="text-slate-400 text-sm">The modern all-in-one workers' compensation platform for employers and brokers.</p>
+</div>
+<div>
+<div class="font-semibold text-white mb-4">Product</div>
+<ul class="space-y-2 text-slate-400 text-sm">
+<li><a href="#features" class="hover:text-white transition">Features</a></li>
+<li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+<li><a href="#" class="hover:text-white transition">Security</a></li>
+<li><a href="#" class="hover:text-white transition">Integrations</a></li>
+</ul>
+</div>
+<div>
+<div class="font-semibold text-white mb-4">Resources</div>
+<ul class="space-y-2 text-slate-400 text-sm">
+<li><a href="#" class="hover:text-white transition">Documentation</a></li>
+<li><a href="#" class="hover:text-white transition">Blog</a></li>
+<li><a href="#" class="hover:text-white transition">Webinars</a></li>
+<li><a href="#" class="hover:text-white transition">Support</a></li>
+</ul>
+</div>
+<div>
+<div class="font-semibold text-white mb-4">Company</div>
+<ul class="space-y-2 text-slate-400 text-sm">
+<li><a href="#" class="hover:text-white transition">About</a></li>
+<li><a href="#" class="hover:text-white transition">Contact</a></li>
+<li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+<li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-slate-500 text-sm">© 2025 WCReporting. All rights reserved.</p>
+<div class="flex gap-4">
+<a href="#" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg></a>
+<a href="#" class="text-slate-400 hover:text-white transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg></a>
+</div>
+</div>
+</div>
+</footer>
+
+</body>
+</html>`;
+
 var HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1293,10 +1765,16 @@ function calculateEMR() {
 </html>`;
 
 app.get('/', function(req, res) {
+  res.send(LANDING_HTML);
+});
+
+app.get('/app', function(req, res) {
   res.send(HTML);
 });
 
 app.listen(PORT, function() {
   console.log('Server running on port ' + PORT);
+  console.log('Landing page at /');
+  console.log('Dashboard at /app');
   console.log('Claims will be sent to: ' + CONFIG.CLAIMS_EMAIL);
 });
