@@ -296,7 +296,7 @@ Witness Statement Form
 <div id="analytics-results" class="hidden">
 <!-- Action Bar -->
 <div class="bg-white rounded-xl shadow p-4 mb-4 flex flex-wrap justify-between items-center gap-4">
-<div><span class="font-bold text-slate-700">Loss Run Analysis Report</span> <span class="text-slate-500 text-sm">| Generated ' + new Date().toLocaleDateString() + '</span></div>
+<div><span class="font-bold text-slate-700">Loss Run Analysis Report</span></div>
 <div class="flex gap-2">
 <button type="button" onclick="exportToPDF()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Export PDF</button>
 <button type="button" onclick="window.print()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">Print</button>
