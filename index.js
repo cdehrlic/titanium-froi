@@ -256,10 +256,10 @@ body { font-family: 'Inter', sans-serif; }
 <div class="max-w-6xl mx-auto p-4">
 <!-- Navigation Tabs -->
 <div class="flex gap-2 mb-4 flex-wrap">
-<button onclick="showTab('forms')" id="tab-forms" class="px-6 py-3 rounded-t-lg font-semibold tab-active">Download Forms</button>
-<button onclick="showTab('claim')" id="tab-claim" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Submit a Claim</button>
-<button onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
-<button onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
+<button type="button" onclick="showTab('forms')" id="tab-forms" class="px-6 py-3 rounded-t-lg font-semibold tab-active">Download Forms</button>
+<button type="button" onclick="showTab('claim')" id="tab-claim" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Submit a Claim</button>
+<button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
+<button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
 </div>
 
 <!-- Forms Section -->
@@ -497,24 +497,28 @@ Generate C-240 Page 2 PDF
 <script>
 // Tab Navigation
 function showTab(tab) {
-  document.getElementById('section-forms').classList.add('hidden');
-  document.getElementById('section-claim').classList.add('hidden');
-  document.getElementById('section-analytics').classList.add('hidden');
-  document.getElementById('section-c240').classList.add('hidden');
-  document.getElementById('tab-forms').classList.remove('tab-active');
-  document.getElementById('tab-forms').classList.add('tab-inactive');
-  document.getElementById('tab-claim').classList.remove('tab-active');
-  document.getElementById('tab-claim').classList.add('tab-inactive');
-  document.getElementById('tab-analytics').classList.remove('tab-active');
-  document.getElementById('tab-analytics').classList.add('tab-inactive');
-  document.getElementById('tab-c240').classList.remove('tab-active');
-  document.getElementById('tab-c240').classList.add('tab-inactive');
-  
-  document.getElementById('section-' + tab).classList.remove('hidden');
-  document.getElementById('tab-' + tab).classList.add('tab-active');
-  document.getElementById('tab-' + tab).classList.remove('tab-inactive');
-  
-  if (tab === 'claim') render();
+  try {
+    document.getElementById('section-forms').classList.add('hidden');
+    document.getElementById('section-claim').classList.add('hidden');
+    document.getElementById('section-analytics').classList.add('hidden');
+    document.getElementById('section-c240').classList.add('hidden');
+    document.getElementById('tab-forms').classList.remove('tab-active');
+    document.getElementById('tab-forms').classList.add('tab-inactive');
+    document.getElementById('tab-claim').classList.remove('tab-active');
+    document.getElementById('tab-claim').classList.add('tab-inactive');
+    document.getElementById('tab-analytics').classList.remove('tab-active');
+    document.getElementById('tab-analytics').classList.add('tab-inactive');
+    document.getElementById('tab-c240').classList.remove('tab-active');
+    document.getElementById('tab-c240').classList.add('tab-inactive');
+    
+    document.getElementById('section-' + tab).classList.remove('hidden');
+    document.getElementById('tab-' + tab).classList.add('tab-active');
+    document.getElementById('tab-' + tab).classList.remove('tab-inactive');
+    
+    if (tab === 'claim') render();
+  } catch(e) {
+    console.error('Tab error:', e);
+  }
 }
 
 // Loss Run Processing
