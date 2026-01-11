@@ -891,15 +891,17 @@ app.delete('/api/claims/:claimId/tasks/:taskId', authenticateSession, async func
 app.get('/api/tasks', authenticateSession, async function(req, res) {
   try {
     const result = await pool.query(
-      `SELECT t.*, c.employee_name, c.reference_number 
+      `SELECT t.*, c.employee_name, c.reference_number,
+        CASE WHEN t.due_date < CURRENT_DATE THEN 1 ELSE 0 END as is_overdue
        FROM claim_tasks t
        JOIN claims c ON t.claim_id = c.id
        WHERE c.user_id = $1 AND t.status != 'Completed'
-       ORDER BY t.due_date ASC NULLS LAST, t.created_at DESC`,
+       ORDER BY is_overdue DESC, t.due_date ASC NULLS LAST, t.created_at DESC`,
       [req.userId]
     );
     res.json({ tasks: result.rows });
   } catch (err) {
+    console.error('Fetch tasks error:', err);
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
@@ -1996,7 +1998,7 @@ body { font-family: 'Inter', sans-serif; }
 <!-- Claims List View -->
 <div id="claims-list-view">
 <!-- Header with Stats -->
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-4">
 <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-slate-600">
 <div class="text-2xl font-bold text-slate-700" id="stat-total">0</div>
 <div class="text-xs text-slate-500 uppercase">Total Claims</div>
@@ -2016,6 +2018,10 @@ body { font-family: 'Inter', sans-serif; }
 <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
 <div class="text-2xl font-bold text-red-600" id="stat-losttime">0</div>
 <div class="text-xs text-slate-500 uppercase">Lost Time</div>
+</div>
+<div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
+<div class="text-2xl font-bold text-purple-600" id="stat-pendingdocs">0</div>
+<div class="text-xs text-slate-500 uppercase">Pending Docs</div>
 </div>
 <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-slate-400">
 <div class="text-2xl font-bold text-slate-500" id="stat-closed">0</div>
@@ -2928,6 +2934,7 @@ async function loadClaimsStats() {
       document.getElementById('stat-open').textContent = data.claims.open || 0;
       document.getElementById('stat-medical').textContent = data.claims.medical_only || 0;
       document.getElementById('stat-losttime').textContent = data.claims.lost_time || 0;
+      document.getElementById('stat-pendingdocs').textContent = data.claims.pending_docs || 0;
       document.getElementById('stat-closed').textContent = data.claims.closed || 0;
     }
   } catch (err) {
