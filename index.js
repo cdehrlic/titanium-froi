@@ -228,6 +228,8 @@ var HTML = `<!DOCTYPE html>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; }
@@ -296,8 +298,14 @@ Witness Statement Form
 <div id="analytics-results" class="hidden">
 
 <!-- Executive Summary -->
-<div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 mb-4 text-white">
-<h3 class="text-2xl font-bold mb-4">Executive Summary</h3>
+<div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 mb-4 text-white" id="executive-summary">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-2xl font-bold">Executive Summary</h3>
+<button onclick="generatePDFReport()" class="flex items-center gap-2 px-4 py-2 bg-white text-slate-800 rounded-lg hover:bg-slate-100 font-medium text-sm">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+Download PDF Report
+</button>
+</div>
 <div class="grid md:grid-cols-4 gap-4">
 <div class="bg-white/10 rounded-lg p-4">
 <div class="text-3xl font-bold" id="stat-total-claims">0</div>
@@ -414,6 +422,8 @@ function showTab(tab) {
 
 // Loss Run Processing
 var chartInstances = {};
+var analyticsData = null;
+var yearDataGlobal = null;
 
 function processLossRun(file) {
   if (!file) return;
@@ -432,6 +442,7 @@ function processLossRun(file) {
 }
 
 function analyzeData(data) {
+  analyticsData = data;
   document.getElementById('analytics-results').classList.remove('hidden');
   
   // Basic Stats
@@ -460,6 +471,7 @@ function analyzeData(data) {
     yearData[year].expense += parseFloat(row.ExpenseIncurred) || 0;
     yearData[year].total += parseFloat(row.TotalIncurred) || 0;
   });
+  yearDataGlobal = yearData;
   
   var sortedYears = Object.keys(yearData).sort().reverse();
   var costHtml = '<div class="overflow-x-auto"><table class="w-full text-sm">';
@@ -718,6 +730,302 @@ function generateRecommendations(data, injuries, bodyParts, causes) {
     recsHtml += '</div>';
   });
   document.getElementById('recommendations').innerHTML = recsHtml;
+}
+
+// PDF Report Generation
+function generatePDFReport() {
+  if (!analyticsData || !yearDataGlobal) {
+    alert('Please upload a loss run file first.');
+    return;
+  }
+  
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF('p', 'mm', 'a4');
+  var pageWidth = doc.internal.pageSize.getWidth();
+  var pageHeight = doc.internal.pageSize.getHeight();
+  var margin = 15;
+  var y = 20;
+  
+  // Header with gradient effect (dark bar)
+  doc.setFillColor(51, 65, 85);
+  doc.rect(0, 0, pageWidth, 35, 'F');
+  
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TITANIUM DEFENSE GROUP', pageWidth / 2, 15, { align: 'center' });
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Loss Run Analytics Report', pageWidth / 2, 23, { align: 'center' });
+  doc.setFontSize(10);
+  doc.text('Generated: ' + new Date().toLocaleDateString(), pageWidth / 2, 30, { align: 'center' });
+  
+  y = 45;
+  
+  // Executive Summary Section
+  doc.setTextColor(51, 65, 85);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Executive Summary', margin, y);
+  y += 10;
+  
+  // Calculate stats
+  var totalClaims = analyticsData.length;
+  var totalIncurred = analyticsData.reduce(function(sum, row) { return sum + (parseFloat(row.TotalIncurred) || 0); }, 0);
+  var avgClaim = totalClaims > 0 ? totalIncurred / totalClaims : 0;
+  var openClaims = analyticsData.filter(function(row) { return row.ClaimantStatus === 'O'; }).length;
+  var closedClaims = analyticsData.filter(function(row) { return row.ClaimantStatus === 'C'; }).length;
+  
+  // Stats boxes
+  doc.setFillColor(241, 245, 249);
+  doc.roundedRect(margin, y, 40, 25, 3, 3, 'F');
+  doc.roundedRect(margin + 45, y, 40, 25, 3, 3, 'F');
+  doc.roundedRect(margin + 90, y, 40, 25, 3, 3, 'F');
+  doc.roundedRect(margin + 135, y, 40, 25, 3, 3, 'F');
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(30, 41, 59);
+  doc.text(totalClaims.toString(), margin + 20, y + 12, { align: 'center' });
+  doc.text('$' + (totalIncurred / 1000).toFixed(0) + 'K', margin + 65, y + 12, { align: 'center' });
+  doc.text('$' + (avgClaim / 1000).toFixed(1) + 'K', margin + 110, y + 12, { align: 'center' });
+  doc.text(openClaims.toString(), margin + 155, y + 12, { align: 'center' });
+  
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 116, 139);
+  doc.text('Total Claims', margin + 20, y + 20, { align: 'center' });
+  doc.text('Total Incurred', margin + 65, y + 20, { align: 'center' });
+  doc.text('Avg per Claim', margin + 110, y + 20, { align: 'center' });
+  doc.text('Open Claims', margin + 155, y + 20, { align: 'center' });
+  
+  y += 35;
+  
+  // Cost Breakdown by Year
+  doc.setTextColor(51, 65, 85);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Cost Breakdown by Accident Year', margin, y);
+  y += 8;
+  
+  // Table header
+  doc.setFillColor(51, 65, 85);
+  doc.rect(margin, y, pageWidth - 2 * margin, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Year', margin + 3, y + 5.5);
+  doc.text('Claims', margin + 28, y + 5.5);
+  doc.text('Indemnity', margin + 50, y + 5.5);
+  doc.text('Medical', margin + 80, y + 5.5);
+  doc.text('Legal', margin + 105, y + 5.5);
+  doc.text('Expense', margin + 125, y + 5.5);
+  doc.text('Total', margin + 155, y + 5.5);
+  y += 8;
+  
+  // Table rows
+  var sortedYears = Object.keys(yearDataGlobal).sort().reverse();
+  var grandTotal = { claims: 0, indemnity: 0, medical: 0, legal: 0, expense: 0, total: 0 };
+  
+  doc.setTextColor(30, 41, 59);
+  doc.setFont('helvetica', 'normal');
+  sortedYears.forEach(function(year, idx) {
+    var yd = yearDataGlobal[year];
+    grandTotal.claims += yd.claims;
+    grandTotal.indemnity += yd.indemnity;
+    grandTotal.medical += yd.medical;
+    grandTotal.legal += yd.legal;
+    grandTotal.expense += yd.expense;
+    grandTotal.total += yd.total;
+    
+    if (idx % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, y, pageWidth - 2 * margin, 7, 'F');
+    }
+    
+    doc.text(year.toString(), margin + 3, y + 5);
+    doc.text(yd.claims.toString(), margin + 28, y + 5);
+    doc.text('$' + (yd.indemnity / 1000).toFixed(1) + 'K', margin + 50, y + 5);
+    doc.text('$' + (yd.medical / 1000).toFixed(1) + 'K', margin + 80, y + 5);
+    doc.text('$' + (yd.legal / 1000).toFixed(1) + 'K', margin + 105, y + 5);
+    doc.text('$' + (yd.expense / 1000).toFixed(1) + 'K', margin + 125, y + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('$' + (yd.total / 1000).toFixed(1) + 'K', margin + 155, y + 5);
+    doc.setFont('helvetica', 'normal');
+    y += 7;
+  });
+  
+  // Grand total row
+  doc.setFillColor(51, 65, 85);
+  doc.rect(margin, y, pageWidth - 2 * margin, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL', margin + 3, y + 5.5);
+  doc.text(grandTotal.claims.toString(), margin + 28, y + 5.5);
+  doc.text('$' + (grandTotal.indemnity / 1000).toFixed(1) + 'K', margin + 50, y + 5.5);
+  doc.text('$' + (grandTotal.medical / 1000).toFixed(1) + 'K', margin + 80, y + 5.5);
+  doc.text('$' + (grandTotal.legal / 1000).toFixed(1) + 'K', margin + 105, y + 5.5);
+  doc.text('$' + (grandTotal.expense / 1000).toFixed(1) + 'K', margin + 125, y + 5.5);
+  doc.text('$' + (grandTotal.total / 1000).toFixed(1) + 'K', margin + 155, y + 5.5);
+  y += 15;
+  
+  // Injury Analysis
+  doc.setTextColor(51, 65, 85);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Injury Type Analysis', margin, y);
+  y += 8;
+  
+  var injuryCounts = {};
+  analyticsData.forEach(function(row) {
+    var injury = row.LossTypeDesc || 'Unknown';
+    injuryCounts[injury] = (injuryCounts[injury] || 0) + 1;
+  });
+  var sortedInjuries = Object.entries(injuryCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  sortedInjuries.forEach(function(item, idx) {
+    var pct = ((item[1] / totalClaims) * 100).toFixed(0);
+    doc.setFillColor(59, 130, 246);
+    doc.rect(margin, y, (pct / 100) * 80, 6, 'F');
+    doc.setTextColor(30, 41, 59);
+    doc.text(item[0] + ' (' + item[1] + ' - ' + pct + '%)', margin + 85, y + 5);
+    y += 9;
+  });
+  y += 5;
+  
+  // Body Part Analysis
+  doc.setTextColor(51, 65, 85);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Body Part Analysis', margin, y);
+  y += 8;
+  
+  var bodyPartCounts = {};
+  analyticsData.forEach(function(row) {
+    var part = row.PartInjuredDesc || 'Unknown';
+    bodyPartCounts[part] = (bodyPartCounts[part] || 0) + 1;
+  });
+  var sortedBodyParts = Object.entries(bodyPartCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  sortedBodyParts.forEach(function(item, idx) {
+    var pct = ((item[1] / totalClaims) * 100).toFixed(0);
+    doc.setFillColor(16, 185, 129);
+    doc.rect(margin, y, (pct / 100) * 80, 6, 'F');
+    doc.setTextColor(30, 41, 59);
+    doc.text(item[0] + ' (' + item[1] + ' - ' + pct + '%)', margin + 85, y + 5);
+    y += 9;
+  });
+  
+  // New page for Top Claims and Recommendations
+  doc.addPage();
+  y = 20;
+  
+  // Header on second page
+  doc.setFillColor(51, 65, 85);
+  doc.rect(0, 0, pageWidth, 20, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TITANIUM DEFENSE GROUP - Loss Run Analytics Report', pageWidth / 2, 13, { align: 'center' });
+  
+  y = 30;
+  
+  // Top 5 Costly Claims
+  doc.setTextColor(51, 65, 85);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Top 5 Highest Cost Claims', margin, y);
+  y += 8;
+  
+  var sortedData = analyticsData.slice().sort(function(a, b) { return (b.TotalIncurred || 0) - (a.TotalIncurred || 0); });
+  
+  doc.setFontSize(9);
+  sortedData.slice(0, 5).forEach(function(row, idx) {
+    var lossDate = row.LossDate ? new Date(row.LossDate).toLocaleDateString() : 'N/A';
+    var name = (row.ClaimantFirstName || '') + ' ' + (row.ClaimantLastName || '');
+    var cost = parseFloat(row.TotalIncurred) || 0;
+    
+    doc.setFillColor(254, 242, 242);
+    doc.roundedRect(margin, y, pageWidth - 2 * margin, 18, 2, 2, 'F');
+    doc.setDrawColor(239, 68, 68);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, margin, y + 18);
+    
+    doc.setTextColor(30, 41, 59);
+    doc.setFont('helvetica', 'bold');
+    doc.text('#' + (idx + 1) + ' - ' + name.trim(), margin + 3, y + 6);
+    doc.setTextColor(220, 38, 38);
+    doc.text('$' + cost.toLocaleString(undefined, {minimumFractionDigits: 0}), pageWidth - margin - 3, y + 6, { align: 'right' });
+    
+    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text((row.LossTypeDesc || 'N/A') + ' - ' + (row.PartInjuredDesc || 'N/A') + ' | ' + lossDate, margin + 3, y + 12);
+    var desc = (row.LossDescription || 'No description').substring(0, 80);
+    doc.text(desc + (row.LossDescription && row.LossDescription.length > 80 ? '...' : ''), margin + 3, y + 16);
+    doc.setFontSize(9);
+    
+    y += 22;
+  });
+  
+  y += 5;
+  
+  // Prevention Recommendations
+  doc.setFillColor(22, 163, 74);
+  doc.roundedRect(margin, y, pageWidth - 2 * margin, 10, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Prevention Recommendations', margin + 5, y + 7);
+  y += 15;
+  
+  var recommendations = [];
+  var topInjury = sortedInjuries[0] ? sortedInjuries[0][0].toLowerCase() : '';
+  var topBodyPart = sortedBodyParts[0] ? sortedBodyParts[0][0].toLowerCase() : '';
+  
+  if (topInjury.includes('strain')) {
+    recommendations.push({ title: 'Implement Ergonomic Training', desc: 'Strains are your #1 injury type. Provide proper lifting techniques training.' });
+  }
+  if (topInjury.includes('laceration') || topInjury.includes('cut')) {
+    recommendations.push({ title: 'Enhance Cut Protection', desc: 'Require cut-resistant gloves and ensure proper knife safety training.' });
+  }
+  if (topInjury.includes('contusion')) {
+    recommendations.push({ title: 'Improve Workplace Layout', desc: 'Review workplace layout and add padding to sharp corners.' });
+  }
+  if (topBodyPart.includes('back') || topBodyPart.includes('lumbar')) {
+    recommendations.push({ title: 'Back Injury Prevention', desc: 'Implement mandatory lifting training and provide mechanical lifting aids.' });
+  }
+  if (topBodyPart.includes('knee')) {
+    recommendations.push({ title: 'Knee Protection Protocol', desc: 'Require knee pads for floor work and address wet/slippery surfaces.' });
+  }
+  recommendations.push({ title: 'Early Reporting Protocol', desc: 'Encourage immediate injury reporting. Early intervention reduces costs by up to 50%.' });
+  recommendations.push({ title: 'Return-to-Work Program', desc: 'Implement modified duty program to reduce lost time and help recovery.' });
+  
+  doc.setFontSize(10);
+  recommendations.slice(0, 5).forEach(function(rec) {
+    doc.setTextColor(22, 101, 52);
+    doc.setFont('helvetica', 'bold');
+    doc.text('• ' + rec.title, margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(30, 41, 59);
+    doc.text('  ' + rec.desc, margin + 3, y + 5);
+    y += 12;
+  });
+  
+  // Footer
+  doc.setTextColor(148, 163, 184);
+  doc.setFontSize(8);
+  doc.text('Report generated by Titanium Defense Group - www.wcreporting.com', pageWidth / 2, pageHeight - 10, { align: 'center' });
+  
+  // Save the PDF
+  var insuredName = analyticsData[0] ? (analyticsData[0].InsuredName || 'Company') : 'Company';
+  insuredName = insuredName.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+  doc.save('Loss_Run_Report_' + insuredName + '_' + new Date().toISOString().split('T')[0] + '.pdf');
 }
 
 // FROI Form Code
