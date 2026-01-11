@@ -259,6 +259,7 @@ body { font-family: 'Inter', sans-serif; }
 <button type="button" onclick="showTab('claim')" id="tab-claim" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Submit a Claim</button>
 <button type="button" onclick="showTab('analytics')" id="tab-analytics" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">Loss Run Analytics</button>
 <button type="button" onclick="showTab('c240')" id="tab-c240" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">C-240 Form</button>
+<button type="button" onclick="showTab('emr')" id="tab-emr" class="px-6 py-3 rounded-t-lg font-semibold tab-inactive">EMR Calculator</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">Fraud / Red Flags</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">HIPAA Generator</button>
 <button type="button" disabled class="px-6 py-3 rounded-t-lg font-semibold bg-slate-100 text-slate-400 cursor-not-allowed">Root Cause Analysis</button>
@@ -433,6 +434,195 @@ Witness Statement Form
 </div>
 </div>
 
+<!-- EMR Calculator Section -->
+<div id="section-emr" class="hidden">
+<div class="bg-amber-50 border border-amber-300 rounded-xl p-4 mb-4">
+<p class="text-amber-800 text-sm"><strong>⚠️ Disclaimer:</strong> This calculator is for <strong>educational and planning purposes only</strong> and does not constitute an official NYCIRB, NCCI, or any state rating bureau modification factor. Actual EMR calculations involve additional factors and should be obtained from your insurance carrier or rating bureau.</p>
+</div>
+
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h3 class="text-xl font-bold text-slate-700 mb-2">Experience Modification Rate (EMR) Calculator</h3>
+<p class="text-slate-600 mb-4">Estimate your workers' compensation experience mod by entering payroll, class codes, and claims data for the last 3 policy years.</p>
+
+<div class="grid lg:grid-cols-2 gap-6">
+<div>
+<h4 class="font-bold text-slate-700 border-b pb-2 mb-4">Configuration</h4>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Split Point ($)</label>
+<input type="number" id="emr-splitPoint" value="17500" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+<p class="text-xs text-slate-400 mt-1">Primary vs Excess threshold</p>
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Weighting Factor (W)</label>
+<input type="number" id="emr-weightFactor" value="0.30" step="0.01" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+<p class="text-xs text-slate-400 mt-1">Excess loss weight</p>
+</div>
+</div>
+<div class="mb-4">
+<label class="block text-xs font-medium text-slate-600 mb-1">Ballast Value</label>
+<input type="number" id="emr-ballast" value="10000" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+<p class="text-xs text-slate-400 mt-1">Stabilizing constant</p>
+</div>
+</div>
+
+<div>
+<h4 class="font-bold text-slate-700 border-b pb-2 mb-4">Upload Supporting Documents</h4>
+<div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-slate-500 hover:bg-slate-50 transition-all cursor-pointer" onclick="document.getElementById('emr-documents').click()">
+<svg class="w-10 h-10 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+<p class="text-slate-700 font-medium text-sm mb-1">Upload Documents</p>
+<p class="text-slate-500 text-xs">Loss runs, experience worksheets, dec pages, payroll reports</p>
+<input type="file" id="emr-documents" multiple accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" class="hidden" onchange="handleEMRDocuments(this.files)">
+</div>
+<div id="emr-docList" class="mt-2 text-xs text-slate-600"></div>
+</div>
+</div>
+</div>
+
+<!-- Payroll Entry by Year -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h4 class="font-bold text-slate-700 mb-4">Payroll & Class Codes by Policy Year</h4>
+<div class="grid lg:grid-cols-3 gap-4">
+<!-- Year 1 -->
+<div class="border border-slate-200 rounded-lg p-4">
+<h5 class="font-bold text-slate-600 text-sm mb-3 bg-slate-100 -mx-4 -mt-4 px-4 py-2 rounded-t-lg">Year 1 (Oldest)</h5>
+<div class="space-y-2" id="emr-payroll-year1">
+<div class="grid grid-cols-3 gap-2 payroll-row">
+<input type="text" placeholder="Class Code" class="emr-class1 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="Payroll $" class="emr-payroll1 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="ELR" step="0.01" class="emr-elr1 px-2 py-1 border border-slate-300 rounded text-xs" title="Expected Loss Rate">
+</div>
+</div>
+<button type="button" onclick="addPayrollRow(1)" class="mt-2 text-xs text-slate-500 hover:text-slate-700">+ Add Class Code</button>
+</div>
+<!-- Year 2 -->
+<div class="border border-slate-200 rounded-lg p-4">
+<h5 class="font-bold text-slate-600 text-sm mb-3 bg-slate-100 -mx-4 -mt-4 px-4 py-2 rounded-t-lg">Year 2 (Middle)</h5>
+<div class="space-y-2" id="emr-payroll-year2">
+<div class="grid grid-cols-3 gap-2 payroll-row">
+<input type="text" placeholder="Class Code" class="emr-class2 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="Payroll $" class="emr-payroll2 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="ELR" step="0.01" class="emr-elr2 px-2 py-1 border border-slate-300 rounded text-xs" title="Expected Loss Rate">
+</div>
+</div>
+<button type="button" onclick="addPayrollRow(2)" class="mt-2 text-xs text-slate-500 hover:text-slate-700">+ Add Class Code</button>
+</div>
+<!-- Year 3 -->
+<div class="border border-slate-200 rounded-lg p-4">
+<h5 class="font-bold text-slate-600 text-sm mb-3 bg-slate-100 -mx-4 -mt-4 px-4 py-2 rounded-t-lg">Year 3 (Most Recent)</h5>
+<div class="space-y-2" id="emr-payroll-year3">
+<div class="grid grid-cols-3 gap-2 payroll-row">
+<input type="text" placeholder="Class Code" class="emr-class3 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="Payroll $" class="emr-payroll3 px-2 py-1 border border-slate-300 rounded text-xs">
+<input type="number" placeholder="ELR" step="0.01" class="emr-elr3 px-2 py-1 border border-slate-300 rounded text-xs" title="Expected Loss Rate">
+</div>
+</div>
+<button type="button" onclick="addPayrollRow(3)" class="mt-2 text-xs text-slate-500 hover:text-slate-700">+ Add Class Code</button>
+</div>
+</div>
+<p class="text-xs text-slate-500 mt-3">ELR = Expected Loss Rate per $100 of payroll (obtain from your rating bureau or carrier)</p>
+</div>
+
+<!-- Claims Entry -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h4 class="font-bold text-slate-700 mb-4">Claims Data (All 3 Years Combined)</h4>
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-100">
+<tr>
+<th class="px-3 py-2 text-left text-xs font-medium text-slate-600">Claim #</th>
+<th class="px-3 py-2 text-left text-xs font-medium text-slate-600">Description</th>
+<th class="px-3 py-2 text-left text-xs font-medium text-slate-600">Policy Year</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-slate-600">Total Incurred</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-slate-600">Primary</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-slate-600">Excess</th>
+<th class="px-3 py-2 text-center text-xs font-medium text-slate-600">Actions</th>
+</tr>
+</thead>
+<tbody id="emr-claims-body">
+<tr class="border-b" id="emr-claim-row-0">
+<td class="px-3 py-2"><input type="text" class="emr-claimNum w-full px-2 py-1 border border-slate-300 rounded text-xs" placeholder="CLM-001"></td>
+<td class="px-3 py-2"><input type="text" class="emr-claimDesc w-full px-2 py-1 border border-slate-300 rounded text-xs" placeholder="Back strain"></td>
+<td class="px-3 py-2"><select class="emr-claimYear w-full px-2 py-1 border border-slate-300 rounded text-xs"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option></select></td>
+<td class="px-3 py-2"><input type="number" class="emr-claimTotal w-full px-2 py-1 border border-slate-300 rounded text-xs text-right" placeholder="0" onchange="updateClaimSplit(0)"></td>
+<td class="px-3 py-2 text-right emr-claimPrimary text-xs text-slate-600">$0</td>
+<td class="px-3 py-2 text-right emr-claimExcess text-xs text-slate-600">$0</td>
+<td class="px-3 py-2 text-center"><button type="button" onclick="removeClaimRow(0)" class="text-red-500 hover:text-red-700 text-xs">✕</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<button type="button" onclick="addClaimRow()" class="mt-3 px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm hover:bg-slate-200">+ Add Claim</button>
+</div>
+
+<!-- D-Ratio Configuration -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h4 class="font-bold text-slate-700 mb-4">D-Ratio (Primary Loss Weight)</h4>
+<div class="grid grid-cols-3 gap-4">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Year 1 D-Ratio</label>
+<input type="number" id="emr-dratio1" value="0.20" step="0.01" min="0" max="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Year 2 D-Ratio</label>
+<input type="number" id="emr-dratio2" value="0.20" step="0.01" min="0" max="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Year 3 D-Ratio</label>
+<input type="number" id="emr-dratio3" value="0.20" step="0.01" min="0" max="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+</div>
+</div>
+<p class="text-xs text-slate-500 mt-2">D-Ratio determines how primary losses are weighted. Typically ranges from 0.07 to 0.63 based on expected losses.</p>
+</div>
+
+<!-- Calculate Button -->
+<div class="bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl shadow-lg p-6 text-center mb-4">
+<button type="button" onclick="calculateEMR()" class="px-8 py-3 bg-white text-slate-800 rounded-lg hover:bg-slate-100 font-bold text-lg">Calculate Estimated MOD</button>
+</div>
+
+<!-- Results -->
+<div id="emr-results" class="hidden">
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+<h4 class="font-bold text-slate-700 mb-4">EMR Calculation Results</h4>
+
+<div class="grid md:grid-cols-2 gap-6 mb-6">
+<div>
+<h5 class="font-semibold text-slate-600 text-sm mb-3">Expected Losses</h5>
+<div class="bg-blue-50 rounded-lg p-4">
+<div class="flex justify-between mb-2"><span class="text-sm text-slate-600">Expected Primary:</span><span class="font-bold text-blue-700" id="emr-expectedPrimary">$0</span></div>
+<div class="flex justify-between mb-2"><span class="text-sm text-slate-600">Expected Excess:</span><span class="font-bold text-blue-700" id="emr-expectedExcess">$0</span></div>
+<div class="flex justify-between border-t pt-2"><span class="text-sm font-medium text-slate-700">Total Expected:</span><span class="font-bold text-blue-800" id="emr-expectedTotal">$0</span></div>
+</div>
+</div>
+<div>
+<h5 class="font-semibold text-slate-600 text-sm mb-3">Actual Losses</h5>
+<div class="bg-amber-50 rounded-lg p-4">
+<div class="flex justify-between mb-2"><span class="text-sm text-slate-600">Actual Primary:</span><span class="font-bold text-amber-700" id="emr-actualPrimary">$0</span></div>
+<div class="flex justify-between mb-2"><span class="text-sm text-slate-600">Actual Excess:</span><span class="font-bold text-amber-700" id="emr-actualExcess">$0</span></div>
+<div class="flex justify-between border-t pt-2"><span class="text-sm font-medium text-slate-700">Total Actual:</span><span class="font-bold text-amber-800" id="emr-actualTotal">$0</span></div>
+</div>
+</div>
+</div>
+
+<div class="bg-slate-800 rounded-xl p-6 text-center mb-4">
+<p class="text-slate-400 text-sm mb-2">Estimated Experience Modification Rate</p>
+<div class="text-5xl font-bold text-white mb-2" id="emr-modResult">1.00</div>
+<p class="text-slate-400 text-xs" id="emr-modInterpretation">Average risk - no credit or debit</p>
+</div>
+
+<div class="bg-slate-50 rounded-lg p-4 text-xs text-slate-600">
+<p class="font-bold mb-2">Formula Used:</p>
+<p class="font-mono bg-white p-2 rounded mb-2">MOD = (Actual Primary + W × Actual Excess + Ballast) ÷ (Expected Primary + W × Expected Excess + Ballast)</p>
+<p id="emr-formulaValues" class="text-slate-500"></p>
+</div>
+</div>
+
+<div class="bg-amber-50 border border-amber-300 rounded-xl p-4">
+<p class="text-amber-800 text-sm"><strong>⚠️ Reminder:</strong> This estimated MOD is for <strong>educational and planning purposes only</strong>. It is not an official calculation from NYCIRB, NCCI, or any state rating bureau. Your actual experience modification factor may differ based on additional rating elements, state-specific rules, and official bureau calculations. Contact your insurance carrier or rating bureau for official mod worksheets.</p>
+</div>
+</div>
+</div>
+
 <footer class="bg-slate-800 text-slate-400 py-6 mt-8 text-center text-sm">
 <p>2025 Titanium Defense Group. All rights reserved.</p>
 </footer>
@@ -444,6 +634,7 @@ function showTab(tab) {
   document.getElementById('section-claim').classList.add('hidden');
   document.getElementById('section-analytics').classList.add('hidden');
   document.getElementById('section-c240').classList.add('hidden');
+  document.getElementById('section-emr').classList.add('hidden');
   document.getElementById('tab-forms').classList.remove('tab-active');
   document.getElementById('tab-forms').classList.add('tab-inactive');
   document.getElementById('tab-claim').classList.remove('tab-active');
@@ -452,6 +643,8 @@ function showTab(tab) {
   document.getElementById('tab-analytics').classList.add('tab-inactive');
   document.getElementById('tab-c240').classList.remove('tab-active');
   document.getElementById('tab-c240').classList.add('tab-inactive');
+  document.getElementById('tab-emr').classList.remove('tab-active');
+  document.getElementById('tab-emr').classList.add('tab-inactive');
   
   document.getElementById('section-' + tab).classList.remove('hidden');
   document.getElementById('tab-' + tab).classList.add('tab-active');
@@ -961,6 +1154,140 @@ function submitClaim() {
 
 // Initialize
 render();
+
+// EMR Calculator Functions
+var emrClaimCounter = 1;
+var emrDocuments = [];
+
+function addPayrollRow(year) {
+  var container = document.getElementById('emr-payroll-year' + year);
+  var html = '<div class="grid grid-cols-3 gap-2 payroll-row">';
+  html += '<input type="text" placeholder="Class Code" class="emr-class' + year + ' px-2 py-1 border border-slate-300 rounded text-xs">';
+  html += '<input type="number" placeholder="Payroll $" class="emr-payroll' + year + ' px-2 py-1 border border-slate-300 rounded text-xs">';
+  html += '<input type="number" placeholder="ELR" step="0.01" class="emr-elr' + year + ' px-2 py-1 border border-slate-300 rounded text-xs" title="Expected Loss Rate">';
+  html += '</div>';
+  container.insertAdjacentHTML('beforeend', html);
+}
+
+function addClaimRow() {
+  var tbody = document.getElementById('emr-claims-body');
+  var html = '<tr class="border-b" id="emr-claim-row-' + emrClaimCounter + '">';
+  html += '<td class="px-3 py-2"><input type="text" class="emr-claimNum w-full px-2 py-1 border border-slate-300 rounded text-xs" placeholder="CLM-00' + (emrClaimCounter + 1) + '"></td>';
+  html += '<td class="px-3 py-2"><input type="text" class="emr-claimDesc w-full px-2 py-1 border border-slate-300 rounded text-xs" placeholder="Description"></td>';
+  html += '<td class="px-3 py-2"><select class="emr-claimYear w-full px-2 py-1 border border-slate-300 rounded text-xs"><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option></select></td>';
+  html += '<td class="px-3 py-2"><input type="number" class="emr-claimTotal w-full px-2 py-1 border border-slate-300 rounded text-xs text-right" placeholder="0" onchange="updateClaimSplit(' + emrClaimCounter + ')"></td>';
+  html += '<td class="px-3 py-2 text-right emr-claimPrimary text-xs text-slate-600">$0</td>';
+  html += '<td class="px-3 py-2 text-right emr-claimExcess text-xs text-slate-600">$0</td>';
+  html += '<td class="px-3 py-2 text-center"><button type="button" onclick="removeClaimRow(' + emrClaimCounter + ')" class="text-red-500 hover:text-red-700 text-xs">✕</button></td>';
+  html += '</tr>';
+  tbody.insertAdjacentHTML('beforeend', html);
+  emrClaimCounter++;
+}
+
+function removeClaimRow(idx) {
+  var row = document.getElementById('emr-claim-row-' + idx);
+  if (row) row.remove();
+}
+
+function updateClaimSplit(idx) {
+  var row = document.getElementById('emr-claim-row-' + idx);
+  if (!row) return;
+  var totalInput = row.querySelector('.emr-claimTotal');
+  var primaryCell = row.querySelector('.emr-claimPrimary');
+  var excessCell = row.querySelector('.emr-claimExcess');
+  var total = parseFloat(totalInput.value) || 0;
+  var splitPoint = parseFloat(document.getElementById('emr-splitPoint').value) || 17500;
+  var primary = Math.min(total, splitPoint);
+  var excess = Math.max(0, total - splitPoint);
+  primaryCell.textContent = '$' + primary.toLocaleString();
+  excessCell.textContent = '$' + excess.toLocaleString();
+}
+
+function handleEMRDocuments(files) {
+  var docList = document.getElementById('emr-docList');
+  var html = '';
+  for (var i = 0; i < files.length; i++) {
+    emrDocuments.push(files[i]);
+    html += '<span class="inline-block bg-slate-100 px-2 py-1 rounded mr-1 mb-1">' + files[i].name + '</span>';
+  }
+  docList.innerHTML = html;
+}
+
+function calculateEMR() {
+  var splitPoint = parseFloat(document.getElementById('emr-splitPoint').value) || 17500;
+  var weightFactor = parseFloat(document.getElementById('emr-weightFactor').value) || 0.30;
+  var ballast = parseFloat(document.getElementById('emr-ballast').value) || 10000;
+  
+  // Calculate Expected Losses from Payroll
+  var expectedLosses = { year1: 0, year2: 0, year3: 0, total: 0 };
+  for (var y = 1; y <= 3; y++) {
+    var payrollInputs = document.querySelectorAll('.emr-payroll' + y);
+    var elrInputs = document.querySelectorAll('.emr-elr' + y);
+    for (var i = 0; i < payrollInputs.length; i++) {
+      var payroll = parseFloat(payrollInputs[i].value) || 0;
+      var elr = parseFloat(elrInputs[i].value) || 0;
+      var expected = (payroll / 100) * elr;
+      expectedLosses['year' + y] += expected;
+      expectedLosses.total += expected;
+    }
+  }
+  
+  // Get D-Ratios
+  var dRatio1 = parseFloat(document.getElementById('emr-dratio1').value) || 0.20;
+  var dRatio2 = parseFloat(document.getElementById('emr-dratio2').value) || 0.20;
+  var dRatio3 = parseFloat(document.getElementById('emr-dratio3').value) || 0.20;
+  var avgDRatio = (dRatio1 + dRatio2 + dRatio3) / 3;
+  
+  // Calculate Expected Primary and Excess
+  var expectedPrimary = expectedLosses.total * avgDRatio;
+  var expectedExcess = expectedLosses.total * (1 - avgDRatio);
+  
+  // Calculate Actual Losses from Claims
+  var actualPrimary = 0;
+  var actualExcess = 0;
+  var claimRows = document.querySelectorAll('[id^="emr-claim-row-"]');
+  claimRows.forEach(function(row) {
+    var totalInput = row.querySelector('.emr-claimTotal');
+    var total = parseFloat(totalInput.value) || 0;
+    var primary = Math.min(total, splitPoint);
+    var excess = Math.max(0, total - splitPoint);
+    actualPrimary += primary;
+    actualExcess += excess;
+  });
+  
+  // Calculate MOD
+  var numerator = actualPrimary + (weightFactor * actualExcess) + ballast;
+  var denominator = expectedPrimary + (weightFactor * expectedExcess) + ballast;
+  var mod = denominator > 0 ? numerator / denominator : 1.00;
+  
+  // Update Results Display
+  document.getElementById('emr-results').classList.remove('hidden');
+  document.getElementById('emr-expectedPrimary').textContent = '$' + Math.round(expectedPrimary).toLocaleString();
+  document.getElementById('emr-expectedExcess').textContent = '$' + Math.round(expectedExcess).toLocaleString();
+  document.getElementById('emr-expectedTotal').textContent = '$' + Math.round(expectedLosses.total).toLocaleString();
+  document.getElementById('emr-actualPrimary').textContent = '$' + Math.round(actualPrimary).toLocaleString();
+  document.getElementById('emr-actualExcess').textContent = '$' + Math.round(actualExcess).toLocaleString();
+  document.getElementById('emr-actualTotal').textContent = '$' + Math.round(actualPrimary + actualExcess).toLocaleString();
+  document.getElementById('emr-modResult').textContent = mod.toFixed(2);
+  
+  // Interpretation
+  var interpretation = '';
+  if (mod < 0.75) interpretation = 'Excellent - Significant credit for better than average experience';
+  else if (mod < 0.90) interpretation = 'Good - Credit for better than average experience';
+  else if (mod < 1.00) interpretation = 'Slightly better than average experience';
+  else if (mod === 1.00) interpretation = 'Average risk - no credit or debit';
+  else if (mod < 1.10) interpretation = 'Slightly worse than average experience';
+  else if (mod < 1.25) interpretation = 'Poor - Debit for worse than average experience';
+  else interpretation = 'High risk - Significant debit for poor experience';
+  document.getElementById('emr-modInterpretation').textContent = interpretation;
+  
+  // Formula values
+  var formulaValues = 'Values: (' + Math.round(actualPrimary).toLocaleString() + ' + ' + weightFactor + ' × ' + Math.round(actualExcess).toLocaleString() + ' + ' + ballast.toLocaleString() + ') ÷ (' + Math.round(expectedPrimary).toLocaleString() + ' + ' + weightFactor + ' × ' + Math.round(expectedExcess).toLocaleString() + ' + ' + ballast.toLocaleString() + ') = ' + mod.toFixed(4);
+  document.getElementById('emr-formulaValues').textContent = formulaValues;
+  
+  // Scroll to results
+  document.getElementById('emr-results').scrollIntoView({ behavior: 'smooth' });
+}
 <\/script>
 </body>
 </html>`;
