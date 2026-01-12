@@ -133,6 +133,11 @@ async function initDB() {
       { sql: "ALTER TABLE claims ADD COLUMN adjuster_email VARCHAR(255)", desc: "claims.adjuster_email" },
       { sql: "ALTER TABLE claims ADD COLUMN adjuster_notes TEXT", desc: "claims.adjuster_notes" },
       { sql: "ALTER TABLE claims ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP", desc: "claims.updated_at" },
+      // Lost time tracking columns
+      { sql: "ALTER TABLE claims ADD COLUMN first_day_out DATE", desc: "claims.first_day_out" },
+      { sql: "ALTER TABLE claims ADD COLUMN light_duty_start DATE", desc: "claims.light_duty_start" },
+      { sql: "ALTER TABLE claims ADD COLUMN light_duty_end DATE", desc: "claims.light_duty_end" },
+      { sql: "ALTER TABLE claims ADD COLUMN return_to_work DATE", desc: "claims.return_to_work" },
       // Documents table columns
       { sql: "ALTER TABLE documents ADD COLUMN claim_id INTEGER", desc: "documents.claim_id" },
       // Update old status
@@ -579,7 +584,8 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
     const { 
       status, location, carrier_claim_number, carrier_name, tpa_name,
       adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
-      date_of_injury, injury_type, body_part
+      date_of_injury, injury_type, body_part,
+      first_day_out, light_duty_start, light_duty_end, return_to_work
     } = req.body;
     
     // Get current claim to check ownership and get old status
@@ -608,12 +614,17 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
         date_of_injury = COALESCE($10, date_of_injury),
         injury_type = COALESCE($11, injury_type),
         body_part = COALESCE($12, body_part),
+        first_day_out = COALESCE($13, first_day_out),
+        light_duty_start = COALESCE($14, light_duty_start),
+        light_duty_end = COALESCE($15, light_duty_end),
+        return_to_work = COALESCE($16, return_to_work),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $13 AND user_id = $14
+      WHERE id = $17 AND user_id = $18
       RETURNING *`,
       [status, location, carrier_claim_number, carrier_name, tpa_name,
        adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
        date_of_injury || null, injury_type || null, body_part || null,
+       first_day_out || null, light_duty_start || null, light_duty_end || null, return_to_work || null,
        req.params.id, req.userId]
     );
     
@@ -2294,6 +2305,73 @@ Adjuster Information
 </div>
 </div>
 
+<!-- Lost Time Tracker -->
+<div class="bg-white rounded-xl shadow p-6">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
+<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+Lost Time Tracker
+</h3>
+<button onclick="toggleLostTimeEdit()" id="losttime-edit-btn" class="text-sm text-green-600 hover:text-green-700 font-medium">Edit</button>
+</div>
+
+<!-- Summary Stats -->
+<div class="grid grid-cols-2 gap-3 mb-4" id="losttime-stats">
+<div class="bg-red-50 rounded-lg p-3 text-center">
+<div class="text-2xl font-bold text-red-600" id="days-away-count">0</div>
+<div class="text-xs text-red-700">Days Away</div>
+</div>
+<div class="bg-amber-50 rounded-lg p-3 text-center">
+<div class="text-2xl font-bold text-amber-600" id="days-light-duty-count">0</div>
+<div class="text-xs text-amber-700">Days Light Duty</div>
+</div>
+</div>
+
+<!-- View Mode -->
+<div id="losttime-view" class="space-y-2 text-sm">
+<div class="flex justify-between py-2 border-b border-slate-100">
+<span class="text-slate-500">First Day Out:</span>
+<span class="font-medium text-slate-800" id="losttime-firstday-view">Not set</span>
+</div>
+<div class="flex justify-between py-2 border-b border-slate-100">
+<span class="text-slate-500">Light Duty Start:</span>
+<span class="font-medium text-slate-800" id="losttime-lightstart-view">Not set</span>
+</div>
+<div class="flex justify-between py-2 border-b border-slate-100">
+<span class="text-slate-500">Light Duty End:</span>
+<span class="font-medium text-slate-800" id="losttime-lightend-view">Not set</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="text-slate-500">Return to Work:</span>
+<span class="font-medium text-slate-800" id="losttime-rtw-view">Not set</span>
+</div>
+</div>
+
+<!-- Edit Mode -->
+<div id="losttime-edit" class="hidden space-y-3">
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">First Day Out</label>
+<input type="date" id="losttime-firstday" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="calculateLostTimeDays()">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Light Duty Start</label>
+<input type="date" id="losttime-lightstart" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="calculateLostTimeDays()">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Light Duty End</label>
+<input type="date" id="losttime-lightend" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="calculateLostTimeDays()">
+</div>
+<div>
+<label class="block text-xs font-medium text-slate-600 mb-1">Return to Work</label>
+<input type="date" id="losttime-rtw" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="calculateLostTimeDays()">
+</div>
+<div class="flex gap-2 pt-2">
+<button onclick="saveLostTimeInfo()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium">Save Changes</button>
+<button onclick="toggleLostTimeEdit()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm">Cancel</button>
+</div>
+</div>
+</div>
+
 <!-- Status History -->
 <div class="bg-white rounded-xl shadow p-6">
 <h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
@@ -3087,6 +3165,9 @@ async function viewClaimDetail(claimId) {
   document.getElementById('adjuster-view').classList.remove('hidden');
   document.getElementById('adjuster-edit').classList.add('hidden');
   document.getElementById('adjuster-edit-btn').textContent = 'Edit';
+  document.getElementById('losttime-view').classList.remove('hidden');
+  document.getElementById('losttime-edit').classList.add('hidden');
+  document.getElementById('losttime-edit-btn').textContent = 'Edit';
   
   // Load claim data
   try {
@@ -3143,6 +3224,15 @@ async function viewClaimDetail(claimId) {
       document.getElementById('adj-phone').value = claim.adjuster_phone || '';
       document.getElementById('adj-email').value = claim.adjuster_email || '';
       document.getElementById('adj-notes').value = claim.adjuster_notes || '';
+      
+      // Populate lost time tracker (view mode)
+      updateLostTimeView(claim);
+      
+      // Populate lost time tracker (edit mode)
+      document.getElementById('losttime-firstday').value = claim.first_day_out ? claim.first_day_out.split('T')[0] : '';
+      document.getElementById('losttime-lightstart').value = claim.light_duty_start ? claim.light_duty_start.split('T')[0] : '';
+      document.getElementById('losttime-lightend').value = claim.light_duty_end ? claim.light_duty_end.split('T')[0] : '';
+      document.getElementById('losttime-rtw').value = claim.return_to_work ? claim.return_to_work.split('T')[0] : '';
       
       // Update counts
       document.getElementById('notes-count').textContent = '(' + (claim.notes_count || 0) + ')';
@@ -3234,6 +3324,152 @@ async function saveAdjusterInfo() {
     console.error('Save adjuster error:', err);
     alert('Failed to save adjuster information.');
   }
+}
+
+// Toggle lost time edit mode
+function toggleLostTimeEdit() {
+  var viewEl = document.getElementById('losttime-view');
+  var editEl = document.getElementById('losttime-edit');
+  var btnEl = document.getElementById('losttime-edit-btn');
+  
+  if (viewEl.classList.contains('hidden')) {
+    viewEl.classList.remove('hidden');
+    editEl.classList.add('hidden');
+    btnEl.textContent = 'Edit';
+  } else {
+    viewEl.classList.add('hidden');
+    editEl.classList.remove('hidden');
+    btnEl.textContent = 'Cancel';
+  }
+}
+
+// Calculate lost time days
+function calculateLostTimeDays() {
+  var firstDayOut = document.getElementById('losttime-firstday').value;
+  var lightDutyStart = document.getElementById('losttime-lightstart').value;
+  var lightDutyEnd = document.getElementById('losttime-lightend').value;
+  var returnToWork = document.getElementById('losttime-rtw').value;
+  
+  var daysAway = 0;
+  var daysLightDuty = 0;
+  
+  // Calculate days away (from first day out to either light duty start or return to work)
+  if (firstDayOut) {
+    var startDate = new Date(firstDayOut);
+    var endDate;
+    
+    if (lightDutyStart) {
+      endDate = new Date(lightDutyStart);
+    } else if (returnToWork) {
+      endDate = new Date(returnToWork);
+    } else {
+      endDate = new Date(); // Still out - count to today
+    }
+    
+    daysAway = Math.max(0, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
+  }
+  
+  // Calculate light duty days
+  if (lightDutyStart) {
+    var ldStart = new Date(lightDutyStart);
+    var ldEnd;
+    
+    if (lightDutyEnd) {
+      ldEnd = new Date(lightDutyEnd);
+    } else if (returnToWork) {
+      ldEnd = new Date(returnToWork);
+    } else {
+      ldEnd = new Date(); // Still on light duty - count to today
+    }
+    
+    daysLightDuty = Math.max(0, Math.ceil((ldEnd - ldStart) / (1000 * 60 * 60 * 24)));
+  }
+  
+  document.getElementById('days-away-count').textContent = daysAway;
+  document.getElementById('days-light-duty-count').textContent = daysLightDuty;
+}
+
+// Save lost time information
+async function saveLostTimeInfo() {
+  if (!currentClaimId) return;
+  
+  try {
+    var res = await fetch('/api/claims/' + currentClaimId, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken 
+      },
+      body: JSON.stringify({
+        first_day_out: document.getElementById('losttime-firstday').value || null,
+        light_duty_start: document.getElementById('losttime-lightstart').value || null,
+        light_duty_end: document.getElementById('losttime-lightend').value || null,
+        return_to_work: document.getElementById('losttime-rtw').value || null
+      })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      // Update view mode
+      updateLostTimeView(data.claim);
+      toggleLostTimeEdit();
+    } else {
+      alert('Failed to save: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Save lost time error:', err);
+    alert('Failed to save lost time information.');
+  }
+}
+
+// Update lost time view display
+function updateLostTimeView(claim) {
+  var formatDate = function(dateStr) {
+    if (!dateStr) return 'Not set';
+    return new Date(dateStr).toLocaleDateString();
+  };
+  
+  document.getElementById('losttime-firstday-view').textContent = formatDate(claim.first_day_out);
+  document.getElementById('losttime-lightstart-view').textContent = formatDate(claim.light_duty_start);
+  document.getElementById('losttime-lightend-view').textContent = formatDate(claim.light_duty_end);
+  document.getElementById('losttime-rtw-view').textContent = formatDate(claim.return_to_work);
+  
+  // Calculate and update day counts
+  var daysAway = 0;
+  var daysLightDuty = 0;
+  
+  if (claim.first_day_out) {
+    var startDate = new Date(claim.first_day_out);
+    var endDate;
+    
+    if (claim.light_duty_start) {
+      endDate = new Date(claim.light_duty_start);
+    } else if (claim.return_to_work) {
+      endDate = new Date(claim.return_to_work);
+    } else {
+      endDate = new Date();
+    }
+    
+    daysAway = Math.max(0, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
+  }
+  
+  if (claim.light_duty_start) {
+    var ldStart = new Date(claim.light_duty_start);
+    var ldEnd;
+    
+    if (claim.light_duty_end) {
+      ldEnd = new Date(claim.light_duty_end);
+    } else if (claim.return_to_work) {
+      ldEnd = new Date(claim.return_to_work);
+    } else {
+      ldEnd = new Date();
+    }
+    
+    daysLightDuty = Math.max(0, Math.ceil((ldEnd - ldStart) / (1000 * 60 * 60 * 24)));
+  }
+  
+  document.getElementById('days-away-count').textContent = daysAway;
+  document.getElementById('days-light-duty-count').textContent = daysLightDuty;
 }
 
 // Update claim status
