@@ -543,6 +543,57 @@ app.get('/api/claims', authenticateSession, async function(req, res) {
   }
 });
 
+// Create a manual claim
+app.post('/api/claims/manual', authenticateSession, async function(req, res) {
+  try {
+    const { 
+      first_name, last_name, date_of_injury, injury_type, body_part, 
+      location, status, carrier_claim_number, notes 
+    } = req.body;
+    
+    if (!first_name || !last_name || !date_of_injury) {
+      return res.status(400).json({ error: 'First name, last name, and date of injury are required' });
+    }
+    
+    // Generate reference number
+    const referenceNumber = 'FROI-' + Math.floor(10000000 + Math.random() * 90000000);
+    const employeeName = first_name.trim() + ' ' + last_name.trim();
+    
+    const result = await pool.query(
+      `INSERT INTO claims (user_id, reference_number, employee_name, date_of_injury, injury_type, body_part, status, location, carrier_claim_number, form_data)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [
+        req.userId,
+        referenceNumber,
+        employeeName,
+        date_of_injury,
+        injury_type || null,
+        body_part || null,
+        status || 'Reported',
+        location || null,
+        carrier_claim_number || null,
+        { manualEntry: true, notes: notes || '', firstName: first_name, lastName: last_name }
+      ]
+    );
+    
+    // If there are notes, add them as a claim note
+    if (notes && notes.trim()) {
+      const userName = (req.user.first_name || '') + ' ' + (req.user.last_name || req.user.email);
+      await pool.query(
+        `INSERT INTO claim_notes (claim_id, user_id, user_name, note_text)
+         VALUES ($1, $2, $3, $4)`,
+        [result.rows[0].id, req.userId, userName.trim(), notes.trim()]
+      );
+    }
+    
+    console.log('Manual claim created:', referenceNumber, 'for user', req.userId);
+    res.json({ success: true, claim: result.rows[0] });
+  } catch (err) {
+    console.error('Create manual claim error:', err);
+    res.status(500).json({ error: 'Failed to create claim' });
+  }
+});
+
 // Get single claim with full details
 app.get('/api/claims/:id', authenticateSession, async function(req, res) {
   try {
@@ -1933,6 +1984,74 @@ body { font-family: 'Inter', sans-serif; }
 </div>
 </div>
 
+<!-- Add Claim Modal -->
+<div id="addClaimModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden">
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 relative overflow-hidden">
+<div class="bg-gradient-to-r from-green-600 to-green-500 px-6 py-4">
+<h2 class="text-xl font-bold text-white">Add New Claim</h2>
+<p class="text-green-100 text-sm">Manually add a claim to track</p>
+</div>
+<div class="p-6 max-h-[70vh] overflow-y-auto">
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
+<input type="text" id="addclaim-firstname" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="John">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Last Name *</label>
+<input type="text" id="addclaim-lastname" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Smith">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Date of Injury *</label>
+<input type="date" id="addclaim-doi" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Injury Type</label>
+<input type="text" id="addclaim-injurytype" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="e.g., Strain, Cut, Fracture">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Body Part</label>
+<input type="text" id="addclaim-bodypart" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="e.g., Lower Back, Hand">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+<input type="text" id="addclaim-location" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="e.g., Warehouse, Main Office">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+<select id="addclaim-status" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+<option value="Reported">Reported</option>
+<option value="Open">Open</option>
+<option value="Medical Only">Medical Only</option>
+<option value="Lost Time">Lost Time</option>
+<option value="Pending Docs">Pending Docs</option>
+<option value="Closed">Closed</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Carrier Claim Number</label>
+<input type="text" id="addclaim-carriernumber" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Optional">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+<textarea id="addclaim-notes" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Any additional notes about this claim..."></textarea>
+</div>
+</div>
+<div class="flex gap-3 mt-6">
+<button onclick="submitAddClaim()" class="flex-1 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">Add Claim</button>
+<button onclick="closeAddClaimModal()" class="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition">Cancel</button>
+</div>
+</div>
+<button onclick="closeAddClaimModal()" class="absolute top-4 right-4 text-white/70 hover:text-white">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</button>
+</div>
+</div>
+
 <header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white p-4 shadow-lg">
 <div class="max-w-6xl mx-auto flex justify-between items-center">
 <a href="/" class="flex items-center gap-4 hover:opacity-90 transition">
@@ -2093,10 +2212,16 @@ Pending Tasks
 <option value="employee_name-asc">Employee Name (A-Z)</option>
 </select>
 </div>
+<div class="flex gap-2">
 <button onclick="loadClaimsList()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 text-sm">
 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
 Refresh
 </button>
+<button onclick="openAddClaimModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center gap-2 text-sm font-medium">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+Add Claim
+</button>
+</div>
 </div>
 </div>
 
@@ -4637,6 +4762,81 @@ function openAuthModal() {
 
 function closeAuthModal() {
   document.getElementById('authModal').classList.add('hidden');
+}
+
+// Add Claim Modal Functions
+function openAddClaimModal() {
+  if (!sessionToken) {
+    openAuthModal();
+    return;
+  }
+  // Clear form
+  document.getElementById('addclaim-firstname').value = '';
+  document.getElementById('addclaim-lastname').value = '';
+  document.getElementById('addclaim-doi').value = '';
+  document.getElementById('addclaim-injurytype').value = '';
+  document.getElementById('addclaim-bodypart').value = '';
+  document.getElementById('addclaim-location').value = '';
+  document.getElementById('addclaim-status').value = 'Reported';
+  document.getElementById('addclaim-carriernumber').value = '';
+  document.getElementById('addclaim-notes').value = '';
+  
+  document.getElementById('addClaimModal').classList.remove('hidden');
+}
+
+function closeAddClaimModal() {
+  document.getElementById('addClaimModal').classList.add('hidden');
+}
+
+async function submitAddClaim() {
+  var firstName = document.getElementById('addclaim-firstname').value.trim();
+  var lastName = document.getElementById('addclaim-lastname').value.trim();
+  var doi = document.getElementById('addclaim-doi').value;
+  
+  if (!firstName || !lastName) {
+    alert('Please enter the employee first and last name.');
+    return;
+  }
+  if (!doi) {
+    alert('Please enter the date of injury.');
+    return;
+  }
+  
+  try {
+    var res = await fetch('/api/claims/manual', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken
+      },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        date_of_injury: doi,
+        injury_type: document.getElementById('addclaim-injurytype').value.trim() || null,
+        body_part: document.getElementById('addclaim-bodypart').value.trim() || null,
+        location: document.getElementById('addclaim-location').value.trim() || null,
+        status: document.getElementById('addclaim-status').value,
+        carrier_claim_number: document.getElementById('addclaim-carriernumber').value.trim() || null,
+        notes: document.getElementById('addclaim-notes').value.trim() || null
+      })
+    });
+    
+    var data = await res.json();
+    if (data.success) {
+      closeAddClaimModal();
+      loadClaimsDashboard();
+      // Optionally open the new claim detail
+      if (data.claim && data.claim.id) {
+        viewClaimDetail(data.claim.id);
+      }
+    } else {
+      alert('Failed to add claim: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Add claim error:', err);
+    alert('Failed to add claim. Please try again.');
+  }
 }
 
 function showLogin() {
