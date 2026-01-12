@@ -3011,7 +3011,6 @@ Coming Soon
 </div>
 </div>
 </div>
-</div>
 
 <!-- Coming Soon Tools -->
 <div id="tool-coming" class="tool-content hidden">
@@ -3057,6 +3056,7 @@ Coming Soon
 </div>
 </div>
 </div>
+
 </div>
 
 <footer class="bg-slate-800 text-green-300 py-6 mt-8 text-center text-sm">
@@ -3082,6 +3082,11 @@ function showTab(tab) {
     }
   });
   
+  // Hide all tool contents when switching away from tools
+  document.querySelectorAll('.tool-content').forEach(function(el) {
+    el.classList.add('hidden');
+  });
+  
   // Show selected section and activate tab
   var activeSection = document.getElementById('section-' + tab);
   var activeTab = document.getElementById('tab-' + tab);
@@ -3095,6 +3100,7 @@ function showTab(tab) {
   if (tab === 'report') render();
   if (tab === 'mydocs') loadMyDocuments();
   if (tab === 'claims') loadClaimsDashboard();
+  if (tab === 'tools') showTool('emr'); // Show default tool when opening tools tab
 }
 
 function showTool(tool) {
