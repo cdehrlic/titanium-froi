@@ -599,6 +599,13 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
     
     const oldStatus = current.rows[0].status;
     
+    // For lost time fields, we need to allow clearing them (setting to NULL)
+    // Check if they were explicitly sent in the request
+    const hasFirstDayOut = 'first_day_out' in req.body;
+    const hasLightDutyStart = 'light_duty_start' in req.body;
+    const hasLightDutyEnd = 'light_duty_end' in req.body;
+    const hasReturnToWork = 'return_to_work' in req.body;
+    
     // Update the claim
     const result = await pool.query(
       `UPDATE claims SET 
@@ -614,10 +621,10 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
         date_of_injury = COALESCE($10, date_of_injury),
         injury_type = COALESCE($11, injury_type),
         body_part = COALESCE($12, body_part),
-        first_day_out = COALESCE($13, first_day_out),
-        light_duty_start = COALESCE($14, light_duty_start),
-        light_duty_end = COALESCE($15, light_duty_end),
-        return_to_work = COALESCE($16, return_to_work),
+        first_day_out = CASE WHEN $19 THEN $13 ELSE first_day_out END,
+        light_duty_start = CASE WHEN $20 THEN $14 ELSE light_duty_start END,
+        light_duty_end = CASE WHEN $21 THEN $15 ELSE light_duty_end END,
+        return_to_work = CASE WHEN $22 THEN $16 ELSE return_to_work END,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $17 AND user_id = $18
       RETURNING *`,
@@ -625,7 +632,8 @@ app.put('/api/claims/:id', authenticateSession, async function(req, res) {
        adjuster_name, adjuster_phone, adjuster_email, adjuster_notes,
        date_of_injury || null, injury_type || null, body_part || null,
        first_day_out || null, light_duty_start || null, light_duty_end || null, return_to_work || null,
-       req.params.id, req.userId]
+       req.params.id, req.userId,
+       hasFirstDayOut, hasLightDutyStart, hasLightDutyEnd, hasReturnToWork]
     );
     
     // Log status change if status was updated
