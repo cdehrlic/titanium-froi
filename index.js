@@ -9,6 +9,59 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ==================== SECURITY CONFIGURATION ====================
+const SECURITY_CONFIG = {
+  SESSION_TIMEOUT_MINUTES: 30,          // Auto-logout after inactivity
+  MAX_LOGIN_ATTEMPTS: 5,                 // Lock account after failed attempts
+  LOGIN_LOCKOUT_MINUTES: 15,             // Lockout duration
+  MIN_PASSWORD_LENGTH: 8,                // Minimum password length
+  REQUIRE_PASSWORD_COMPLEXITY: true,     // Require mixed case, numbers, symbols
+  BCRYPT_ROUNDS: 12                      // Password hashing strength
+};
+
+// Rate limiting store (in production, use Redis)
+const loginAttempts = new Map();
+
+// ==================== SECURITY MIDDLEWARE ====================
+
+// Force HTTPS in production
+app.use(function(req, res, next) {
+  if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(301, 'https://' + req.headers.host + req.url);
+    }
+  }
+  next();
+});
+
+// Security headers (HIPAA compliance)
+app.use(function(req, res, next) {
+  // Strict Transport Security - force HTTPS for 1 year
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // XSS Protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Referrer Policy - don't leak PHI in referrer headers
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'");
+  // Permissions Policy
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  // Cache control for sensitive data
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+// Trust proxy (required for rate limiting behind Railway/load balancer)
+app.set('trust proxy', 1);
+
+// ==================== DATABASE CONNECTION ====================
+
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -119,6 +172,22 @@ async function initDB() {
       )
     `);
     
+    // Security audit log table (HIPAA compliance)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS audit_log (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_email VARCHAR(255),
+        action VARCHAR(100) NOT NULL,
+        resource_type VARCHAR(50),
+        resource_id INTEGER,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        details JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
     console.log('Base tables created');
     
     // Now run migrations to add columns to existing tables
@@ -203,7 +272,102 @@ const CONFIG = {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Session middleware
+// ==================== SECURITY HELPER FUNCTIONS ====================
+
+// Audit log function - logs all PHI access for HIPAA compliance
+async function auditLog(userId, userEmail, action, resourceType, resourceId, req, details = {}) {
+  try {
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    
+    await pool.query(
+      `INSERT INTO audit_log (user_id, user_email, action, resource_type, resource_id, ip_address, user_agent, details)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [userId, userEmail, action, resourceType, resourceId, ipAddress, userAgent, JSON.stringify(details)]
+    );
+  } catch (err) {
+    console.error('Audit log error:', err);
+    // Don't throw - audit logging shouldn't break the app
+  }
+}
+
+// Rate limiting for login attempts
+function checkRateLimit(identifier) {
+  const now = Date.now();
+  const attempts = loginAttempts.get(identifier) || { count: 0, firstAttempt: now, lockedUntil: 0 };
+  
+  // Check if currently locked out
+  if (attempts.lockedUntil > now) {
+    const remainingMinutes = Math.ceil((attempts.lockedUntil - now) / 60000);
+    return { allowed: false, remainingMinutes, message: `Too many failed attempts. Try again in ${remainingMinutes} minutes.` };
+  }
+  
+  // Reset if first attempt was more than lockout period ago
+  if (now - attempts.firstAttempt > SECURITY_CONFIG.LOGIN_LOCKOUT_MINUTES * 60000) {
+    loginAttempts.delete(identifier);
+    return { allowed: true };
+  }
+  
+  return { allowed: true, currentAttempts: attempts.count };
+}
+
+function recordFailedLogin(identifier) {
+  const now = Date.now();
+  const attempts = loginAttempts.get(identifier) || { count: 0, firstAttempt: now, lockedUntil: 0 };
+  
+  attempts.count++;
+  if (attempts.count >= SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS) {
+    attempts.lockedUntil = now + (SECURITY_CONFIG.LOGIN_LOCKOUT_MINUTES * 60000);
+    console.log(`Security: Account locked for ${identifier} after ${attempts.count} failed attempts`);
+  }
+  
+  loginAttempts.set(identifier, attempts);
+}
+
+function clearLoginAttempts(identifier) {
+  loginAttempts.delete(identifier);
+}
+
+// Password complexity validation
+function validatePassword(password) {
+  const errors = [];
+  
+  if (!password || password.length < SECURITY_CONFIG.MIN_PASSWORD_LENGTH) {
+    errors.push(`Password must be at least ${SECURITY_CONFIG.MIN_PASSWORD_LENGTH} characters`);
+  }
+  
+  if (SECURITY_CONFIG.REQUIRE_PASSWORD_COMPLEXITY) {
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push('Password must contain at least one number');
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      errors.push('Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)');
+    }
+  }
+  
+  return errors;
+}
+
+// Sanitize input to prevent XSS
+function sanitizeInput(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ==================== SESSION MIDDLEWARE ====================
+
+// Session middleware with activity tracking
 async function authenticateSession(req, res, next) {
   const token = req.headers['x-session-token'] || req.query.token;
   if (!token) {
@@ -223,10 +387,19 @@ async function authenticateSession(req, res, next) {
       return res.status(401).json({ error: 'Invalid or expired session' });
     }
     
+    // Extend session on activity (sliding expiration)
+    const newExpiry = new Date(Date.now() + SECURITY_CONFIG.SESSION_TIMEOUT_MINUTES * 60000);
+    await pool.query(
+      'UPDATE sessions SET expires_at = $1 WHERE token = $2',
+      [newExpiry, token]
+    );
+    
     req.user = result.rows[0];
     req.userId = result.rows[0].user_id;
+    req.sessionToken = token;
     next();
   } catch (err) {
+    console.error('Authentication error:', err);
     res.status(500).json({ error: 'Authentication error' });
   }
 }
@@ -388,36 +561,44 @@ app.post('/api/auth/register', async function(req, res) {
       return res.status(400).json({ error: 'Email and password required' });
     }
     
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    // Validate password complexity
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({ error: passwordErrors.join('. ') });
     }
     
+    const normalizedEmail = email.toLowerCase().trim();
+    
     // Check if user exists
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
     if (existing.rows.length > 0) {
       return res.status(400).json({ error: 'Email already registered' });
     }
     
-    // Hash password and create user
-    const passwordHash = await bcrypt.hash(password, 12);
+    // Hash password with strong bcrypt rounds
+    const passwordHash = await bcrypt.hash(password, SECURITY_CONFIG.BCRYPT_ROUNDS);
     const result = await pool.query(
       `INSERT INTO users (email, password_hash, company_name, first_name, last_name, phone) 
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, company_name, first_name, last_name`,
-      [email.toLowerCase(), passwordHash, companyName || null, firstName || null, lastName || null, phone || null]
+      [normalizedEmail, passwordHash, companyName || null, firstName || null, lastName || null, phone || null]
     );
     
-    // Create session
+    // Create session with security timeout
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + CONFIG.SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + SECURITY_CONFIG.SESSION_TIMEOUT_MINUTES * 60 * 1000);
     await pool.query(
       'INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)',
       [result.rows[0].id, token, expiresAt]
     );
     
+    // Audit log registration
+    await auditLog(result.rows[0].id, normalizedEmail, 'REGISTRATION', 'auth', null, req);
+    
     res.json({ 
       success: true, 
       token,
-      user: result.rows[0]
+      user: result.rows[0],
+      sessionTimeout: SECURITY_CONFIG.SESSION_TIMEOUT_MINUTES
     });
   } catch (err) {
     console.error('Register error:', err);
@@ -429,17 +610,30 @@ app.post('/api/auth/register', async function(req, res) {
 app.post('/api/auth/login', async function(req, res) {
   try {
     const { email, password } = req.body;
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
     
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
     }
     
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Check rate limiting
+    const rateLimitKey = `${normalizedEmail}:${ipAddress}`;
+    const rateCheck = checkRateLimit(rateLimitKey);
+    if (!rateCheck.allowed) {
+      await auditLog(null, normalizedEmail, 'LOGIN_BLOCKED_RATE_LIMIT', 'auth', null, req, { reason: 'Too many failed attempts' });
+      return res.status(429).json({ error: rateCheck.message });
+    }
+    
     const result = await pool.query(
       'SELECT id, email, password_hash, company_name, first_name, last_name FROM users WHERE email = $1',
-      [email.toLowerCase()]
+      [normalizedEmail]
     );
     
     if (result.rows.length === 0) {
+      recordFailedLogin(rateLimitKey);
+      await auditLog(null, normalizedEmail, 'LOGIN_FAILED_USER_NOT_FOUND', 'auth', null, req);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
@@ -447,19 +641,27 @@ app.post('/api/auth/login', async function(req, res) {
     const validPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!validPassword) {
+      recordFailedLogin(rateLimitKey);
+      await auditLog(user.id, user.email, 'LOGIN_FAILED_WRONG_PASSWORD', 'auth', null, req);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+    
+    // Clear rate limiting on successful login
+    clearLoginAttempts(rateLimitKey);
     
     // Update last login
     await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
     
-    // Create session
+    // Create session with security timeout
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + CONFIG.SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + SECURITY_CONFIG.SESSION_TIMEOUT_MINUTES * 60 * 1000);
     await pool.query(
       'INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)',
       [user.id, token, expiresAt]
     );
+    
+    // Audit log successful login
+    await auditLog(user.id, user.email, 'LOGIN_SUCCESS', 'auth', null, req);
     
     res.json({ 
       success: true, 
@@ -470,7 +672,8 @@ app.post('/api/auth/login', async function(req, res) {
         companyName: user.company_name,
         firstName: user.first_name,
         lastName: user.last_name
-      }
+      },
+      sessionTimeout: SECURITY_CONFIG.SESSION_TIMEOUT_MINUTES
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -482,6 +685,7 @@ app.post('/api/auth/login', async function(req, res) {
 app.post('/api/auth/logout', authenticateSession, async function(req, res) {
   try {
     const token = req.headers['x-session-token'];
+    await auditLog(req.userId, req.user.email, 'LOGOUT', 'auth', null, req);
     await pool.query('DELETE FROM sessions WHERE token = $1', [token]);
     res.json({ success: true });
   } catch (err) {
@@ -604,6 +808,10 @@ app.get('/api/claims/:id', authenticateSession, async function(req, res) {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Claim not found' });
     }
+    
+    // Audit log PHI access
+    await auditLog(req.userId, req.user.email, 'VIEW_CLAIM', 'claim', parseInt(req.params.id), req, 
+      { reference: result.rows[0].reference_number });
     
     // Get notes count
     const notesCount = await pool.query(
@@ -1970,8 +2178,9 @@ body { font-family: 'Inter', sans-serif; }
 <input type="email" id="regEmail" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="you@company.com">
 </div>
 <div>
-<label class="block text-sm font-medium text-slate-700 mb-1">Password * <span class="text-slate-400 font-normal">(min 8 characters)</span></label>
+<label class="block text-sm font-medium text-slate-700 mb-1">Password *</label>
 <input type="password" id="regPassword" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+<p class="text-xs text-slate-500 mt-1">Min 8 characters with uppercase, lowercase, number & special character</p>
 </div>
 <button onclick="handleRegister()" class="w-full py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">Create Account</button>
 </div>
