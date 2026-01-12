@@ -3060,7 +3060,7 @@ Coming Soon
 </div>
 
 <footer class="bg-slate-800 text-green-300 py-6 mt-8 text-center text-sm">
-<p>2025 Titanium Defense Group. All rights reserved.</p>
+<p>2025 WCReporting. All rights reserved.</p>
 </footer>
 
 <script>
@@ -4095,7 +4095,7 @@ function exportToPDF() {
   doc.setFont('helvetica', 'bold');
   doc.text('Loss Run Analysis Report', pageWidth/2, 12, { align: 'center' });
   doc.setFontSize(10);
-  doc.text('Generated: ' + new Date().toLocaleDateString() + ' | Titanium Defense Group', pageWidth/2, 22, { align: 'center' });
+  doc.text('Generated: ' + new Date().toLocaleDateString() + ' | WCReporting', pageWidth/2, 22, { align: 'center' });
   
   y = 40;
   doc.setTextColor(0, 0, 0);
