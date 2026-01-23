@@ -1,7 +1,7 @@
 {
-  "name": "titanium-dg-wcreporting",
+  "name": "titanium-defense-group-wcreporting",
   "version": "1.0.0",
-  "description": "Titanium DG Workers Compensation Claims Reporting Portal",
+  "description": "Titanium Defense Group Workers Compensation Claims Portal",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
