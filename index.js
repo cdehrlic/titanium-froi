@@ -314,12 +314,8 @@ function generateClaimPDF(formData, referenceNumber) {
       doc.fontSize(9).font('Helvetica').fillColor(COLORS.text).text(formData.additionalComments, 60, doc.y, { width: 490 });
     }
 
-    // Footer on all pages
-    const pageCount = doc.bufferedPageRange().count;
-    for (let i = 0; i < pageCount; i++) {
-      doc.switchToPage(i);
-      doc.fontSize(8).fillColor(COLORS.muted).text('Titanium Defense Group | Smart Claim Intake | Page ' + (i + 1) + ' of ' + pageCount, 50, 750, { align: 'center', width: 512 });
-    }
+    // Footer on current page only (avoid switchToPage issues)
+    doc.fontSize(8).fillColor(COLORS.muted).text('Titanium Defense Group | Smart Claim Intake | www.wcreporting.com', 50, 750, { align: 'center', width: 512 });
 
     doc.end();
   });
