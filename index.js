@@ -1,4 +1,3 @@
-
 const express = require('express');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
@@ -28,6 +27,17 @@ const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024, files: 20
 
 const transporter = nodemailer.createTransport(CONFIG.SMTP);
 
+// Verify SMTP connection on startup
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('SMTP Connection Error:', error);
+  } else {
+    console.log('SMTP Server is ready to send emails');
+    console.log('SMTP User:', CONFIG.SMTP.auth.user);
+    console.log('Claims will be sent to:', CONFIG.CLAIMS_EMAIL);
+  }
+});
+
 function generateClaimPDF(formData, referenceNumber) {
   return new Promise(function(resolve, reject) {
     var doc = new PDFDocument({ margin: 50 });
@@ -36,7 +46,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.on('end', function() { resolve(Buffer.concat(chunks)); });
     doc.on('error', reject);
 
-    doc.fontSize(20).font('Helvetica-Bold').text('TITANIUM REPORTING', { align: 'center' });
+    doc.fontSize(20).font('Helvetica-Bold').text('TITANIUM DG', { align: 'center' });
     doc.fontSize(14).font('Helvetica').text('First Report of Work-Related Injury/Illness', { align: 'center' });
     doc.moveDown();
     doc.fontSize(12).font('Helvetica-Bold').fillColor('#1e3a5f').text('Reference #: ' + referenceNumber, { align: 'center' });
@@ -147,7 +157,7 @@ function generateClaimPDF(formData, referenceNumber) {
 }
 
 app.get('/api/health', function(req, res) {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', smtpUser: CONFIG.SMTP.auth.user ? 'configured' : 'missing', claimsEmail: CONFIG.CLAIMS_EMAIL });
 });
 
 app.post('/api/submit-claim', upload.any(), async function(req, res) {
@@ -155,12 +165,16 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
     var formData = JSON.parse(req.body.formData);
     var files = req.files || [];
     var referenceNumber = 'FROI-' + Date.now().toString().slice(-8);
-    console.log('Processing claim ' + referenceNumber);
+    console.log('=== Processing claim ' + referenceNumber + ' ===');
+    
     var pdfBuffer = await generateClaimPDF(formData, referenceNumber);
+    console.log('PDF generated successfully');
+    
     var attachments = [{ filename: referenceNumber + '-Summary.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
     files.forEach(function(file) {
       attachments.push({ filename: file.originalname, content: file.buffer, contentType: file.mimetype });
     });
+    console.log('Attachments prepared:', attachments.length, 'files');
 
     var emailHtml = '<h2>New Workers Compensation Claim</h2>';
     emailHtml += '<p><strong>Reference:</strong> ' + referenceNumber + '</p>';
@@ -195,27 +209,51 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
     emailHtml += '<hr>';
     emailHtml += '<p><em>See attached PDF for complete details. ' + files.length + ' additional document(s) attached.</em></p>';
 
-    await transporter.sendMail({
-      from: CONFIG.SMTP.auth.user,
-      to: CONFIG.CLAIMS_EMAIL,
-      subject: 'New FROI Claim - ' + (formData.firstName || '') + ' ' + (formData.lastName || '') + ' - ' + (formData.dateOfInjury || ''),
-      html: emailHtml,
-      attachments: attachments
-    });
-
-    if (formData.submitterEmail) {
-      await transporter.sendMail({
+    // Send to claims email - with detailed logging
+    console.log('Attempting to send claim email to:', CONFIG.CLAIMS_EMAIL);
+    console.log('From:', CONFIG.SMTP.auth.user);
+    
+    try {
+      var claimEmailResult = await transporter.sendMail({
         from: CONFIG.SMTP.auth.user,
-        to: formData.submitterEmail,
-        subject: 'Claim Confirmation - ' + referenceNumber,
-        html: '<h2>Claim Submitted Successfully</h2><p>Your workers compensation claim for <strong>' + (formData.firstName || '') + ' ' + (formData.lastName || '') + '</strong> has been received.</p><p><strong>Reference Number:</strong> ' + referenceNumber + '</p><p><strong>Date of Injury:</strong> ' + (formData.dateOfInjury || 'N/A') + '</p><p>Our team will review the claim and follow up if additional information is needed.</p><p>Thank you,<br>Titanium Reporting</p>'
+        to: CONFIG.CLAIMS_EMAIL,
+        subject: 'New FROI Claim - ' + (formData.firstName || '') + ' ' + (formData.lastName || '') + ' - ' + (formData.dateOfInjury || ''),
+        html: emailHtml,
+        attachments: attachments
       });
+      console.log('Claim email sent successfully!');
+      console.log('Message ID:', claimEmailResult.messageId);
+      console.log('Response:', claimEmailResult.response);
+    } catch (claimEmailError) {
+      console.error('ERROR sending claim email to', CONFIG.CLAIMS_EMAIL);
+      console.error('Error details:', claimEmailError.message);
+      console.error('Full error:', claimEmailError);
+      // Don't throw - continue to send confirmation
     }
 
-    console.log('Claim ' + referenceNumber + ' sent successfully');
+    // Send confirmation to submitter
+    if (formData.submitterEmail) {
+      console.log('Sending confirmation to:', formData.submitterEmail);
+      try {
+        var confirmResult = await transporter.sendMail({
+          from: CONFIG.SMTP.auth.user,
+          to: formData.submitterEmail,
+          subject: 'Claim Confirmation - ' + referenceNumber,
+          html: '<h2>Claim Submitted Successfully</h2><p>Your workers compensation claim for <strong>' + (formData.firstName || '') + ' ' + (formData.lastName || '') + '</strong> has been received.</p><p><strong>Reference Number:</strong> ' + referenceNumber + '</p><p><strong>Date of Injury:</strong> ' + (formData.dateOfInjury || 'N/A') + '</p><p>Our team will review the claim and follow up if additional information is needed.</p><p>Thank you,<br>Titanium DG</p>'
+        });
+        console.log('Confirmation email sent successfully!');
+        console.log('Message ID:', confirmResult.messageId);
+      } catch (confirmEmailError) {
+        console.error('ERROR sending confirmation email:', confirmEmailError.message);
+      }
+    }
+
+    console.log('=== Claim ' + referenceNumber + ' processing complete ===');
     res.json({ success: true, referenceNumber: referenceNumber });
   } catch (error) {
+    console.error('=== CRITICAL ERROR ===');
     console.error('Error:', error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -225,27 +263,27 @@ var HTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titanium Reporting - Claims Portal</title>
+<title>Titanium DG - Workers Compensation Claims Portal</title>
 <script src="https://cdn.tailwindcss.com"><\/script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; }
-.tab-active { background: #334155; color: white; }
+.tab-active { background: #1e40af; color: white; }
 .tab-inactive { background: #e2e8f0; color: #475569; }
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
-<header class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white p-4 shadow-lg">
+<header class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white p-4 shadow-lg">
 <div class="max-w-6xl mx-auto flex justify-between items-center">
 <div class="flex items-center gap-4">
-<img src="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Titanium%20logo.webp" alt="Titanium Reporting" class="h-16">
+<div class="text-3xl font-bold">Titanium DG</div>
 <div class="border-l border-white/30 pl-4">
 <div class="text-xs text-white/80 uppercase tracking-widest font-medium">Workers Compensation</div>
 <div class="text-xl font-bold">Claims Reporting Portal</div>
 </div>
 </div>
 <div class="text-right text-sm">
-<div class="font-semibold">www.ReportWCClaim.com</div>
+<div class="font-semibold">www.wcreporting.com</div>
 </div>
 </div>
 </header>
@@ -262,11 +300,11 @@ body { font-family: 'Inter', sans-serif; }
 <h3 class="text-xl font-bold text-slate-700 mb-4">Downloadable Forms</h3>
 <p class="text-slate-600 mb-6">Download the forms below to document workplace incidents. Complete forms can be uploaded when submitting a claim.</p>
 <div class="flex gap-4 flex-wrap">
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors">
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Employee%20Incident%20Report_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 Employee Incident Report
 </a>
-<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors">
+<a href="https://raw.githubusercontent.com/cdehrlic/titanium-froi/main/Witness%20Statement%20Form_Titanium_2026.pdf" target="_blank" class="flex items-center gap-2 px-6 py-3 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors">
 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 Witness Statement Form
 </a>
@@ -279,9 +317,9 @@ Witness Statement Form
 </div>
 </div>
 
-<footer class="bg-slate-800 text-slate-400 py-6 mt-8 text-center text-sm">
-<p>2025 Titanium Defense Group. All rights reserved.</p>
-<p class="mt-1">www.ReportWCClaim.com</p>
+<footer class="bg-blue-900 text-blue-200 py-6 mt-8 text-center text-sm">
+<p>2025 Titanium DG. All rights reserved.</p>
+<p class="mt-1">www.wcreporting.com</p>
 </footer>
 
 <script>
@@ -326,9 +364,9 @@ function render() {
     var isComplete = i < currentStep;
     html += '<div class="flex flex-col items-center flex-1">';
     html += '<div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ' + 
-      (isActive ? 'bg-slate-700 text-white' : isComplete ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-500') + '">' + 
+      (isActive ? 'bg-blue-800 text-white' : isComplete ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-500') + '">' + 
       (isComplete ? '✓' : (i + 1)) + '</div>';
-    html += '<div class="text-xs mt-1 text-center ' + (isActive ? 'text-slate-700 font-medium' : 'text-slate-400') + '">' + steps[i] + '</div>';
+    html += '<div class="text-xs mt-1 text-center ' + (isActive ? 'text-blue-800 font-medium' : 'text-slate-400') + '">' + steps[i] + '</div>';
     html += '</div>';
   }
   html += '</div>';
@@ -337,8 +375,8 @@ function render() {
   if (currentStep === 0) {
     html += '<h3 class="text-lg font-semibold mb-4 pb-2 border-b">Employee Personal Information</h3>';
     html += '<div class="grid md:grid-cols-2 gap-4">';
-    html += '<div><label class="block text-sm font-medium text-slate-700 mb-1">First Name *</label><input type="text" id="firstName" value="' + formData.firstName + '" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500"></div>';
-    html += '<div><label class="block text-sm font-medium text-slate-700 mb-1">Last Name *</label><input type="text" id="lastName" value="' + formData.lastName + '" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500"></div>';
+    html += '<div><label class="block text-sm font-medium text-slate-700 mb-1">First Name *</label><input type="text" id="firstName" value="' + formData.firstName + '" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></div>';
+    html += '<div><label class="block text-sm font-medium text-slate-700 mb-1">Last Name *</label><input type="text" id="lastName" value="' + formData.lastName + '" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></div>';
     html += '</div>';
     html += '<div class="mt-4"><label class="block text-sm font-medium text-slate-700 mb-1">Mailing Address *</label><input type="text" id="mailingAddress" value="' + formData.mailingAddress + '" class="w-full px-3 py-2 border border-slate-300 rounded-lg"></div>';
     html += '<div class="grid md:grid-cols-4 gap-4 mt-4">';
@@ -380,7 +418,7 @@ function render() {
 
   html += '<div class="flex justify-between mt-8 pt-6 border-t"><button type="button" onclick="prevStep()" class="px-6 py-2 rounded-lg font-medium ' + (currentStep === 0 ? 'bg-slate-100 text-slate-400' : 'bg-slate-200 text-slate-700 hover:bg-slate-300') + '">&larr; Back</button>';
   if (currentStep < 5) {
-    html += '<button type="button" onclick="nextStep()" class="px-6 py-2 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-800">Continue &rarr;</button>';
+    html += '<button type="button" onclick="nextStep()" class="px-6 py-2 bg-blue-800 text-white rounded-lg font-medium hover:bg-blue-900">Continue &rarr;</button>';
   } else {
     html += '<button type="button" onclick="submitClaim()" id="submitBtn" class="px-8 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700">Submit Claim</button>';
   }
@@ -419,7 +457,7 @@ function submitClaim() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        document.getElementById('form-container').innerHTML = '<div class="text-center py-8"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mb-2">Claim Submitted!</h2><p class="text-slate-600 mb-4">Reference: ' + data.referenceNumber + '</p><p class="text-slate-600 mb-4">Sent to: Chad@Titaniumdg.com</p><button type="button" onclick="location.reload()" class="px-6 py-2 bg-slate-700 text-white rounded-lg">Submit Another</button></div>';
+        document.getElementById('form-container').innerHTML = '<div class="text-center py-8"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h2 class="text-2xl font-bold text-slate-800 mb-2">Claim Submitted!</h2><p class="text-slate-600 mb-4">Reference: ' + data.referenceNumber + '</p><p class="text-slate-600 mb-4">Our team will review your submission.</p><button type="button" onclick="location.reload()" class="px-6 py-2 bg-blue-800 text-white rounded-lg">Submit Another</button></div>';
       } else {
         alert('Error: ' + data.error);
         btn.disabled = false;
@@ -445,5 +483,6 @@ app.get('/', function(req, res) {
 
 app.listen(PORT, function() {
   console.log('Server running on port ' + PORT);
-  console.log('Claims will be sent to: ' + CONFIG.CLAIMS_EMAIL);
+  console.log('SMTP configured:', CONFIG.SMTP.auth.user ? 'Yes' : 'No');
+  console.log('Claims email:', CONFIG.CLAIMS_EMAIL);
 });
