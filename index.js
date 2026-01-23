@@ -63,6 +63,7 @@ function generateClaimPDF(formData, referenceNumber) {
         ['Occupation', formData.occupation || 'N/A']
       ]},
       { title: 'CLAIM INFORMATION', fields: [
+        ['Entity', formData.entity || 'N/A'],
         ['Date of Injury', formData.dateOfInjury || 'N/A'],
         ['Time of Injury', formData.timeOfInjury || 'N/A'],
         ['Date Reported', formData.dateReported || 'N/A'],
@@ -141,6 +142,7 @@ app.post('/api/submit-claim', upload.any(), async function(req, res) {
       '<div style="padding:20px;background:#f8fafc;">' +
       '<h2 style="color:#334155;">New Claim Submitted</h2>' +
       '<p><strong>Reference:</strong> ' + referenceNumber + '</p>' +
+      '<p><strong>Entity:</strong> ' + (formData.entity || 'N/A') + '</p>' +
       '<p><strong>Employee:</strong> ' + (formData.firstName || '') + ' ' + (formData.lastName || '') + '</p>' +
       '<p><strong>Date of Injury:</strong> ' + (formData.dateOfInjury || 'N/A') + '</p>' +
       '<p><strong>Nature of Injury:</strong> ' + (formData.natureOfInjury || 'N/A') + '</p>' +
@@ -277,7 +279,8 @@ var formData = {
   facilityStreet: '', facilityCity: '', facilityState: '', facilityZip: '',
   accidentStreet: '', accidentCity: '', accidentState: '', accidentZip: '',
   witness1Name: '', witness1Phone: '', witness2Name: '', witness2Phone: '',
-  submitterName: '', submitterPhone: '', submitterEmail: '', additionalComments: '', redFlags: ''
+  submitterName: '', submitterPhone: '', submitterEmail: '', additionalComments: '', redFlags: '',
+  entity: ''
 };
 
 var states = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
@@ -362,6 +365,26 @@ function render() {
     h += '</div>';
   } else if (currentStep === 4) {
     h += '<h3 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200">Location and Witnesses</h3>';
+    h += '<div class="mb-6">';
+    h += '<label class="block text-sm font-semibold text-slate-700 mb-1">Entity *</label>';
+    h += '<select id="entity" class="w-full px-4 py-2 border border-slate-300 rounded-lg">';
+    h += '<option value="">Select Entity</option>';
+    h += '<option value="Sigma Link Rehab"' + (formData.entity === 'Sigma Link Rehab' ? ' selected' : '') + '>Sigma Link Rehab</option>';
+    h += '<option value="Towne Nursing Staff"' + (formData.entity === 'Towne Nursing Staff' ? ' selected' : '') + '>Towne Nursing Staff</option>';
+    h += '<option value="Towne Healthcare Staffing"' + (formData.entity === 'Towne Healthcare Staffing' ? ' selected' : '') + '>Towne Healthcare Staffing</option>';
+    h += '<option value="Towne School Nurses"' + (formData.entity === 'Towne School Nurses' ? ' selected' : '') + '>Towne School Nurses</option>';
+    h += '<option value="Shiftster LLC / Eshyft"' + (formData.entity === 'Shiftster LLC / Eshyft' ? ' selected' : '') + '>Shiftster LLC / Eshyft</option>';
+    h += '<option value="Grandison Management"' + (formData.entity === 'Grandison Management' ? ' selected' : '') + '>Grandison Management</option>';
+    h += '<option value="SMS Cleaning and Housekeeping Services"' + (formData.entity === 'SMS Cleaning and Housekeeping Services' ? ' selected' : '') + '>SMS Cleaning and Housekeeping Services</option>';
+    h += '<option value="Towne Home Care / Towne Staffing LLC Share Policy"' + (formData.entity === 'Towne Home Care / Towne Staffing LLC Share Policy' ? ' selected' : '') + '>Towne Home Care / Towne Staffing LLC Share Policy</option>';
+    h += '<option value="Fairmont & GNP"' + (formData.entity === 'Fairmont & GNP' ? ' selected' : '') + '>Fairmont &amp; GNP</option>';
+    h += '<option value="LiveWell Plus"' + (formData.entity === 'LiveWell Plus' ? ' selected' : '') + '>LiveWell Plus</option>';
+    h += '<option value="Advanced Care Agency / Baybay"' + (formData.entity === 'Advanced Care Agency / Baybay' ? ' selected' : '') + '>Advanced Care Agency / Baybay</option>';
+    h += '<option value="Esky Care"' + (formData.entity === 'Esky Care' ? ' selected' : '') + '>Esky Care</option>';
+    h += '<option value="New Premier Management LLC"' + (formData.entity === 'New Premier Management LLC' ? ' selected' : '') + '>New Premier Management LLC</option>';
+    h += '</select>';
+    h += '<p class="text-xs text-slate-500 mt-1">If unsure, check the payroll for the correct entity name.</p>';
+    h += '</div>';
     h += '<h4 class="font-semibold text-slate-700 mb-2">Accident Location</h4>';
     h += '<div class="grid md:grid-cols-4 gap-4 mb-6">';
     h += '<div class="md:col-span-2"><input type="text" id="accidentStreet" value="' + formData.accidentStreet + '" placeholder="Street Address" class="w-full px-4 py-2 border border-slate-300 rounded-lg"></div>';
@@ -405,7 +428,7 @@ function render() {
 }
 
 function saveStep() {
-  var fields = ['firstName','lastName','mailingAddress','city','state','zipCode','phone','dateOfHire','dateOfBirth','gender','ssn','occupation','preferredLanguage','dateOfInjury','timeOfInjury','dateReported','weeklyWage','employeeWorkType','medicalTreatment','facilityName','resultedInDeath','natureOfInjury','bodyPartInjured','causeOfInjury','accidentDescription','losingTime','dateLastWorked','returnStatus','facilityStreet','facilityCity','facilityState','facilityZip','accidentStreet','accidentCity','accidentState','accidentZip','witness1Name','witness1Phone','witness2Name','witness2Phone','submitterName','submitterPhone','submitterEmail','additionalComments','redFlags'];
+  var fields = ['firstName','lastName','mailingAddress','city','state','zipCode','phone','dateOfHire','dateOfBirth','gender','ssn','occupation','preferredLanguage','dateOfInjury','timeOfInjury','dateReported','weeklyWage','employeeWorkType','medicalTreatment','facilityName','resultedInDeath','natureOfInjury','bodyPartInjured','causeOfInjury','accidentDescription','losingTime','dateLastWorked','returnStatus','facilityStreet','facilityCity','facilityState','facilityZip','accidentStreet','accidentCity','accidentState','accidentZip','witness1Name','witness1Phone','witness2Name','witness2Phone','submitterName','submitterPhone','submitterEmail','additionalComments','redFlags','entity'];
   fields.forEach(function(f) {
     var el = document.getElementById(f);
     if (el) formData[f] = el.value;
