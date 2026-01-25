@@ -2,9 +2,9 @@
   "name": "titanium-wcreporting",
   "version": "2.0.0",
   "description": "Titanium Defense Group - Smart Claim Intake Portal",
-  "main": "Smart_Claim_Reporting_Portal.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node Smart_Claim_Reporting_Portal.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
