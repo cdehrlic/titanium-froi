@@ -441,6 +441,9 @@ app.get('/api/entities', (req, res) => res.json(ENTITIES));
 
 app.post('/api/submit-claim', upload.any(), async (req, res) => {
   try {
+    if (!req.body.formData) {
+      return res.status(400).json({ success: false, error: 'No form data received' });
+    }
     const formData = JSON.parse(req.body.formData);
     const files = req.files || [];
     const referenceNumber = 'FROI-' + Date.now().toString().slice(-8);
@@ -698,7 +701,7 @@ const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter
 
 const steps=[{t:'Employee',i:'👤'},{t:'Claim',i:'📋'},{t:'Incident',i:'⚡'},{t:'Medical',i:'🏥'},{t:'Evidence',i:'👁️'},{t:'Work Status',i:'💼'},{t:'Root Cause',i:'🔍'},{t:'Flags',i:'🚩'},{t:'Submit',i:'✅'}];
 
-const submit=async()=>{setSubmitting(true);try{const fd=new FormData();fd.append('formData',JSON.stringify(d));uploadedFiles.forEach((f,i)=>fd.append('files',f));const r=await fetch('/api/submit-claim',{method:'POST',body:fd});const j=await r.json();if(j.success)setResult(j);else alert('Error: '+j.error)}catch(err){alert('Error submitting')}setSubmitting(false)};
+const submit=async()=>{setSubmitting(true);try{const fd=new FormData();fd.append('formData',JSON.stringify(d));if(uploadedFiles&&uploadedFiles.length>0){uploadedFiles.forEach(f=>fd.append('files',f))}const r=await fetch('/api/submit-claim',{method:'POST',body:fd});const j=await r.json();if(j.success)setResult(j);else alert('Error: '+(j.error||'Unknown error'))}catch(err){console.error('Submit error:',err);alert('Error submitting: '+err.message)}setSubmitting(false)};
 
 if(result)return e('div',{className:'claim-intake-portal'},e('header',{className:'portal-header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},'TDG'),e('div',{className:'brand-text'},e('h1',null,'Smart Claim Intake'),e('p',null,'Titanium Defense Group'))))),e('div',{className:'success-container'},e('div',{className:'success-icon'},'✓'),e('h2',{style:{color:'#3fb950',marginBottom:16}},'Claim Submitted!'),e('p',{style:{color:'#8b949e'}},'Reference Number:'),e('div',{className:'ref-number'},result.referenceNumber),e('p',{style:{color:'#6e7681',margin:'24px 0'}},'Confirmation sent to '+d.submitterEmail),e('button',{className:'nav-btn primary',onClick:()=>location.reload()},'Submit Another')));
 
