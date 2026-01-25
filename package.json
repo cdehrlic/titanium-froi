@@ -1,19 +1,20 @@
 {
-  "name": "titanium-defense-group-wcreporting",
+  "name": "titanium-wcreporting",
   "version": "2.0.0",
-  "description": "Titanium Defense Group - Smart Workers' Compensation Claim Intake Portal",
-  "main": "index.js",
+  "description": "Titanium Defense Group - Smart Claim Intake Portal",
+  "main": "Smart_Claim_Reporting_Portal.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node Smart_Claim_Reporting_Portal.js"
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
-    "pdfkit": "^0.13.0"
+    "pdfkit": "^0.14.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }
