@@ -2,10 +2,27 @@ const express = require('express');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Security: Helmet adds various HTTP headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled for inline scripts
+  crossOriginEmbedderPolicy: false
+}));
+
+// Security: Rate limiting - max 10 submissions per 15 minutes per IP
+const submitLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, error: 'Too many submissions. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 const CONFIG = {
   CLAIMS_EMAIL: process.env.CLAIMS_EMAIL || 'Chad@Titaniumdg.com',
@@ -437,9 +454,12 @@ function generateClaimPDF(formData, referenceNumber) {
 // API ENDPOINTS
 // ═══════════════════════════════════════════════════════════════════════════════
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '2.0' }));
+// Health check endpoint for Railway/monitoring
+app.get('/health', (req, res) => res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() }));
+
 app.get('/api/entities', (req, res) => res.json(ENTITIES));
 
-app.post('/api/submit-claim', upload.any(), async (req, res) => {
+app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
   try {
     if (!req.body.formData) {
       return res.status(400).json({ success: false, error: 'No form data received' });
