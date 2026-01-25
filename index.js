@@ -589,6 +589,7 @@ function getPortalHTML() {
 <title>Titanium Defense Group - Smart Claim Intake</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Crect width='40' height='44' rx='8' fill='%232d3a4a'/%3E%3Cpath d='M20 2L4 10v12c0 9.5 7 16 16 17.5 9-1.5 16-8 16-17.5V10L20 2zm0 3.5l13 6.5v10c0 7.5-5.5 12.5-13 13.5-7.5-1-13-6-13-13.5v-10l13-6.5z' fill='white'/%3E%3Cpath d='M12 16c-1.2 0-2.5 1.2-2.5 3s1.3 3 2.5 3c.8 0 1.6-.4 2-1.2.4.8 1.2 1.2 2 1.2h5c.8 0 1.6-.4 2-1.2.4.8 1.2 1.2 2 1.2 1.2 0 2.5-1.2 2.5-3s-1.3-3-2.5-3c-1.2 0-2 .8-2.5 1.6-.5-.8-1.2-1.6-2.5-1.6h-3c-1.3 0-2 .8-2.5 1.6-.5-.8-1.3-1.6-2.5-1.6z' fill='white'/%3E%3Cpath d='M20 25l-3 3.5 3 3.5 3-3.5-3-3.5z' fill='white'/%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--titanium-dark:#1e2a38;--titanium-navy:#2d3a4a;--titanium-slate:#3d4f63;--titanium-light:#4a6178;--titanium-accent:#5ba4e6;--titanium-accent2:#7eb8f0;--titanium-success:#34d399;--titanium-warning:#fbbf24;--titanium-danger:#f87171;--titanium-text:#f1f5f9;--titanium-muted:#94a3b8;--titanium-border:rgba(148,163,184,0.15);--glass-bg:rgba(45,58,74,0.6);--glass-border:rgba(148,163,184,0.12)}
