@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--titanium-dark:#1e2a38;--titanium-navy:#2d3a4a;--titanium-slate:#3d4f63;--titanium-accent:#5ba4e6;--titanium-success:#34d399;--titanium-warning:#fbbf24;--titanium-danger:#f87171;--titanium-text:#f1f5f9;--titanium-muted:#94a3b8;--glass-bg:rgba(45,58,74,0.6);--glass-border:rgba(148,163,184,0.12)}
+:root{--titanium-dark:#1e2a38;--titanium-navy:#2d3a4a;--titanium-accent:#5ba4e6;--titanium-success:#34d399;--titanium-warning:#fbbf24;--titanium-danger:#f87171;--titanium-text:#f1f5f9;--titanium-muted:#94a3b8;--glass-bg:rgba(45,58,74,0.6);--glass-border:rgba(148,163,184,0.12)}
 body{font-family:'DM Sans',sans-serif;background:var(--titanium-dark);min-height:100vh;color:var(--titanium-text);padding:20px}
 .container{max-width:700px;margin:0 auto}
 .header{background:var(--titanium-navy);border-radius:16px 16px 0 0;padding:24px;text-align:center;border:1px solid var(--glass-border);border-bottom:none}
@@ -22,13 +22,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--titanium-dark);min-height
 textarea.input-field{min-height:150px;resize:vertical}
 .signature-section{background:rgba(30,42,56,0.5);border-radius:12px;padding:20px;margin-top:24px;border:1px solid var(--glass-border)}
 .signature-section h3{color:var(--titanium-accent);font-size:14px;margin-bottom:16px}
-.signature-canvas-container{background:white;border-radius:8px;margin:12px 0;position:relative;overflow:hidden}
+.signature-canvas-container{background:white;border-radius:8px;margin:12px 0;overflow:hidden}
 .signature-canvas{width:100%;height:150px;cursor:crosshair;touch-action:none;display:block}
 .signature-actions{display:flex;gap:8px;margin-top:8px}
 .btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
 .btn-secondary{background:transparent;border:1px solid var(--glass-border);color:var(--titanium-muted)}
 .btn-secondary:hover{background:rgba(30,42,56,0.5);border-color:var(--titanium-accent)}
-.btn-primary{background:linear-gradient(135deg,var(--titanium-accent) 0%,#3b82f6 100%);color:white}
 .btn-success{background:linear-gradient(135deg,var(--titanium-success) 0%,#10b981 100%);color:white}
 .btn-success:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(52,211,153,0.3)}
 .btn:disabled{opacity:0.5;cursor:not-allowed}
@@ -36,26 +35,15 @@ textarea.input-field{min-height:150px;resize:vertical}
 .checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--titanium-accent);flex-shrink:0}
 .checkbox-group label{font-size:13px;color:var(--titanium-text);line-height:1.4}
 .legal-text{font-size:11px;color:var(--titanium-muted);line-height:1.5;padding:12px;background:rgba(30,42,56,0.5);border-radius:8px;margin:16px 0}
-.legal-text strong{color:var(--titanium-text)}
-.legal-text p{margin-top:8px}
 .error-container{background:rgba(248,113,113,0.1);border:1px solid var(--titanium-danger);color:var(--titanium-danger);padding:30px;border-radius:12px;text-align:center;margin:40px 0}
-.error-container h2{margin-bottom:12px}
 .success-container{background:rgba(52,211,153,0.1);border:1px solid var(--titanium-success);padding:40px;border-radius:12px;text-align:center}
-.success-container h2{color:var(--titanium-success);margin-bottom:16px;font-size:24px}
-.success-container p{color:var(--titanium-text);margin-bottom:8px}
+.success-container h2{color:var(--titanium-success);margin-bottom:16px}
 .audio-recorder{background:rgba(30,42,56,0.5);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--glass-border)}
 .audio-recorder h4{color:var(--titanium-accent);font-size:13px;margin-bottom:8px}
-.audio-recorder p{font-size:12px;color:var(--titanium-muted);margin-bottom:12px}
 .record-controls{display:flex;align-items:center;gap:16px}
-.record-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-size:24px;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
-.record-btn.idle{background:var(--titanium-danger)}
-.record-btn.recording{background:var(--titanium-danger);animation:pulse 1s infinite}
+.record-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:var(--titanium-danger);transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.record-btn.recording{animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(248,113,113,0.4)}50%{transform:scale(1.05);box-shadow:0 0 0 10px rgba(248,113,113,0)}}
-.record-status{color:var(--titanium-muted);font-size:13px}
-.record-status.recording{color:var(--titanium-danger)}
-.audio-preview{margin-top:12px;padding:12px;background:rgba(30,42,56,0.3);border-radius:8px}
-.audio-preview audio{width:100%;border-radius:8px}
-.audio-preview button{margin-top:8px}
 .loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;color:var(--titanium-muted)}
 .spinner{width:50px;height:50px;border:3px solid var(--glass-border);border-top-color:var(--titanium-accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -69,438 +57,61 @@ textarea.input-field{min-height:150px;resize:vertical}
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script>
 const e=React.createElement,{useState:S,useEffect:E,useRef:R}=React;
+const TOKEN=window.location.pathname.split('/statement/')[1];
 
-// Extract token from URL
-const TOKEN = window.location.pathname.split('/statement/')[1];
+function App(){
+const[loading,setLoading]=S(true);
+const[error,setError]=S(null);
+const[linkData,setLinkData]=S(null);
+const[submitted,setSubmitted]=S(false);
+const[submitting,setSubmitting]=S(false);
+const[formData,setFormData]=S({});
+const[signature,setSignature]=S(null);
+const[typedName,setTypedName]=S('');
+const[consent1,setConsent1]=S(false);
+const[consent2,setConsent2]=S(false);
+const[recording,setRecording]=S(false);
+const[audioBlob,setAudioBlob]=S(null);
+const[audioUrl,setAudioUrl]=S(null);
+const canvasRef=R(null);
+const ctxRef=R(null);
+const isDrawingRef=R(false);
+const mediaRecorderRef=R(null);
+const chunksRef=R([]);
 
-function App() {
-  const [loading, setLoading] = S(true);
-  const [error, setError] = S(null);
-  const [linkData, setLinkData] = S(null);
-  const [submitted, setSubmitted] = S(false);
-  const [submitting, setSubmitting] = S(false);
-  const [formData, setFormData] = S({});
-  const [signature, setSignature] = S(null);
-  const [typedName, setTypedName] = S('');
-  const [consent1, setConsent1] = S(false);
-  const [consent2, setConsent2] = S(false);
-  const [recording, setRecording] = S(false);
-  const [audioBlob, setAudioBlob] = S(null);
-  const [audioUrl, setAudioUrl] = S(null);
-  
-  const canvasRef = R(null);
-  const ctxRef = R(null);
-  const isDrawingRef = R(false);
-  const mediaRecorderRef = R(null);
-  const chunksRef = R([]);
+E(()=>{if(!TOKEN){setError('Invalid link');setLoading(false);return}fetch('/api/validate-link/'+TOKEN).then(r=>r.json()).then(data=>{if(data.valid){setLinkData(data);setFormData({claimRef:data.claimRef});if(data.personName)setTypedName(data.personName)}else{setError(data.error||'Invalid or expired link')}setLoading(false)}).catch(()=>{setError('Failed to validate link');setLoading(false)})},[]);
 
-  // Validate link on load
-  E(() => {
-    if (!TOKEN) {
-      setError('Invalid link');
-      setLoading(false);
-      return;
-    }
-    fetch('/api/validate-link/' + TOKEN)
-      .then(r => r.json())
-      .then(data => {
-        if (data.valid) {
-          setLinkData(data);
-          setFormData({ claimRef: data.claimRef });
-          if (data.personName) setTypedName(data.personName);
-        } else {
-          setError(data.error || 'Invalid or expired link');
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Failed to validate link');
-        setLoading(false);
-      });
-  }, []);
+E(()=>{if(canvasRef.current&&linkData){const canvas=canvasRef.current;const rect=canvas.getBoundingClientRect();canvas.width=rect.width;canvas.height=150;const ctx=canvas.getContext('2d');ctx.strokeStyle='#1a1f26';ctx.lineWidth=2;ctx.lineCap='round';ctxRef.current=ctx}},[linkData]);
 
-  // Initialize canvas
-  E(() => {
-    if (canvasRef.current && linkData) {
-      const canvas = canvasRef.current;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = 150;
-      const ctx = canvas.getContext('2d');
-      ctx.strokeStyle = '#1a1f26';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctxRef.current = ctx;
-    }
-  }, [linkData]);
+const getPos=(ev)=>{const rect=canvasRef.current.getBoundingClientRect();const clientX=ev.clientX||(ev.touches&&ev.touches[0].clientX);const clientY=ev.clientY||(ev.touches&&ev.touches[0].clientY);return{x:clientX-rect.left,y:clientY-rect.top}};
+const startDrawing=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const pos=getPos(ev);ctxRef.current.beginPath();ctxRef.current.moveTo(pos.x,pos.y)};
+const draw=(ev)=>{if(!isDrawingRef.current)return;ev.preventDefault();const pos=getPos(ev);ctxRef.current.lineTo(pos.x,pos.y);ctxRef.current.stroke()};
+const stopDrawing=()=>{if(isDrawingRef.current){isDrawingRef.current=false;setSignature(canvasRef.current.toDataURL())}};
+const clearSignature=()=>{ctxRef.current.clearRect(0,0,canvasRef.current.width,canvasRef.current.height);setSignature(null)};
 
-  // Drawing functions
-  const getPos = (ev) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const clientX = ev.clientX || (ev.touches && ev.touches[0].clientX);
-    const clientY = ev.clientY || (ev.touches && ev.touches[0].clientY);
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  };
+const startRecording=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorderRef.current=new MediaRecorder(stream);chunksRef.current=[];mediaRecorderRef.current.ondataavailable=ev=>chunksRef.current.push(ev.data);mediaRecorderRef.current.onstop=()=>{const blob=new Blob(chunksRef.current,{type:'audio/webm'});setAudioBlob(blob);setAudioUrl(URL.createObjectURL(blob));stream.getTracks().forEach(t=>t.stop())};mediaRecorderRef.current.start();setRecording(true)}catch(err){alert('Could not access microphone')}};
+const stopRecording=()=>{if(mediaRecorderRef.current&&recording){mediaRecorderRef.current.stop();setRecording(false)}};
+const clearRecording=()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);setAudioBlob(null);setAudioUrl(null)};
 
-  const startDrawing = (ev) => {
-    ev.preventDefault();
-    isDrawingRef.current = true;
-    const pos = getPos(ev);
-    ctxRef.current.beginPath();
-    ctxRef.current.moveTo(pos.x, pos.y);
-  };
+const u=(f,v)=>setFormData(p=>({...p,[f]:v}));
 
-  const draw = (ev) => {
-    if (!isDrawingRef.current) return;
-    ev.preventDefault();
-    const pos = getPos(ev);
-    ctxRef.current.lineTo(pos.x, pos.y);
-    ctxRef.current.stroke();
-  };
+const handleSubmit=async()=>{if(!typedName.trim()){alert('Please type your full legal name');return}if(!signature){alert('Please sign above');return}if(!consent1||!consent2){alert('Please check both consent boxes');return}setSubmitting(true);try{const fd=new FormData();fd.append('formData',JSON.stringify({...formData,hasAudioRecording:!!audioBlob}));fd.append('signatureData',JSON.stringify({typedName,signatureImage:signature}));if(audioBlob)fd.append('files',audioBlob,'audio-statement.webm');const res=await fetch('/api/submit-statement/'+TOKEN,{method:'POST',body:fd});const json=await res.json();if(json.success)setSubmitted(true);else alert(json.error||'Submission failed')}catch(err){alert('Error: '+err.message)}setSubmitting(false)};
 
-  const stopDrawing = () => {
-    if (isDrawingRef.current) {
-      isDrawingRef.current = false;
-      setSignature(canvasRef.current.toDataURL());
-    }
-  };
+if(loading)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'loading-container'},e('div',{className:'spinner'}),e('span',null,'Validating link...'))));
+if(error)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'error-container'},e('h2',null,'⚠️ '+error),e('p',{style:{marginTop:12,color:'var(--titanium-muted)'}},'This link may have expired or already been used.'),e('p',{style:{marginTop:8}},'Please contact the sender for a new link.'))));
+if(submitted)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'success-container'},e('h2',null,'✓ Submitted Successfully'),e('p',null,'Your '+(linkData.type==='hipaa'?'HIPAA authorization':linkData.type+' statement')+' has been received.'),e('p',{style:{color:'var(--titanium-muted)',marginTop:16}},'Claim: '+linkData.claimRef),e('p',{style:{color:'var(--titanium-muted)',fontSize:13,marginTop:24}},'You may close this window.'))));
 
-  const clearSignature = () => {
-    const canvas = canvasRef.current;
-    ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
-    setSignature(null);
-  };
+const formTitle=linkData.type==='hipaa'?'HIPAA Authorization Form':linkData.type.charAt(0).toUpperCase()+linkData.type.slice(1)+' Statement Form';
 
-  // Audio recording
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      chunksRef.current = [];
-      
-      mediaRecorderRef.current.ondataavailable = (ev) => chunksRef.current.push(ev.data);
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        setAudioBlob(blob);
-        setAudioUrl(URL.createObjectURL(blob));
-        stream.getTracks().forEach(t => t.stop());
-      };
-      
-      mediaRecorderRef.current.start();
-      setRecording(true);
-    } catch (err) {
-      alert('Could not access microphone. Please check permissions.');
-    }
-  };
+const renderWitnessForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Your Full Name *'),e('input',{type:'text',className:'input-field',value:formData.witnessName||'',onChange:x=>u('witnessName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Phone'),e('input',{type:'tel',className:'input-field',value:formData.witnessPhone||'',onChange:x=>u('witnessPhone',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Email'),e('input',{type:'email',className:'input-field',value:formData.witnessEmail||'',onChange:x=>u('witnessEmail',x.target.value)}))),e('div',{className:'form-group'},e('label',null,'Relationship to Claimant'),e('input',{type:'text',className:'input-field',value:formData.relationship||'',onChange:x=>u('relationship',x.target.value),placeholder:'Coworker, Supervisor...'})),e('div',{className:'form-group'},e('label',null,'Your Statement *'),e('textarea',{className:'input-field',value:formData.statement||'',onChange:x=>u('statement',x.target.value),placeholder:'Describe what you witnessed in detail...'})));
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
-    }
-  };
+const renderClaimantForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Your Full Name *'),e('input',{type:'text',className:'input-field',value:formData.claimantName||'',onChange:x=>u('claimantName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Birth'),e('input',{type:'date',className:'input-field',value:formData.dateOfBirth||'',onChange:x=>u('dateOfBirth',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Phone'),e('input',{type:'tel',className:'input-field',value:formData.claimantPhone||'',onChange:x=>u('claimantPhone',x.target.value)}))),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Employer'),e('input',{type:'text',className:'input-field',value:formData.employer||'',onChange:x=>u('employer',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Job Title'),e('input',{type:'text',className:'input-field',value:formData.jobTitle||'',onChange:x=>u('jobTitle',x.target.value)}))),e('div',{className:'form-group'},e('label',null,'Description of Incident *'),e('textarea',{className:'input-field',value:formData.incidentDescription||'',onChange:x=>u('incidentDescription',x.target.value),placeholder:'Describe exactly what happened...'})),e('div',{className:'form-group'},e('label',null,'Body Parts Injured'),e('input',{type:'text',className:'input-field',value:formData.bodyPartsInjured||'',onChange:x=>u('bodyPartsInjured',x.target.value),placeholder:'Lower back, knee...'})),e('div',{className:'form-group'},e('label',null,'Current Symptoms'),e('textarea',{className:'input-field',rows:3,value:formData.currentSymptoms||'',onChange:x=>u('currentSymptoms',x.target.value),placeholder:'Describe your symptoms...'})));
 
-  const clearRecording = () => {
-    if (audioUrl) URL.revokeObjectURL(audioUrl);
-    setAudioBlob(null);
-    setAudioUrl(null);
-  };
+const renderHIPAAForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Patient Name *'),e('input',{type:'text',className:'input-field',value:formData.patientName||'',onChange:x=>u('patientName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Birth *'),e('input',{type:'date',className:'input-field',value:formData.dateOfBirth||'',onChange:x=>u('dateOfBirth',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Last 4 of SSN'),e('input',{type:'text',className:'input-field',maxLength:4,value:formData.ssnLast4||'',onChange:x=>u('ssnLast4',x.target.value.replace(/\D/g,'')),placeholder:'1234'}))),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Injury'),e('input',{type:'date',className:'input-field',value:formData.dateOfInjury||'',onChange:x=>u('dateOfInjury',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Employer'),e('input',{type:'text',className:'input-field',value:formData.employer||'',onChange:x=>u('employer',x.target.value)}))),e('div',{className:'legal-text'},e('strong',null,'HIPAA AUTHORIZATION'),e('p',{style:{marginTop:8}},'I authorize all healthcare providers, hospitals, clinics, and pharmacies to release my protected health information to Titanium Defense Group and their authorized representatives for the purpose of processing my workers\' compensation claim.'),e('p',{style:{marginTop:8}},'This authorization expires one year from the date signed or when the claim is closed, whichever occurs first.'),e('p',{style:{marginTop:8}},'I may revoke this authorization at any time in writing. I am entitled to a copy upon request.')));
 
-  const u = (f, v) => setFormData(p => ({ ...p, [f]: v }));
+const consentText=linkData.type==='hipaa'?'I voluntarily authorize the release of my protected health information as described above.':'I certify that the information provided above is true and correct to the best of my knowledge.';
 
-  // Submit handler
-  const handleSubmit = async () => {
-    if (!typedName.trim()) {
-      alert('Please type your full legal name');
-      return;
-    }
-    if (!signature) {
-      alert('Please sign in the signature box');
-      return;
-    }
-    if (!consent1 || !consent2) {
-      alert('Please check both consent boxes to continue');
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const fd = new FormData();
-      fd.append('formData', JSON.stringify({ ...formData, hasAudioRecording: !!audioBlob }));
-      fd.append('signatureData', JSON.stringify({ typedName, signatureImage: signature }));
-      
-      if (audioBlob) {
-        fd.append('files', audioBlob, 'audio-statement.webm');
-      }
-
-      const res = await fetch('/api/submit-statement/' + TOKEN, { method: 'POST', body: fd });
-      const json = await res.json();
-      
-      if (json.success) {
-        setSubmitted(true);
-      } else {
-        alert(json.error || 'Submission failed. Please try again.');
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    }
-    setSubmitting(false);
-  };
-
-  // Loading state
-  if (loading) {
-    return e('div', { className: 'container' },
-      e('div', { className: 'header' },
-        e('h1', null, 'TITANIUM DEFENSE GROUP')
-      ),
-      e('div', { className: 'content' },
-        e('div', { className: 'loading-container' },
-          e('div', { className: 'spinner' }),
-          e('span', null, 'Validating link...')
-        )
-      )
-    );
-  }
-
-  // Error state
-  if (error) {
-    return e('div', { className: 'container' },
-      e('div', { className: 'header' },
-        e('h1', null, 'TITANIUM DEFENSE GROUP')
-      ),
-      e('div', { className: 'content' },
-        e('div', { className: 'error-container' },
-          e('h2', null, '⚠️ ' + error),
-          e('p', { style: { marginTop: 12, color: 'var(--titanium-muted)' } }, 
-            'This link may have expired or already been used.'),
-          e('p', { style: { marginTop: 8, color: 'var(--titanium-muted)' } }, 
-            'Please contact the sender for a new link.')
-        )
-      )
-    );
-  }
-
-  // Success state
-  if (submitted) {
-    return e('div', { className: 'container' },
-      e('div', { className: 'header' },
-        e('h1', null, 'TITANIUM DEFENSE GROUP')
-      ),
-      e('div', { className: 'content' },
-        e('div', { className: 'success-container' },
-          e('h2', null, '✓ Submitted Successfully'),
-          e('p', null, 'Your ' + (linkData.type === 'hipaa' ? 'HIPAA authorization' : linkData.type + ' statement') + ' has been received.'),
-          e('p', { style: { color: 'var(--titanium-muted)', marginTop: 16 } }, 'Claim Reference: ' + linkData.claimRef),
-          e('p', { style: { color: 'var(--titanium-muted)', fontSize: 13, marginTop: 24 } }, 'You may close this window.')
-        )
-      )
-    );
-  }
-
-  // Form title based on type
-  const formTitle = linkData.type === 'hipaa' ? 'HIPAA Authorization Form' : 
-                    linkData.type.charAt(0).toUpperCase() + linkData.type.slice(1) + ' Statement Form';
-
-  // Render witness form fields
-  const renderWitnessForm = () => e('div', null,
-    e('div', { className: 'form-group' },
-      e('label', null, 'Your Full Name *'),
-      e('input', { type: 'text', className: 'input-field', value: formData.witnessName || '', onChange: x => u('witnessName', x.target.value), placeholder: 'Enter your full legal name' })
-    ),
-    e('div', { className: 'form-row' },
-      e('div', { className: 'form-group' },
-        e('label', null, 'Phone'),
-        e('input', { type: 'tel', className: 'input-field', value: formData.witnessPhone || '', onChange: x => u('witnessPhone', x.target.value), placeholder: '(555) 123-4567' })
-      ),
-      e('div', { className: 'form-group' },
-        e('label', null, 'Email'),
-        e('input', { type: 'email', className: 'input-field', value: formData.witnessEmail || '', onChange: x => u('witnessEmail', x.target.value), placeholder: 'your@email.com' })
-      )
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Relationship to Claimant'),
-      e('input', { type: 'text', className: 'input-field', value: formData.relationship || '', onChange: x => u('relationship', x.target.value), placeholder: 'e.g., Coworker, Supervisor, Patient' })
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Your Statement *'),
-      e('textarea', { className: 'input-field', value: formData.statement || '', onChange: x => u('statement', x.target.value), placeholder: 'Please describe what you witnessed in detail.\n\nInclude:\n• Date and time of the incident\n• Where it occurred\n• What you saw happen\n• Who else was present\n• Any other relevant details' })
-    )
-  );
-
-  // Render claimant form fields
-  const renderClaimantForm = () => e('div', null,
-    e('div', { className: 'form-group' },
-      e('label', null, 'Your Full Name *'),
-      e('input', { type: 'text', className: 'input-field', value: formData.claimantName || '', onChange: x => u('claimantName', x.target.value), placeholder: 'Enter your full legal name' })
-    ),
-    e('div', { className: 'form-row' },
-      e('div', { className: 'form-group' },
-        e('label', null, 'Date of Birth'),
-        e('input', { type: 'date', className: 'input-field', value: formData.dateOfBirth || '', onChange: x => u('dateOfBirth', x.target.value) })
-      ),
-      e('div', { className: 'form-group' },
-        e('label', null, 'Phone'),
-        e('input', { type: 'tel', className: 'input-field', value: formData.claimantPhone || '', onChange: x => u('claimantPhone', x.target.value) })
-      )
-    ),
-    e('div', { className: 'form-row' },
-      e('div', { className: 'form-group' },
-        e('label', null, 'Employer'),
-        e('input', { type: 'text', className: 'input-field', value: formData.employer || '', onChange: x => u('employer', x.target.value) })
-      ),
-      e('div', { className: 'form-group' },
-        e('label', null, 'Job Title'),
-        e('input', { type: 'text', className: 'input-field', value: formData.jobTitle || '', onChange: x => u('jobTitle', x.target.value) })
-      )
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Description of Incident *'),
-      e('textarea', { className: 'input-field', value: formData.incidentDescription || '', onChange: x => u('incidentDescription', x.target.value), placeholder: 'Describe exactly what happened, including:\n• What you were doing at the time\n• How the injury occurred\n• What you felt/experienced\n• Any witnesses present' })
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Body Parts Injured'),
-      e('input', { type: 'text', className: 'input-field', value: formData.bodyPartsInjured || '', onChange: x => u('bodyPartsInjured', x.target.value), placeholder: 'e.g., Lower back, right knee, left shoulder' })
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Current Symptoms'),
-      e('textarea', { className: 'input-field', rows: 3, value: formData.currentSymptoms || '', onChange: x => u('currentSymptoms', x.target.value), placeholder: 'Describe your current symptoms and how they affect your daily activities' })
-    ),
-    e('div', { className: 'form-group' },
-      e('label', null, 'Medical Treatment Received'),
-      e('textarea', { className: 'input-field', rows: 3, value: formData.medicalTreatment || '', onChange: x => u('medicalTreatment', x.target.value), placeholder: 'List any doctors, hospitals, clinics, or treatments you have received' })
-    )
-  );
-
-  // Render HIPAA form fields
-  const renderHIPAAForm = () => e('div', null,
-    e('div', { className: 'form-group' },
-      e('label', null, 'Patient Name *'),
-      e('input', { type: 'text', className: 'input-field', value: formData.patientName || '', onChange: x => u('patientName', x.target.value), placeholder: 'Your full legal name' })
-    ),
-    e('div', { className: 'form-row' },
-      e('div', { className: 'form-group' },
-        e('label', null, 'Date of Birth *'),
-        e('input', { type: 'date', className: 'input-field', value: formData.dateOfBirth || '', onChange: x => u('dateOfBirth', x.target.value) })
-      ),
-      e('div', { className: 'form-group' },
-        e('label', null, 'Last 4 of SSN'),
-        e('input', { type: 'text', className: 'input-field', maxLength: 4, value: formData.ssnLast4 || '', onChange: x => u('ssnLast4', x.target.value.replace(/\D/g, '')), placeholder: '1234' })
-      )
-    ),
-    e('div', { className: 'form-row' },
-      e('div', { className: 'form-group' },
-        e('label', null, 'Date of Injury'),
-        e('input', { type: 'date', className: 'input-field', value: formData.dateOfInjury || '', onChange: x => u('dateOfInjury', x.target.value) })
-      ),
-      e('div', { className: 'form-group' },
-        e('label', null, 'Employer'),
-        e('input', { type: 'text', className: 'input-field', value: formData.employer || '', onChange: x => u('employer', x.target.value) })
-      )
-    ),
-    e('div', { className: 'legal-text' },
-      e('strong', null, 'AUTHORIZATION'),
-      e('p', null, 'I authorize all healthcare providers, hospitals, clinics, pharmacies, and medical facilities to release my protected health information to Titanium Defense Group and their authorized representatives, including:'),
-      e('ul', { style: { marginLeft: 16, marginTop: 8 } },
-        e('li', null, 'My employer and their workers\' compensation insurance carrier'),
-        e('li', null, 'Claims adjusters, attorneys, and medical professionals'),
-        e('li', null, 'State workers\' compensation boards as required by law')
-      ),
-      e('p', null, e('strong', null, 'Information to be disclosed:'), ' Medical records, diagnostic test results, treatment records, physician notes, billing records, and pharmacy records related to my workers\' compensation claim.'),
-      e('p', null, e('strong', null, 'Purpose:'), ' Processing, investigation, and determination of my workers\' compensation claim.'),
-      e('p', null, e('strong', null, 'Expiration:'), ' This authorization expires one year from the date signed or when the claim is closed, whichever occurs first.'),
-      e('p', null, e('strong', null, 'Your Rights:'), ' You may revoke this authorization at any time in writing. You are entitled to receive a copy of this authorization upon request.')
-    )
-  );
-
-  // Consent text based on type
-  const consentText = linkData.type === 'hipaa' 
-    ? 'I voluntarily authorize the release of my protected health information as described above.'
-    : 'I certify that the information provided above is true and correct to the best of my knowledge.';
-
-  // Main form
-  return e('div', { className: 'container' },
-    e('div', { className: 'header' },
-      e('h1', null, 'TITANIUM DEFENSE GROUP'),
-      e('p', null, formTitle),
-      e('p', { className: 'claim-ref' }, 'Claim: ' + linkData.claimRef)
-    ),
-    e('div', { className: 'content' },
-      // Form fields based on type
-      linkData.type === 'witness' ? renderWitnessForm() :
-      linkData.type === 'claimant' ? renderClaimantForm() :
-      renderHIPAAForm(),
-
-      // Audio recorder (not for HIPAA)
-      linkData.type !== 'hipaa' ? e('div', { className: 'audio-recorder' },
-        e('h4', null, '🎤 Or Record Your Statement'),
-        e('p', null, 'You can record an audio statement instead of or in addition to writing.'),
-        e('div', { className: 'record-controls' },
-          e('button', { 
-            className: 'record-btn ' + (recording ? 'recording' : 'idle'), 
-            onClick: recording ? stopRecording : startRecording 
-          }, recording ? '⏹' : '🎤'),
-          e('span', { className: 'record-status' + (recording ? ' recording' : '') },
-            recording ? 'Recording... Click to stop' : 'Click to start recording'
-          )
-        ),
-        audioUrl ? e('div', { className: 'audio-preview' },
-          e('audio', { src: audioUrl, controls: true }),
-          e('button', { className: 'btn btn-secondary', onClick: clearRecording, style: { marginTop: 8 } }, 'Remove Recording')
-        ) : null
-      ) : null,
-
-      // Signature section
-      e('div', { className: 'signature-section' },
-        e('h3', null, '✍️ Electronic Signature'),
-        e('p', { style: { fontSize: 12, color: 'var(--titanium-muted)', marginBottom: 12 } },
-          'Sign below using your mouse or finger'
-        ),
-        e('div', { className: 'signature-canvas-container' },
-          e('canvas', {
-            ref: canvasRef,
-            className: 'signature-canvas',
-            onMouseDown: startDrawing,
-            onMouseMove: draw,
-            onMouseUp: stopDrawing,
-            onMouseLeave: stopDrawing,
-            onTouchStart: startDrawing,
-            onTouchMove: draw,
-            onTouchEnd: stopDrawing
-          })
-        ),
-        e('div', { className: 'signature-actions' },
-          e('button', { className: 'btn btn-secondary', onClick: clearSignature }, 'Clear Signature')
-        ),
-        e('div', { className: 'form-group', style: { marginTop: 16 } },
-          e('label', null, 'Type Your Full Legal Name *'),
-          e('input', { 
-            type: 'text', 
-            className: 'input-field', 
-            value: typedName, 
-            onChange: x => setTypedName(x.target.value), 
-            placeholder: 'Your full legal name as it appears on official documents' 
-          })
-        ),
-        e('div', { className: 'checkbox-group' },
-          e('input', { type: 'checkbox', id: 'consent1', checked: consent1, onChange: x => setConsent1(x.target.checked) }),
-          e('label', { htmlFor: 'consent1' }, consentText)
-        ),
-        e('div', { className: 'checkbox-group' },
-          e('input', { type: 'checkbox', id: 'consent2', checked: consent2, onChange: x => setConsent2(x.target.checked) }),
-          e('label', { htmlFor: 'consent2' }, 'I consent to sign this document electronically and understand that my electronic signature has the same legal effect as a handwritten signature under the E-SIGN Act and UETA.')
-        )
-      ),
-
-      // Submit button
-      e('button', {
-        className: 'btn btn-success',
-        style: { width: '100%', padding: 16, marginTop: 24, fontSize: 16 },
-        onClick: handleSubmit,
-        disabled: submitting
-      }, submitting ? 'Submitting...' : 'Submit ' + (linkData.type === 'hipaa' ? 'Authorization' : 'Statement'))
-    )
-  );
+return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP'),e('p',null,formTitle),e('p',{className:'claim-ref'},'Claim: '+linkData.claimRef)),e('div',{className:'content'},linkData.type==='witness'?renderWitnessForm():linkData.type==='claimant'?renderClaimantForm():renderHIPAAForm(),linkData.type!=='hipaa'?e('div',{className:'audio-recorder'},e('h4',null,'🎤 Record Audio Statement (Optional)'),e('p',{style:{fontSize:12,color:'var(--titanium-muted)',marginBottom:12}},'Record a verbal statement instead of or in addition to writing.'),e('div',{className:'record-controls'},e('button',{className:'record-btn'+(recording?' recording':''),onClick:recording?stopRecording:startRecording},recording?'⏹':'🎤'),e('span',{style:{color:recording?'var(--titanium-danger)':'var(--titanium-muted)'}},recording?'Recording... Click to stop':'Click to record')),audioUrl?e('div',{style:{marginTop:12}},e('audio',{src:audioUrl,controls:true,style:{width:'100%'}}),e('button',{className:'btn btn-secondary',onClick:clearRecording,style:{marginTop:8}},'Remove')):null):null,e('div',{className:'signature-section'},e('h3',null,'✍️ Electronic Signature'),e('p',{style:{fontSize:12,color:'var(--titanium-muted)',marginBottom:12}},'Sign below using your mouse or finger'),e('div',{className:'signature-canvas-container'},e('canvas',{ref:canvasRef,className:'signature-canvas',onMouseDown:startDrawing,onMouseMove:draw,onMouseUp:stopDrawing,onMouseLeave:stopDrawing,onTouchStart:startDrawing,onTouchMove:draw,onTouchEnd:stopDrawing})),e('div',{className:'signature-actions'},e('button',{className:'btn btn-secondary',onClick:clearSignature},'Clear')),e('div',{className:'form-group',style:{marginTop:16}},e('label',null,'Type Your Full Legal Name *'),e('input',{type:'text',className:'input-field',value:typedName,onChange:x=>setTypedName(x.target.value),placeholder:'Full legal name'})),e('div',{className:'checkbox-group'},e('input',{type:'checkbox',checked:consent1,onChange:x=>setConsent1(x.target.checked)}),e('label',null,consentText)),e('div',{className:'checkbox-group'},e('input',{type:'checkbox',checked:consent2,onChange:x=>setConsent2(x.target.checked)}),e('label',null,'I consent to sign electronically per the E-SIGN Act.'))),e('button',{className:'btn btn-success',style:{width:'100%',padding:16,marginTop:24,fontSize:16},onClick:handleSubmit,disabled:submitting},submitting?'Submitting...':'Submit '+(linkData.type==='hipaa'?'Authorization':'Statement'))));
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
