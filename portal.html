@@ -173,7 +173,37 @@ const draw=(ev)=>{if(!isDrawingRef.current||!sigCtxRef.current)return;ev.prevent
 const stopDraw=(dataKey)=>{if(isDrawingRef.current&&sigCanvasRef.current){isDrawingRef.current=false;uNested(dataKey,'signature',sigCanvasRef.current.toDataURL())}};
 const clearSig=(dataKey)=>{if(sigCtxRef.current&&sigCanvasRef.current){sigCtxRef.current.clearRect(0,0,sigCanvasRef.current.width,sigCanvasRef.current.height);uNested(dataKey,'signature',null)}};
 
-const startRecording=async(type)=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorderRef.current=new MediaRecorder(stream);audioChunksRef.current=[];mediaRecorderRef.current.ondataavailable=ev=>audioChunksRef.current.push(ev.data);mediaRecorderRef.current.onstop=()=>{const blob=new Blob(audioChunksRef.current,{type:'audio/webm'});setAudioBlobs(prev=>({...prev,[type]:blob}));stream.getTracks().forEach(t=>t.stop())};mediaRecorderRef.current.start();setRecording(type)}catch(err){alert('Could not access microphone')}};
+const startRecording=async(type)=>{
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    // Try to use mp4/m4a format first, fall back to webm
+    let mimeType='audio/webm;codecs=opus';
+    if(MediaRecorder.isTypeSupported('audio/mp4')){
+      mimeType='audio/mp4';
+    }else if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')){
+      mimeType='audio/webm;codecs=opus';
+    }else if(MediaRecorder.isTypeSupported('audio/webm')){
+      mimeType='audio/webm';
+    }
+    mediaRecorderRef.current=new MediaRecorder(stream,{mimeType});
+    audioChunksRef.current=[];
+    mediaRecorderRef.current.ondataavailable=ev=>{
+      if(ev.data.size>0)audioChunksRef.current.push(ev.data);
+    };
+    mediaRecorderRef.current.onstop=()=>{
+      const audioType=mediaRecorderRef.current.mimeType||'audio/webm';
+      const blob=new Blob(audioChunksRef.current,{type:audioType});
+      setAudioBlobs(prev=>({...prev,[type]:blob}));
+      stream.getTracks().forEach(t=>t.stop());
+      console.log('Audio recorded:',blob.size,'bytes,',audioType);
+    };
+    mediaRecorderRef.current.start(1000);
+    setRecording(type);
+  }catch(err){
+    console.error('Microphone error:',err);
+    alert('Could not access microphone');
+  }
+};
 const stopRecording=()=>{if(mediaRecorderRef.current&&recording){mediaRecorderRef.current.stop();setRecording(null)}};
 const clearAudio=(type)=>setAudioBlobs(prev=>{const n={...prev};delete n[type];return n});
 
@@ -211,7 +241,11 @@ const submitInlineStmt=async(type,formData,sig,audioBlob)=>{
     fd.append('claimRef',claimRef);
     
     if(audioBlob){
-      fd.append('files',audioBlob,'audio-'+type+'.webm');
+      // Determine file extension based on mime type
+      let ext='webm';
+      if(audioBlob.type.includes('mp4'))ext='m4a';
+      else if(audioBlob.type.includes('ogg'))ext='ogg';
+      fd.append('files',audioBlob,'audio-'+type+'.'+ext);
     }
     
     console.log('Sending to /api/submit-inline-statement...');
