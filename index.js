@@ -228,6 +228,14 @@ function getClientIP(req) {
          'Unknown';
 }
 
+// Helper to get entity name from form data
+function getEntityName(formData) {
+  if (formData.entity === 'Other - Enter Manually' || formData.entity === 'Other') {
+    return formData.customEntity || 'Workers Compensation Claim';
+  }
+  return formData.entity || 'Workers Compensation Claim';
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // E-SIGNATURE PDF GENERATION - WITNESS STATEMENT
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -239,10 +247,13 @@ function generateWitnessStatementPDF(data, signatureData) {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    // Header
+    // Get entity name for header
+    const entityName = data.entityName || 'Workers Compensation Claim';
+
+    // Header - Use entity name instead of Titanium
     doc.rect(0, 0, 612, 70).fill('#1a1f26');
     doc.fontSize(18).font('Helvetica-Bold').fillColor('white').text('WITNESS STATEMENT', 50, 25);
-    doc.fontSize(10).fillColor('#94a3b8').text('Titanium Defense Group | www.wcreporting.com', 50, 48);
+    doc.fontSize(10).fillColor('#94a3b8').text(entityName + ' | www.wcreporting.com', 50, 48);
     doc.y = 90;
 
     // Reference info
@@ -332,10 +343,13 @@ function generateClaimantStatementPDF(data, signatureData) {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    // Header
+    // Get entity name for header
+    const entityName = data.entityName || 'Workers Compensation Claim';
+
+    // Header - Use entity name instead of Titanium
     doc.rect(0, 0, 612, 70).fill('#1a1f26');
     doc.fontSize(18).font('Helvetica-Bold').fillColor('white').text('CLAIMANT STATEMENT', 50, 25);
-    doc.fontSize(10).fillColor('#94a3b8').text('Titanium Defense Group | www.wcreporting.com', 50, 48);
+    doc.fontSize(10).fillColor('#94a3b8').text(entityName + ' | www.wcreporting.com', 50, 48);
     doc.y = 90;
 
     // Reference info
@@ -355,7 +369,7 @@ function generateClaimantStatementPDF(data, signatureData) {
     doc.text('Date of Birth: ' + (data.dateOfBirth || 'N/A'));
     doc.text('Phone: ' + (data.claimantPhone || 'N/A'));
     doc.text('Email: ' + (data.claimantEmail || 'N/A'));
-    doc.text('Employer: ' + (data.employer || 'N/A'));
+    doc.text('Employer: ' + (data.employer || entityName));
     doc.text('Job Title: ' + (data.jobTitle || 'N/A'));
     doc.moveDown(1.5);
 
@@ -436,11 +450,14 @@ function generateHIPAAReleasePDF(data, signatureData) {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    // Header
+    // Get entity name for header
+    const entityName = data.entityName || 'Workers Compensation Claim';
+
+    // Header - Use entity name instead of Titanium
     doc.rect(0, 0, 612, 70).fill('#1a1f26');
     doc.fontSize(16).font('Helvetica-Bold').fillColor('white').text('HIPAA AUTHORIZATION FOR RELEASE', 50, 20);
     doc.fontSize(10).text('OF PROTECTED HEALTH INFORMATION', 50, 40);
-    doc.fontSize(9).fillColor('#94a3b8').text('Titanium Defense Group | www.wcreporting.com', 50, 55);
+    doc.fontSize(9).fillColor('#94a3b8').text(entityName + ' | www.wcreporting.com', 50, 55);
     doc.y = 90;
 
     // Patient info
@@ -479,10 +496,10 @@ function generateHIPAAReleasePDF(data, signatureData) {
     doc.text('The above-named providers are authorized to release my information to:', { width: 512 });
     doc.moveDown(0.3);
     doc.font('Helvetica-Bold');
-    doc.text('Titanium Defense Group');
+    doc.text(entityName);
     doc.font('Helvetica');
     doc.text('And their authorized representatives, including:');
-    doc.text('• ' + (data.employer || 'Employer') + ' and their workers\' compensation insurance carrier');
+    doc.text('• ' + (data.employer || entityName) + ' and their workers\' compensation insurance carrier');
     doc.text('• Claims adjusters, attorneys, and medical professionals involved in the claim');
     doc.text('• State workers\' compensation boards and regulatory agencies as required by law');
     doc.moveDown(1);
@@ -574,10 +591,13 @@ function generateClaimPDF(formData, referenceNumber) {
 
     const COLORS = { primary: '#1a1f26', accent: '#5ba4e6', success: '#238636', warning: '#d29922', danger: '#dc2626', text: '#333333', muted: '#6e7681' };
 
-    // Header
+    // Get entity name for header
+    const entityName = getEntityName(formData);
+
+    // Header - Use entity name instead of Titanium
     doc.rect(0, 0, 612, 80).fill('#1a1f26');
-    doc.fontSize(22).font('Helvetica-Bold').fillColor('white').text('TITANIUM DEFENSE GROUP', 50, 25);
-    doc.fontSize(11).font('Helvetica').fillColor('#94a3b8').text('Smart Claim Intake Report', 50, 50);
+    doc.fontSize(22).font('Helvetica-Bold').fillColor('white').text(entityName.toUpperCase(), 50, 25);
+    doc.fontSize(11).font('Helvetica').fillColor('#94a3b8').text('Workers Compensation Claim Report', 50, 50);
     doc.fontSize(10).fillColor('#5ba4e6').text('www.wcreporting.com', 450, 50);
     doc.y = 100;
 
@@ -585,7 +605,7 @@ function generateClaimPDF(formData, referenceNumber) {
     doc.rect(50, 90, 512, 40).fillAndStroke('#f0f6fc', '#e1e4e8');
     doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a1f26').text('Reference #: ' + referenceNumber, 60, 100);
     doc.fontSize(10).font('Helvetica').fillColor('#6e7681').text('Generated: ' + new Date().toLocaleString(), 60, 116);
-    doc.fontSize(10).fillColor('#6e7681').text('Entity: ' + (formData.entity === 'Other' ? formData.customEntity || 'N/A' : formData.entity || 'N/A'), 350, 100);
+    doc.fontSize(10).fillColor('#6e7681').text('Entity: ' + entityName, 350, 100);
     doc.y = 145;
 
     function addSection(title, color) {
@@ -622,7 +642,7 @@ function generateClaimPDF(formData, referenceNumber) {
 
     // CLAIM INFORMATION
     addSection('CLAIM INFORMATION');
-    addField('Entity', formData.entity === 'Other' ? formData.customEntity : formData.entity);
+    addField('Entity', entityName);
     addFieldRow([{ label: 'Date of Injury', value: formData.dateOfInjury }, { label: 'Time', value: formData.timeOfInjury }]);
     addFieldRow([{ label: 'Date Reported', value: formData.dateReported }, { label: 'Reported Immediately', value: formData.reportedImmediately === true ? 'Yes' : formData.reportedImmediately === false ? 'NO ⚠️' : 'N/A' }]);
 
@@ -665,7 +685,7 @@ function generateClaimPDF(formData, referenceNumber) {
     addSection('SUBMITTED BY');
     addFieldRow([{ label: 'Name', value: formData.submitterName }, { label: 'Email', value: formData.submitterEmail }]);
 
-    doc.fontSize(8).fillColor(COLORS.muted).text('Titanium Defense Group | Smart Claim Intake | www.wcreporting.com', 50, 750, { align: 'center', width: 512 });
+    doc.fontSize(8).fillColor(COLORS.muted).text(entityName + ' | Workers Compensation Claim | www.wcreporting.com', 50, 750, { align: 'center', width: 512 });
 
     doc.end();
   });
@@ -674,14 +694,14 @@ function generateClaimPDF(formData, referenceNumber) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // API ENDPOINTS
 // ═══════════════════════════════════════════════════════════════════════════════
-app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.0' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.1' }));
 app.get('/health', (req, res) => res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() }));
 app.get('/api/entities', (req, res) => res.json(ENTITIES));
 
 // Generate secure link for statement/release
 app.post('/api/generate-link', async (req, res) => {
   try {
-    const { claimRef, type, personName, email, phone } = req.body;
+    const { claimRef, type, personName, email, phone, entityName } = req.body;
     if (!claimRef || !type) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
@@ -695,6 +715,7 @@ app.post('/api/generate-link', async (req, res) => {
       personName,
       email,
       phone,
+      entityName,
       expiresAt,
       completed: false,
       createdAt: new Date().toISOString()
@@ -712,7 +733,7 @@ app.post('/api/generate-link', async (req, res) => {
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#1a1f26;padding:25px;text-align:center;">
-                <h1 style="color:white;margin:0;">Titanium Defense Group</h1>
+                <h1 style="color:white;margin:0;">${entityName || 'Workers Compensation'}</h1>
               </div>
               <div style="padding:30px;background:#f8fafc;">
                 <p>Hello ${personName || ''},</p>
@@ -763,6 +784,7 @@ app.get('/api/validate-link/:token', (req, res) => {
     type: linkData.type,
     claimRef: linkData.claimRef,
     personName: linkData.personName,
+    entityName: linkData.entityName,
     expiresAt: linkData.expiresAt
   });
 });
@@ -789,6 +811,9 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
     const signatureData = JSON.parse(req.body.signatureData);
     const files = req.files || [];
 
+    // Add entity name to form data
+    formData.entityName = linkData.entityName;
+
     // Add IP and timestamp
     signatureData.ipAddress = getClientIP(req);
     signatureData.signedAt = new Date().toISOString();
@@ -799,13 +824,13 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
     let pdfFilename;
     
     if (linkData.type === 'witness') {
-      pdfBuffer = await generateWitnessStatementPDF({ ...formData, claimRef: linkData.claimRef }, signatureData);
+      pdfBuffer = await generateWitnessStatementPDF({ ...formData, claimRef: linkData.claimRef, entityName: linkData.entityName }, signatureData);
       pdfFilename = `${linkData.claimRef}-WitnessStatement-${formData.witnessName || 'Unknown'}.pdf`;
     } else if (linkData.type === 'claimant') {
-      pdfBuffer = await generateClaimantStatementPDF({ ...formData, claimRef: linkData.claimRef }, signatureData);
+      pdfBuffer = await generateClaimantStatementPDF({ ...formData, claimRef: linkData.claimRef, entityName: linkData.entityName }, signatureData);
       pdfFilename = `${linkData.claimRef}-ClaimantStatement.pdf`;
     } else if (linkData.type === 'hipaa') {
-      pdfBuffer = await generateHIPAAReleasePDF({ ...formData, claimRef: linkData.claimRef }, signatureData);
+      pdfBuffer = await generateHIPAAReleasePDF({ ...formData, claimRef: linkData.claimRef, entityName: linkData.entityName }, signatureData);
       pdfFilename = `${linkData.claimRef}-HIPAAAuthorization.pdf`;
     }
 
@@ -829,6 +854,7 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
               <h2 style="color:white;margin:0;">${linkData.type === 'hipaa' ? 'HIPAA Authorization' : linkData.type.charAt(0).toUpperCase() + linkData.type.slice(1) + ' Statement'} Received</h2>
             </div>
             <div style="padding:20px;background:#f8fafc;">
+              <p><strong>Entity:</strong> ${linkData.entityName || 'N/A'}</p>
               <p><strong>Claim:</strong> ${linkData.claimRef}</p>
               <p><strong>Type:</strong> ${linkData.type}</p>
               <p><strong>Signed By:</strong> ${signatureData.typedName || 'N/A'}</p>
@@ -858,13 +884,14 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
   }
 });
 
-// Submit inline statement (during main claim flow) - FIXED to include audio files
+// Submit inline statement (during main claim flow) - FIXED to include audio files and entity name
 app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
   try {
     const formData = JSON.parse(req.body.formData);
     const signatureData = JSON.parse(req.body.signatureData);
     const statementType = req.body.statementType;
     const claimRef = req.body.claimRef;
+    const entityName = req.body.entityName || formData.entityName || 'Workers Compensation Claim';
     const files = req.files || [];
 
     signatureData.ipAddress = getClientIP(req);
@@ -875,13 +902,13 @@ app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
     let pdfFilename;
     
     if (statementType === 'witness') {
-      pdfBuffer = await generateWitnessStatementPDF({ ...formData, claimRef }, signatureData);
+      pdfBuffer = await generateWitnessStatementPDF({ ...formData, claimRef, entityName }, signatureData);
       pdfFilename = `${claimRef}-WitnessStatement-${formData.witnessName || 'Unknown'}.pdf`;
     } else if (statementType === 'claimant') {
-      pdfBuffer = await generateClaimantStatementPDF({ ...formData, claimRef }, signatureData);
+      pdfBuffer = await generateClaimantStatementPDF({ ...formData, claimRef, entityName }, signatureData);
       pdfFilename = `${claimRef}-ClaimantStatement.pdf`;
     } else if (statementType === 'hipaa') {
-      pdfBuffer = await generateHIPAAReleasePDF({ ...formData, claimRef }, signatureData);
+      pdfBuffer = await generateHIPAAReleasePDF({ ...formData, claimRef, entityName }, signatureData);
       pdfFilename = `${claimRef}-HIPAAAuthorization.pdf`;
     }
 
@@ -929,10 +956,13 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     // Parse any inline statement PDFs
     const inlineStatements = req.body.inlineStatements ? JSON.parse(req.body.inlineStatements) : [];
     
-    console.log(`📋 Processing claim ${referenceNumber} for ${formData.entity === 'Other' ? formData.customEntity : formData.entity}`);
+    // Get entity name
+    const entityName = getEntityName(formData);
+    
+    console.log(`📋 Processing claim ${referenceNumber} for ${entityName}`);
 
     const pdfBuffer = await generateClaimPDF(formData, referenceNumber);
-    const attachments = [{ filename: `${referenceNumber}-SmartClaimReport.pdf`, content: pdfBuffer, contentType: 'application/pdf' }];
+    const attachments = [{ filename: `${referenceNumber}-ClaimReport.pdf`, content: pdfBuffer, contentType: 'application/pdf' }];
     
     // Add inline statement PDFs and their audio files
     inlineStatements.forEach(stmt => {
@@ -985,8 +1015,8 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     const emailHtml = `
       <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;">
         <div style="background:#1a1f26;padding:25px;text-align:center;">
-          <h1 style="color:white;margin:0;">Titanium Defense Group</h1>
-          <p style="color:#5ba4e6;margin:8px 0 0;">Smart Claim Intake Report v3.0</p>
+          <h1 style="color:white;margin:0;">${entityName}</h1>
+          <p style="color:#5ba4e6;margin:8px 0 0;">Workers Compensation Claim Report</p>
         </div>
         <div style="background:${priorityColor};padding:12px 20px;">
           <p style="color:white;margin:0;font-weight:bold;">PRIORITY: ${priority}</p>
@@ -996,7 +1026,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
             <h2 style="color:#1a1f26;margin:0 0 15px;border-bottom:2px solid #5ba4e6;padding-bottom:10px;">Claim Summary</h2>
             <table style="width:100%;font-size:14px;">
               <tr><td style="padding:5px 0;color:#6e7681;width:140px;">Reference:</td><td style="font-weight:bold;">${referenceNumber}</td></tr>
-              <tr><td style="padding:5px 0;color:#6e7681;">Entity:</td><td style="font-weight:bold;">${formData.entity === 'Other' ? formData.customEntity || 'N/A' : formData.entity || 'N/A'}</td></tr>
+              <tr><td style="padding:5px 0;color:#6e7681;">Entity:</td><td style="font-weight:bold;">${entityName}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Employee:</td><td>${formData.firstName || ''} ${formData.lastName || ''}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Date of Injury:</td><td>${formData.dateOfInjury || 'N/A'}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Injury Type:</td><td>${INJURY_TYPE_LABELS[formData.injuryType] || formData.injuryType || 'N/A'}</td></tr>
@@ -1026,7 +1056,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
       await transporter.sendMail({
         from: CONFIG.SMTP.auth.user,
         to: CONFIG.CLAIMS_EMAIL,
-        subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${formData.entity === 'Other' ? formData.customEntity || '' : formData.entity || ''} - ${formData.dateOfInjury || ''}`,
+        subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
         html: emailHtml,
         attachments
       });
@@ -1041,11 +1071,11 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
         await transporter.sendMail({
           from: CONFIG.SMTP.auth.user,
           to: formData.submitterEmail,
-          subject: `Claim Confirmation - ${referenceNumber} - Titanium Defense Group`,
+          subject: `Claim Confirmation - ${referenceNumber} - ${entityName}`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#1a1f26;padding:25px;text-align:center;">
-                <h1 style="color:white;margin:0;">Titanium Defense Group</h1>
+                <h1 style="color:white;margin:0;">${entityName}</h1>
               </div>
               <div style="padding:30px;background:#f8fafc;">
                 <div style="background:#dcfce7;border:1px solid #16a34a;padding:20px;border-radius:8px;text-align:center;margin-bottom:25px;">
@@ -1088,7 +1118,7 @@ app.get('/statement/:token', (req, res) => {
 app.listen(PORT, () => {
   console.log('');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  TITANIUM DEFENSE GROUP - SMART CLAIM INTAKE PORTAL v3.0');
+  console.log('  WORKERS COMPENSATION CLAIM INTAKE PORTAL v3.1');
   console.log('  With E-Signatures, Statements & HIPAA Release');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  🌐 Portal running at: http://localhost:${PORT}`);
