@@ -3,118 +3,539 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titanium Defense Group - Statement Form</title>
+<title>Titanium Defense Group - Complete Statement</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--titanium-dark:#1e2a38;--titanium-navy:#2d3a4a;--titanium-accent:#5ba4e6;--titanium-success:#34d399;--titanium-warning:#fbbf24;--titanium-danger:#f87171;--titanium-text:#f1f5f9;--titanium-muted:#94a3b8;--glass-bg:rgba(45,58,74,0.6);--glass-border:rgba(148,163,184,0.12)}
-body{font-family:'DM Sans',sans-serif;background:var(--titanium-dark);min-height:100vh;color:var(--titanium-text);padding:20px}
-.container{max-width:700px;margin:0 auto}
-.header{background:var(--titanium-navy);border-radius:16px 16px 0 0;padding:24px;text-align:center;border:1px solid var(--glass-border);border-bottom:none}
+:root{--td:#1e2a38;--tn:#2d3a4a;--ts:#3d4f63;--tl:#4a6178;--ta:#5ba4e6;--ta2:#7eb8f0;--tg:#34d399;--tw:#fbbf24;--tr:#f87171;--tt:#f1f5f9;--tm:#94a3b8;--tb:rgba(148,163,184,0.15);--gb:rgba(45,58,74,0.6);--gbd:rgba(148,163,184,0.12)}
+body{font-family:'DM Sans',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:24px}
+.header{background:linear-gradient(180deg,var(--tn) 0%,var(--td) 100%);border-bottom:1px solid var(--gbd);padding:20px;text-align:center;border-radius:16px 16px 0 0}
 .header h1{font-family:'Space Grotesk',sans-serif;font-size:20px;color:white;margin-bottom:4px}
-.header p{color:var(--titanium-muted);font-size:13px}
-.header .claim-ref{color:var(--titanium-accent);margin-top:8px}
-.content{background:var(--glass-bg);border-radius:0 0 16px 16px;padding:28px;border:1px solid var(--glass-border);border-top:none}
-.form-group{margin-bottom:18px}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--titanium-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.input-field{background:rgba(30,42,56,0.8);border:1px solid var(--glass-border);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--titanium-text);font-family:'DM Sans',sans-serif;width:100%;transition:all 0.2s}
-.input-field:focus{outline:none;border-color:var(--titanium-accent);box-shadow:0 0 0 3px rgba(91,164,230,0.15)}
-textarea.input-field{min-height:150px;resize:vertical}
-.signature-section{background:rgba(30,42,56,0.5);border-radius:12px;padding:20px;margin-top:24px;border:1px solid var(--glass-border)}
-.signature-section h3{color:var(--titanium-accent);font-size:14px;margin-bottom:16px}
-.signature-canvas-container{background:white;border-radius:8px;margin:12px 0;overflow:hidden}
-.signature-canvas{width:100%;height:150px;cursor:crosshair;touch-action:none;display:block}
-.signature-actions{display:flex;gap:8px;margin-top:8px}
-.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
-.btn-secondary{background:transparent;border:1px solid var(--glass-border);color:var(--titanium-muted)}
-.btn-secondary:hover{background:rgba(30,42,56,0.5);border-color:var(--titanium-accent)}
-.btn-success{background:linear-gradient(135deg,var(--titanium-success) 0%,#10b981 100%);color:white}
-.btn-success:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(52,211,153,0.3)}
-.btn:disabled{opacity:0.5;cursor:not-allowed}
+.header p{font-size:12px;color:var(--tm)}
+.content{background:var(--gb);border-radius:0 0 16px 16px;border:1px solid var(--gbd);border-top:none;padding:28px}
+.loading,.error,.success{text-align:center;padding:60px 20px}
+.loading p{color:var(--tm);font-size:16px}
+.error{background:rgba(248,113,113,0.1);border-radius:12px;border:1px solid var(--tr)}
+.error h2{color:var(--tr);margin-bottom:12px}
+.error p{color:var(--tm)}
+.success{background:rgba(52,211,153,0.1);border-radius:12px;border:1px solid var(--tg)}
+.success h2{color:var(--tg);margin-bottom:12px;font-size:24px}
+.success p{color:var(--tm)}
+.claim-info{background:rgba(91,164,230,0.1);border:1px solid rgba(91,164,230,0.3);border-radius:12px;padding:16px;margin-bottom:24px}
+.claim-info h3{color:var(--ta);font-size:14px;margin-bottom:8px}
+.claim-info p{font-size:13px;color:var(--tt)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.form-group .required{color:var(--tr)}
+.input-field{background:rgba(30,42,56,0.8);border:1px solid var(--tb);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tt);font-family:'DM Sans',sans-serif;width:100%;transition:all 0.2s}
+.input-field:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(91,164,230,0.15)}
+textarea.input-field{min-height:120px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.section-title{font-size:14px;font-weight:700;color:var(--ta);margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--gbd)}
+.legal-text{font-size:11px;color:var(--tm);line-height:1.6;padding:16px;background:rgba(30,42,56,0.5);border-radius:8px;margin:16px 0}
+.legal-text h4{color:var(--tt);font-size:13px;margin-bottom:8px}
+.sig-section{background:rgba(30,42,56,0.5);border-radius:12px;padding:20px;margin-top:20px;border:1px solid var(--gbd)}
+.sig-section h3{color:var(--ta);font-size:14px;margin-bottom:12px}
+.sig-canvas-wrap{background:white;border-radius:8px;overflow:hidden;border:2px solid var(--tb)}
+.sig-canvas{width:100%;height:150px;cursor:crosshair;touch-action:none;display:block}
+.sig-actions{display:flex;gap:8px;margin-top:10px}
 .checkbox-group{display:flex;align-items:flex-start;gap:10px;margin:12px 0}
-.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--titanium-accent);flex-shrink:0}
-.checkbox-group label{font-size:13px;color:var(--titanium-text);line-height:1.4}
-.legal-text{font-size:11px;color:var(--titanium-muted);line-height:1.5;padding:12px;background:rgba(30,42,56,0.5);border-radius:8px;margin:16px 0}
-.error-container{background:rgba(248,113,113,0.1);border:1px solid var(--titanium-danger);color:var(--titanium-danger);padding:30px;border-radius:12px;text-align:center;margin:40px 0}
-.success-container{background:rgba(52,211,153,0.1);border:1px solid var(--titanium-success);padding:40px;border-radius:12px;text-align:center}
-.success-container h2{color:var(--titanium-success);margin-bottom:16px}
-.audio-recorder{background:rgba(30,42,56,0.5);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--glass-border)}
-.audio-recorder h4{color:var(--titanium-accent);font-size:13px;margin-bottom:8px}
-.record-controls{display:flex;align-items:center;gap:16px}
-.record-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:var(--titanium-danger);transition:all 0.2s;display:flex;align-items:center;justify-content:center}
-.record-btn.recording{animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(248,113,113,0.4)}50%{transform:scale(1.05);box-shadow:0 0 0 10px rgba(248,113,113,0)}}
-.loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;color:var(--titanium-muted)}
-.spinner{width:50px;height:50px;border:3px solid var(--glass-border);border-top-color:var(--titanium-accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
+.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--ta);flex-shrink:0}
+.checkbox-group label{font-size:13px;color:var(--tt);line-height:1.4}
+.btn{padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.btn-secondary{background:transparent;border:1px solid var(--tb);color:var(--tm)}
+.btn-secondary:hover{border-color:var(--tl);color:var(--tt)}
+.btn-primary{background:linear-gradient(135deg,var(--tg) 0%,#10b981 100%);color:white;width:100%;margin-top:20px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(52,211,153,0.4)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.audio-rec{background:rgba(30,42,56,0.5);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--gbd)}
+.audio-rec h4{color:var(--ta);font-size:13px;margin-bottom:8px}
+.rec-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:var(--tr);display:flex;align-items:center;justify-content:center;color:white}
+.rec-btn.recording{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.audio-preview{margin-top:12px;padding:12px;background:rgba(52,211,153,0.1);border-radius:8px;border:1px solid var(--tg)}
+.audio-preview p{font-size:12px;color:var(--tg);margin-bottom:8px}
+.audio-preview audio{width:100%;border-radius:6px}
+.spinner{width:40px;height:40px;border:4px solid var(--tb);border-top-color:var(--ta);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:600px){.form-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<div class="container">
+  <div class="header">
+    <h1>TITANIUM DEFENSE GROUP</h1>
+    <p>Secure E-Signature Portal</p>
+  </div>
+  <div class="content" id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading form...</p>
+    </div>
+  </div>
+</div>
+
 <script>
-const e=React.createElement,{useState:S,useEffect:E,useRef:R}=React;
-const TOKEN=window.location.pathname.split('/statement/')[1];
+(function() {
+  const app = document.getElementById('app');
+  const token = window.location.pathname.split('/').pop();
+  
+  let linkData = null;
+  let audioBlob = null;
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
+  let sigCanvas = null;
+  let sigCtx = null;
+  let isDrawing = false;
+  let hasSignature = false;
 
-function App(){
-const[loading,setLoading]=S(true);
-const[error,setError]=S(null);
-const[linkData,setLinkData]=S(null);
-const[submitted,setSubmitted]=S(false);
-const[submitting,setSubmitting]=S(false);
-const[formData,setFormData]=S({});
-const[signature,setSignature]=S(null);
-const[typedName,setTypedName]=S('');
-const[consent1,setConsent1]=S(false);
-const[consent2,setConsent2]=S(false);
-const[recording,setRecording]=S(false);
-const[audioBlob,setAudioBlob]=S(null);
-const[audioUrl,setAudioUrl]=S(null);
-const canvasRef=R(null);
-const ctxRef=R(null);
-const isDrawingRef=R(false);
-const mediaRecorderRef=R(null);
-const chunksRef=R([]);
+  // Validate the token first
+  async function init() {
+    try {
+      const res = await fetch('/api/validate-link/' + token);
+      const data = await res.json();
+      
+      if (!data.valid) {
+        showError(data.error || 'Invalid or expired link');
+        return;
+      }
+      
+      linkData = data;
+      renderForm();
+    } catch (err) {
+      showError('Unable to load form. Please try again later.');
+    }
+  }
 
-E(()=>{if(!TOKEN){setError('Invalid link');setLoading(false);return}fetch('/api/validate-link/'+TOKEN).then(r=>r.json()).then(data=>{if(data.valid){setLinkData(data);setFormData({claimRef:data.claimRef});if(data.personName)setTypedName(data.personName)}else{setError(data.error||'Invalid or expired link')}setLoading(false)}).catch(()=>{setError('Failed to validate link');setLoading(false)})},[]);
+  function showError(message) {
+    app.innerHTML = `
+      <div class="error">
+        <h2>⚠️ Unable to Load</h2>
+        <p>${message}</p>
+        <p style="margin-top:16px;font-size:12px;">If you believe this is an error, please contact the person who sent you this link.</p>
+      </div>
+    `;
+  }
 
-E(()=>{if(canvasRef.current&&linkData){const canvas=canvasRef.current;const rect=canvas.getBoundingClientRect();canvas.width=rect.width;canvas.height=150;const ctx=canvas.getContext('2d');ctx.strokeStyle='#1a1f26';ctx.lineWidth=2;ctx.lineCap='round';ctxRef.current=ctx}},[linkData]);
+  function showSuccess() {
+    app.innerHTML = `
+      <div class="success">
+        <h2>✓ Submitted Successfully</h2>
+        <p>Your ${linkData.type === 'hipaa' ? 'authorization' : 'statement'} has been received and recorded.</p>
+        <p style="margin-top:16px;font-size:12px;">You may close this window.</p>
+      </div>
+    `;
+  }
 
-const getPos=(ev)=>{const rect=canvasRef.current.getBoundingClientRect();const clientX=ev.clientX||(ev.touches&&ev.touches[0].clientX);const clientY=ev.clientY||(ev.touches&&ev.touches[0].clientY);return{x:clientX-rect.left,y:clientY-rect.top}};
-const startDrawing=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const pos=getPos(ev);ctxRef.current.beginPath();ctxRef.current.moveTo(pos.x,pos.y)};
-const draw=(ev)=>{if(!isDrawingRef.current)return;ev.preventDefault();const pos=getPos(ev);ctxRef.current.lineTo(pos.x,pos.y);ctxRef.current.stroke()};
-const stopDrawing=()=>{if(isDrawingRef.current){isDrawingRef.current=false;setSignature(canvasRef.current.toDataURL())}};
-const clearSignature=()=>{ctxRef.current.clearRect(0,0,canvasRef.current.width,canvasRef.current.height);setSignature(null)};
+  function renderForm() {
+    const typeLabel = linkData.type === 'hipaa' ? 'HIPAA Authorization' : 
+                      linkData.type === 'witness' ? 'Witness Statement' : 
+                      'Claimant Statement';
+    
+    let formFields = '';
+    
+    if (linkData.type === 'witness') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Witness Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="witnessName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="input-field" id="witnessPhone" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="input-field" id="witnessEmail" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label>Relationship to Claimant</label>
+            <select class="input-field" id="relationship">
+              <option value="">Select relationship</option>
+              <option value="coworker">Coworker</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="manager">Manager</option>
+              <option value="customer">Customer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Your Statement <span class="required">*</span></label>
+          <textarea class="input-field" id="statement" placeholder="Please describe what you witnessed in detail. Include where you were, what you saw and heard, and any other relevant observations..." required></textarea>
+        </div>
+      `;
+    } else if (linkData.type === 'claimant') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Your Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="claimantName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" class="input-field" id="dateOfBirth">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="input-field" id="claimantPhone" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="input-field" id="claimantEmail" placeholder="email@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Describe the Incident <span class="required">*</span></label>
+          <textarea class="input-field" id="incidentDescription" placeholder="Please describe what happened in your own words. Include what you were doing, how the injury occurred, and what happened immediately after..." required></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Body Parts Injured</label>
+            <input type="text" class="input-field" id="bodyPartsInjured" placeholder="e.g., Lower back, right knee">
+          </div>
+          <div class="form-group">
+            <label>Current Symptoms</label>
+            <input type="text" class="input-field" id="currentSymptoms" placeholder="e.g., Pain, swelling">
+          </div>
+        </div>
+      `;
+    } else if (linkData.type === 'hipaa') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="patientName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth <span class="required">*</span></label>
+            <input type="date" class="input-field" id="dateOfBirth" required>
+          </div>
+          <div class="form-group">
+            <label>Last 4 of SSN</label>
+            <input type="text" class="input-field" id="ssnLast4" maxlength="4" placeholder="XXXX">
+          </div>
+          <div class="form-group">
+            <label>Employer</label>
+            <input type="text" class="input-field" id="employer" placeholder="Employer name">
+          </div>
+        </div>
+        <div class="legal-text">
+          <h4>AUTHORIZATION FOR RELEASE OF PROTECTED HEALTH INFORMATION</h4>
+          <p>I hereby authorize any healthcare provider, hospital, clinic, pharmacy, or other medical facility that has provided treatment or services to me to release and disclose my protected health information to:</p>
+          <p style="margin:8px 0;font-weight:600;color:var(--tt);">Titanium Defense Group and its designated representatives, insurance carriers, and claims administrators</p>
+          <p>This authorization includes the release of information related to:</p>
+          <ul style="margin:8px 0 8px 20px;">
+            <li>Medical records, reports, and test results</li>
+            <li>Diagnosis and treatment information</li>
+            <li>Billing and payment records</li>
+            <li>Any other information related to my workers' compensation claim</li>
+          </ul>
+          <p>I understand that:</p>
+          <ul style="margin:8px 0 8px 20px;">
+            <li>This authorization is voluntary</li>
+            <li>I may revoke this authorization at any time in writing</li>
+            <li>This authorization expires 24 months from the date of signature</li>
+            <li>Information disclosed may be subject to re-disclosure</li>
+          </ul>
+        </div>
+      `;
+    }
 
-const startRecording=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorderRef.current=new MediaRecorder(stream);chunksRef.current=[];mediaRecorderRef.current.ondataavailable=ev=>chunksRef.current.push(ev.data);mediaRecorderRef.current.onstop=()=>{const blob=new Blob(chunksRef.current,{type:'audio/webm'});setAudioBlob(blob);setAudioUrl(URL.createObjectURL(blob));stream.getTracks().forEach(t=>t.stop())};mediaRecorderRef.current.start();setRecording(true)}catch(err){alert('Could not access microphone')}};
-const stopRecording=()=>{if(mediaRecorderRef.current&&recording){mediaRecorderRef.current.stop();setRecording(false)}};
-const clearRecording=()=>{if(audioUrl)URL.revokeObjectURL(audioUrl);setAudioBlob(null);setAudioUrl(null)};
+    // Audio recording section (not for HIPAA)
+    const audioSection = linkData.type !== 'hipaa' ? `
+      <div class="audio-rec">
+        <h4>🎤 Audio Recording (Optional)</h4>
+        <p style="font-size:12px;color:var(--tm);margin-bottom:12px;">You may record a verbal statement in addition to the written statement above.</p>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <button type="button" class="rec-btn" id="recordBtn" onclick="toggleRecording()">🎤</button>
+          <div>
+            <p id="recordStatus" style="font-size:13px;color:var(--tm);">Click to start recording</p>
+          </div>
+        </div>
+        <div id="audioPreview" style="display:none;" class="audio-preview">
+          <p>✓ Audio recorded</p>
+          <audio id="audioPlayer" controls></audio>
+          <button type="button" class="btn btn-secondary" style="margin-top:8px;padding:6px 12px;font-size:12px;" onclick="clearAudio()">Remove Recording</button>
+        </div>
+      </div>
+    ` : '';
 
-const u=(f,v)=>setFormData(p=>({...p,[f]:v}));
+    app.innerHTML = `
+      <div class="claim-info">
+        <h3>📋 ${typeLabel}</h3>
+        <p><strong>Claim Reference:</strong> ${linkData.claimRef}</p>
+        <p><strong>Expires:</strong> ${new Date(linkData.expiresAt).toLocaleDateString()}</p>
+      </div>
+      
+      <form id="statementForm" onsubmit="return false;">
+        ${formFields}
+        
+        ${audioSection}
+        
+        <div class="section-title">✍️ Electronic Signature</div>
+        
+        <div class="sig-section">
+          <h3>Sign Below</h3>
+          <p style="font-size:12px;color:var(--tm);margin-bottom:12px;">Use your mouse or finger to sign in the box below.</p>
+          <div class="sig-canvas-wrap">
+            <canvas id="sigCanvas" class="sig-canvas"></canvas>
+          </div>
+          <div class="sig-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearSignature()">Clear</button>
+            <span id="sigStatus" style="font-size:12px;color:var(--tm);margin-left:auto;"></span>
+          </div>
+          
+          <div class="form-group" style="margin-top:16px;">
+            <label>Type Your Full Legal Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="typedName" placeholder="Type your full legal name" required>
+          </div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent1" required>
+            <label for="consent1">${linkData.type === 'hipaa' ? 
+              'I authorize the release of my protected health information as described above.' : 
+              'I certify that the information provided above is true and correct to the best of my knowledge.'}</label>
+          </div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent2" required>
+            <label for="consent2">I consent to sign this document electronically in accordance with the E-SIGN Act and agree that my electronic signature has the same legal effect as a handwritten signature.</label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+          ✍️ Sign & Submit
+        </button>
+      </form>
+    `;
 
-const handleSubmit=async()=>{if(!typedName.trim()){alert('Please type your full legal name');return}if(!signature){alert('Please sign above');return}if(!consent1||!consent2){alert('Please check both consent boxes');return}setSubmitting(true);try{const fd=new FormData();fd.append('formData',JSON.stringify({...formData,hasAudioRecording:!!audioBlob}));fd.append('signatureData',JSON.stringify({typedName,signatureImage:signature}));if(audioBlob)fd.append('files',audioBlob,'audio-statement.webm');const res=await fetch('/api/submit-statement/'+TOKEN,{method:'POST',body:fd});const json=await res.json();if(json.success)setSubmitted(true);else alert(json.error||'Submission failed')}catch(err){alert('Error: '+err.message)}setSubmitting(false)};
+    // Initialize signature canvas
+    setTimeout(initSignatureCanvas, 100);
+  }
 
-if(loading)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'loading-container'},e('div',{className:'spinner'}),e('span',null,'Validating link...'))));
-if(error)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'error-container'},e('h2',null,'⚠️ '+error),e('p',{style:{marginTop:12,color:'var(--titanium-muted)'}},'This link may have expired or already been used.'),e('p',{style:{marginTop:8}},'Please contact the sender for a new link.'))));
-if(submitted)return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP')),e('div',{className:'content'},e('div',{className:'success-container'},e('h2',null,'✓ Submitted Successfully'),e('p',null,'Your '+(linkData.type==='hipaa'?'HIPAA authorization':linkData.type+' statement')+' has been received.'),e('p',{style:{color:'var(--titanium-muted)',marginTop:16}},'Claim: '+linkData.claimRef),e('p',{style:{color:'var(--titanium-muted)',fontSize:13,marginTop:24}},'You may close this window.'))));
+  function initSignatureCanvas() {
+    sigCanvas = document.getElementById('sigCanvas');
+    if (!sigCanvas) return;
+    
+    const rect = sigCanvas.getBoundingClientRect();
+    sigCanvas.width = rect.width || 600;
+    sigCanvas.height = 150;
+    
+    sigCtx = sigCanvas.getContext('2d');
+    sigCtx.strokeStyle = '#1a1f26';
+    sigCtx.lineWidth = 2;
+    sigCtx.lineCap = 'round';
 
-const formTitle=linkData.type==='hipaa'?'HIPAA Authorization Form':linkData.type.charAt(0).toUpperCase()+linkData.type.slice(1)+' Statement Form';
+    sigCanvas.addEventListener('mousedown', startDraw);
+    sigCanvas.addEventListener('mousemove', draw);
+    sigCanvas.addEventListener('mouseup', stopDraw);
+    sigCanvas.addEventListener('mouseleave', stopDraw);
+    sigCanvas.addEventListener('touchstart', startDraw);
+    sigCanvas.addEventListener('touchmove', draw);
+    sigCanvas.addEventListener('touchend', stopDraw);
+  }
 
-const renderWitnessForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Your Full Name *'),e('input',{type:'text',className:'input-field',value:formData.witnessName||'',onChange:x=>u('witnessName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Phone'),e('input',{type:'tel',className:'input-field',value:formData.witnessPhone||'',onChange:x=>u('witnessPhone',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Email'),e('input',{type:'email',className:'input-field',value:formData.witnessEmail||'',onChange:x=>u('witnessEmail',x.target.value)}))),e('div',{className:'form-group'},e('label',null,'Relationship to Claimant'),e('input',{type:'text',className:'input-field',value:formData.relationship||'',onChange:x=>u('relationship',x.target.value),placeholder:'Coworker, Supervisor...'})),e('div',{className:'form-group'},e('label',null,'Your Statement *'),e('textarea',{className:'input-field',value:formData.statement||'',onChange:x=>u('statement',x.target.value),placeholder:'Describe what you witnessed in detail...'})));
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const rect = sigCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+    sigCtx.beginPath();
+    sigCtx.moveTo(x, y);
+  }
 
-const renderClaimantForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Your Full Name *'),e('input',{type:'text',className:'input-field',value:formData.claimantName||'',onChange:x=>u('claimantName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Birth'),e('input',{type:'date',className:'input-field',value:formData.dateOfBirth||'',onChange:x=>u('dateOfBirth',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Phone'),e('input',{type:'tel',className:'input-field',value:formData.claimantPhone||'',onChange:x=>u('claimantPhone',x.target.value)}))),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Employer'),e('input',{type:'text',className:'input-field',value:formData.employer||'',onChange:x=>u('employer',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Job Title'),e('input',{type:'text',className:'input-field',value:formData.jobTitle||'',onChange:x=>u('jobTitle',x.target.value)}))),e('div',{className:'form-group'},e('label',null,'Description of Incident *'),e('textarea',{className:'input-field',value:formData.incidentDescription||'',onChange:x=>u('incidentDescription',x.target.value),placeholder:'Describe exactly what happened...'})),e('div',{className:'form-group'},e('label',null,'Body Parts Injured'),e('input',{type:'text',className:'input-field',value:formData.bodyPartsInjured||'',onChange:x=>u('bodyPartsInjured',x.target.value),placeholder:'Lower back, knee...'})),e('div',{className:'form-group'},e('label',null,'Current Symptoms'),e('textarea',{className:'input-field',rows:3,value:formData.currentSymptoms||'',onChange:x=>u('currentSymptoms',x.target.value),placeholder:'Describe your symptoms...'})));
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const rect = sigCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+    sigCtx.lineTo(x, y);
+    sigCtx.stroke();
+    hasSignature = true;
+    document.getElementById('sigStatus').textContent = '✓ Signature captured';
+    document.getElementById('sigStatus').style.color = '#34d399';
+  }
 
-const renderHIPAAForm=()=>e('div',null,e('div',{className:'form-group'},e('label',null,'Patient Name *'),e('input',{type:'text',className:'input-field',value:formData.patientName||'',onChange:x=>u('patientName',x.target.value),placeholder:'Full legal name'})),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Birth *'),e('input',{type:'date',className:'input-field',value:formData.dateOfBirth||'',onChange:x=>u('dateOfBirth',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Last 4 of SSN'),e('input',{type:'text',className:'input-field',maxLength:4,value:formData.ssnLast4||'',onChange:x=>u('ssnLast4',x.target.value.replace(/\D/g,'')),placeholder:'1234'}))),e('div',{className:'form-row'},e('div',{className:'form-group'},e('label',null,'Date of Injury'),e('input',{type:'date',className:'input-field',value:formData.dateOfInjury||'',onChange:x=>u('dateOfInjury',x.target.value)})),e('div',{className:'form-group'},e('label',null,'Employer'),e('input',{type:'text',className:'input-field',value:formData.employer||'',onChange:x=>u('employer',x.target.value)}))),e('div',{className:'legal-text'},e('strong',null,'HIPAA AUTHORIZATION'),e('p',{style:{marginTop:8}},'I authorize all healthcare providers, hospitals, clinics, and pharmacies to release my protected health information to Titanium Defense Group and their authorized representatives for the purpose of processing my workers\' compensation claim.'),e('p',{style:{marginTop:8}},'This authorization expires one year from the date signed or when the claim is closed, whichever occurs first.'),e('p',{style:{marginTop:8}},'I may revoke this authorization at any time in writing. I am entitled to a copy upon request.')));
+  function stopDraw() {
+    isDrawing = false;
+  }
 
-const consentText=linkData.type==='hipaa'?'I voluntarily authorize the release of my protected health information as described above.':'I certify that the information provided above is true and correct to the best of my knowledge.';
+  window.clearSignature = function() {
+    if (sigCtx && sigCanvas) {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      hasSignature = false;
+      document.getElementById('sigStatus').textContent = '';
+    }
+  };
 
-return e('div',{className:'container'},e('div',{className:'header'},e('h1',null,'TITANIUM DEFENSE GROUP'),e('p',null,formTitle),e('p',{className:'claim-ref'},'Claim: '+linkData.claimRef)),e('div',{className:'content'},linkData.type==='witness'?renderWitnessForm():linkData.type==='claimant'?renderClaimantForm():renderHIPAAForm(),linkData.type!=='hipaa'?e('div',{className:'audio-recorder'},e('h4',null,'🎤 Record Audio Statement (Optional)'),e('p',{style:{fontSize:12,color:'var(--titanium-muted)',marginBottom:12}},'Record a verbal statement instead of or in addition to writing.'),e('div',{className:'record-controls'},e('button',{className:'record-btn'+(recording?' recording':''),onClick:recording?stopRecording:startRecording},recording?'⏹':'🎤'),e('span',{style:{color:recording?'var(--titanium-danger)':'var(--titanium-muted)'}},recording?'Recording... Click to stop':'Click to record')),audioUrl?e('div',{style:{marginTop:12}},e('audio',{src:audioUrl,controls:true,style:{width:'100%'}}),e('button',{className:'btn btn-secondary',onClick:clearRecording,style:{marginTop:8}},'Remove')):null):null,e('div',{className:'signature-section'},e('h3',null,'✍️ Electronic Signature'),e('p',{style:{fontSize:12,color:'var(--titanium-muted)',marginBottom:12}},'Sign below using your mouse or finger'),e('div',{className:'signature-canvas-container'},e('canvas',{ref:canvasRef,className:'signature-canvas',onMouseDown:startDrawing,onMouseMove:draw,onMouseUp:stopDrawing,onMouseLeave:stopDrawing,onTouchStart:startDrawing,onTouchMove:draw,onTouchEnd:stopDrawing})),e('div',{className:'signature-actions'},e('button',{className:'btn btn-secondary',onClick:clearSignature},'Clear')),e('div',{className:'form-group',style:{marginTop:16}},e('label',null,'Type Your Full Legal Name *'),e('input',{type:'text',className:'input-field',value:typedName,onChange:x=>setTypedName(x.target.value),placeholder:'Full legal name'})),e('div',{className:'checkbox-group'},e('input',{type:'checkbox',checked:consent1,onChange:x=>setConsent1(x.target.checked)}),e('label',null,consentText)),e('div',{className:'checkbox-group'},e('input',{type:'checkbox',checked:consent2,onChange:x=>setConsent2(x.target.checked)}),e('label',null,'I consent to sign electronically per the E-SIGN Act.'))),e('button',{className:'btn btn-success',style:{width:'100%',padding:16,marginTop:24,fontSize:16},onClick:handleSubmit,disabled:submitting},submitting?'Submitting...':'Submit '+(linkData.type==='hipaa'?'Authorization':'Statement'))));
-}
+  // Audio recording functions
+  window.toggleRecording = async function() {
+    const btn = document.getElementById('recordBtn');
+    const status = document.getElementById('recordStatus');
+    
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const url = URL.createObjectURL(audioBlob);
+          document.getElementById('audioPlayer').src = url;
+          document.getElementById('audioPreview').style.display = 'block';
+          stream.getTracks().forEach(t => t.stop());
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        btn.classList.add('recording');
+        btn.textContent = '⏹';
+        status.textContent = 'Recording... Click to stop';
+        status.style.color = '#f87171';
+      } catch (err) {
+        alert('Could not access microphone. Please allow microphone access and try again.');
+      }
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      btn.classList.remove('recording');
+      btn.textContent = '🎤';
+      status.textContent = 'Recording saved';
+      status.style.color = '#34d399';
+    }
+  };
 
-ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+  window.clearAudio = function() {
+    audioBlob = null;
+    document.getElementById('audioPreview').style.display = 'none';
+    document.getElementById('recordStatus').textContent = 'Click to start recording';
+    document.getElementById('recordStatus').style.color = 'var(--tm)';
+  };
+
+  window.submitForm = async function() {
+    const btn = document.getElementById('submitBtn');
+    
+    // Validation
+    const typedName = document.getElementById('typedName')?.value?.trim();
+    const consent1 = document.getElementById('consent1')?.checked;
+    const consent2 = document.getElementById('consent2')?.checked;
+    
+    if (!typedName) {
+      alert('Please type your full legal name.');
+      return;
+    }
+    if (!hasSignature) {
+      alert('Please sign in the signature box above.');
+      return;
+    }
+    if (!consent1 || !consent2) {
+      alert('Please check both consent boxes to continue.');
+      return;
+    }
+
+    // Type-specific validation
+    if (linkData.type === 'witness') {
+      if (!document.getElementById('witnessName')?.value?.trim()) {
+        alert('Please enter your name.');
+        return;
+      }
+      if (!document.getElementById('statement')?.value?.trim()) {
+        alert('Please provide your statement.');
+        return;
+      }
+    } else if (linkData.type === 'claimant') {
+      if (!document.getElementById('claimantName')?.value?.trim()) {
+        alert('Please enter your name.');
+        return;
+      }
+      if (!document.getElementById('incidentDescription')?.value?.trim()) {
+        alert('Please describe the incident.');
+        return;
+      }
+    } else if (linkData.type === 'hipaa') {
+      if (!document.getElementById('patientName')?.value?.trim()) {
+        alert('Please enter the patient name.');
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting...';
+
+    try {
+      // Gather form data
+      const formData = {};
+      
+      if (linkData.type === 'witness') {
+        formData.witnessName = document.getElementById('witnessName')?.value || '';
+        formData.witnessPhone = document.getElementById('witnessPhone')?.value || '';
+        formData.witnessEmail = document.getElementById('witnessEmail')?.value || '';
+        formData.relationship = document.getElementById('relationship')?.value || '';
+        formData.statement = document.getElementById('statement')?.value || '';
+      } else if (linkData.type === 'claimant') {
+        formData.claimantName = document.getElementById('claimantName')?.value || '';
+        formData.dateOfBirth = document.getElementById('dateOfBirth')?.value || '';
+        formData.claimantPhone = document.getElementById('claimantPhone')?.value || '';
+        formData.claimantEmail = document.getElementById('claimantEmail')?.value || '';
+        formData.incidentDescription = document.getElementById('incidentDescription')?.value || '';
+        formData.bodyPartsInjured = document.getElementById('bodyPartsInjured')?.value || '';
+        formData.currentSymptoms = document.getElementById('currentSymptoms')?.value || '';
+      } else if (linkData.type === 'hipaa') {
+        formData.patientName = document.getElementById('patientName')?.value || '';
+        formData.dateOfBirth = document.getElementById('dateOfBirth')?.value || '';
+        formData.ssnLast4 = document.getElementById('ssnLast4')?.value || '';
+        formData.employer = document.getElementById('employer')?.value || '';
+      }
+      
+      formData.hasAudioRecording = !!audioBlob;
+
+      const signatureData = {
+        typedName: typedName,
+        signatureImage: sigCanvas.toDataURL('image/png')
+      };
+
+      const fd = new FormData();
+      fd.append('formData', JSON.stringify(formData));
+      fd.append('signatureData', JSON.stringify(signatureData));
+      
+      if (audioBlob) {
+        fd.append('files', audioBlob, 'audio-statement.webm');
+      }
+
+      const res = await fetch('/api/submit-statement/' + token, {
+        method: 'POST',
+        body: fd
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        showSuccess();
+      } else {
+        alert('Error: ' + (result.error || 'Submission failed. Please try again.'));
+        btn.disabled = false;
+        btn.textContent = '✍️ Sign & Submit';
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Network error. Please check your connection and try again.');
+      btn.disabled = false;
+      btn.textContent = '✍️ Sign & Submit';
+    }
+  };
+
+  // Initialize
+  init();
+})();
 </script>
 </body>
 </html>
