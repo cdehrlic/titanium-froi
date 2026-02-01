@@ -603,8 +603,7 @@ return e('div',{className:'content'},
   // ═══════════════════════════════════════════════════════════════════════════
   d[optKey]==='skip'&&e('div',{style:{marginTop:24}},
     e('div',{className:'info-tip'},
-      e('p',{style:{marginBottom:8}},'⏭️ This ',type==='hipaa'?'authorization':'statement',' will be collected after the claim is submitted.'),
-      e('p',{style:{fontSize:12,color:'var(--tm)'}},'You can collect the signature later from the claim details page.')
+      e('p',null,'⏭️ Skipping - this ',type==='hipaa'?'authorization':'statement',' will not be collected at this time.')
     )
   )
 );
