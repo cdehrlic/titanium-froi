@@ -94,6 +94,8 @@ const[d,setD]=S({
   injuryPhotoFiles:[],       // Uploaded injury photos
   evidenceDocFiles:[],       // Uploaded evidence documents
   witness1Name:'',witness1Phone:'',witness2Name:'',witness2Phone:'',hasVideo:null,hasWitnessStatement:null,hasEmployeeStatement:null,losingTime:null,dateLastWorked:'',returnStatus:'',lightDutyAvailable:null,
+  // Dynamic witnesses array
+  witnesses:[],
   // NEW Work Status fields
   lastDayPaid:'',                  // Last day employee was paid
   disabilityBeganDate:'',          // When disability began
@@ -1151,6 +1153,82 @@ if(step===4){
           e('textarea',{className:'input-field',rows:2,value:d.videoNotes||'',onChange:x=>u('videoNotes',x.target.value),placeholder:'Time range to preserve, what video shows, who to contact...'})
         )
       )
+    ),
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // WITNESSES SECTION - Dynamic list
+    // ═══════════════════════════════════════════════════════════════════════════
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+        e('h3',{style:{fontSize:14,color:'var(--ta)',margin:0}},'👁️ Witnesses'),
+        e('button',{
+          type:'button',
+          className:'nav-btn secondary',
+          style:{padding:'8px 16px',fontSize:12},
+          onClick:()=>setD(p=>({...p,witnesses:[...(p.witnesses||[]),{name:'',phone:'',email:''}]}))
+        },'+ Add Witness')
+      ),
+      (!d.witnesses||d.witnesses.length===0)?
+        e('div',{style:{padding:20,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px dashed var(--tb)',textAlign:'center'}},
+          e('p',{style:{color:'var(--tm)',fontSize:13}},'No witnesses added yet.'),
+          e('p',{style:{color:'var(--tm)',fontSize:11,marginTop:4}},'Click "+ Add Witness" to add witness contact information.')
+        ):
+        e('div',{style:{display:'flex',flexDirection:'column',gap:12}},
+          ...(d.witnesses||[]).map((w,i)=>
+            e('div',{key:i,className:'witness-card',style:{position:'relative'}},
+              e('button',{
+                type:'button',
+                style:{position:'absolute',top:12,right:12,background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:18,padding:4},
+                onClick:()=>setD(p=>({...p,witnesses:p.witnesses.filter((_,idx)=>idx!==i)}))
+              },'×'),
+              e('div',{className:'witness-header'},'👤 Witness #'+(i+1)),
+              e('div',{className:'form-grid'},
+                e('div',{className:'form-group'},
+                  e('label',null,'Name'),
+                  e('input',{
+                    className:'input-field',
+                    value:w.name||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],name:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'Full name'
+                  })
+                ),
+                e('div',{className:'form-group'},
+                  e('label',null,'Phone'),
+                  e('input',{
+                    className:'input-field',
+                    type:'tel',
+                    value:w.phone||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],phone:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'(555) 555-5555'
+                  })
+                ),
+                e('div',{className:'form-group',style:{gridColumn:'1/-1'}},
+                  e('label',null,'Email'),
+                  e('input',{
+                    className:'input-field',
+                    type:'email',
+                    value:w.email||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],email:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'witness@email.com'
+                  })
+                )
+              )
+            )
+          )
+        ),
+      d.witnesses?.length>0&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},d.witnesses.length+' witness'+(d.witnesses.length>1?'es':'')+' added')
     ),
     
     // ═══════════════════════════════════════════════════════════════════════════
@@ -2267,8 +2345,12 @@ if(step===11){
       e('div',{style:{marginBottom:20}},
         e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'👁️ WITNESSES & EVIDENCE'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
-          e('div',null,e('span',{style:{color:'var(--tm)'}},'Witness 1: '),e('span',{style:{color:'var(--tt)'}},d.witness1Name||'—')),
-          e('div',null,e('span',{style:{color:'var(--tm)'}},'Witness 2: '),e('span',{style:{color:'var(--tt)'}},d.witness2Name||'—')),
+          e('div',null,e('span',{style:{color:'var(--tm)'}},'Witnesses: '),e('span',{style:{color:'var(--tt)'}},d.witnesses?.length>0?d.witnesses.length+' recorded':'None')),
+          d.witnesses?.length>0&&e('div',{style:{gridColumn:'1/-1',marginTop:4}},
+            ...d.witnesses.map((w,i)=>e('div',{key:i,style:{fontSize:12,color:'var(--tm)',marginBottom:4}},
+              '• '+(w.name||'Unnamed')+(w.phone?' - '+w.phone:'')+(w.email?' - '+w.email:'')
+            ))
+          ),
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Video Available: '),e('span',{style:{color:'var(--tt)'}},d.hasVideo===true?'Yes':d.hasVideo===false?'No':'—')),
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Supervisor: '),e('span',{style:{color:'var(--tt)'}},d.supervisorName||'—'))
         )
