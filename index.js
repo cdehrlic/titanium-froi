@@ -858,7 +858,7 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
   }
 });
 
-// Submit inline statement (during main claim flow)
+// Submit inline statement (during main claim flow) - FIXED to include audio files
 app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
   try {
     const formData = JSON.parse(req.body.formData);
@@ -885,11 +885,24 @@ app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
       pdfFilename = `${claimRef}-HIPAAAuthorization.pdf`;
     }
 
-    // Return PDF as base64 for attachment to main claim
+    // Process audio files if present - return them as base64 for the main claim
+    const audioFiles = [];
+    files.forEach(file => {
+      if (file.mimetype && (file.mimetype.startsWith('audio/') || file.originalname.endsWith('.webm'))) {
+        audioFiles.push({
+          filename: file.originalname || `${claimRef}-${statementType}-audio.webm`,
+          content: file.buffer.toString('base64'),
+          mimetype: file.mimetype || 'audio/webm'
+        });
+      }
+    });
+
+    // Return PDF and audio as base64 for attachment to main claim
     res.json({ 
       success: true, 
       pdf: pdfBuffer.toString('base64'),
       filename: pdfFilename,
+      audioFiles: audioFiles,
       signatureData: {
         typedName: signatureData.typedName,
         signedAt: signatureData.signedAt,
@@ -903,7 +916,7 @@ app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
   }
 });
 
-// Main claim submission
+// Main claim submission - FIXED to include audio files from inline statements
 app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
   try {
     if (!req.body.formData) {
@@ -921,13 +934,24 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     const pdfBuffer = await generateClaimPDF(formData, referenceNumber);
     const attachments = [{ filename: `${referenceNumber}-SmartClaimReport.pdf`, content: pdfBuffer, contentType: 'application/pdf' }];
     
-    // Add inline statement PDFs
+    // Add inline statement PDFs and their audio files
     inlineStatements.forEach(stmt => {
+      // Add the PDF
       if (stmt.pdf) {
         attachments.push({
           filename: stmt.filename,
           content: Buffer.from(stmt.pdf, 'base64'),
           contentType: 'application/pdf'
+        });
+      }
+      // Add any audio files associated with this statement
+      if (stmt.audioFiles && Array.isArray(stmt.audioFiles)) {
+        stmt.audioFiles.forEach(audio => {
+          attachments.push({
+            filename: audio.filename,
+            content: Buffer.from(audio.content, 'base64'),
+            contentType: audio.mimetype || 'audio/webm'
+          });
         });
       }
     });
@@ -937,6 +961,12 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
 
     // Store claim data
     claimData.set(referenceNumber, { formData, createdAt: new Date().toISOString(), inlineStatements });
+
+    // Count audio files for email
+    let audioFileCount = 0;
+    inlineStatements.forEach(stmt => {
+      if (stmt.audioFiles) audioFileCount += stmt.audioFiles.length;
+    });
 
     // Determine priority
     let priority = 'NORMAL';
@@ -977,8 +1007,13 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
           <div style="background:#dcfce7;border:1px solid #16a34a;padding:15px;margin-bottom:20px;border-radius:8px;">
             <h3 style="color:#16a34a;margin:0 0 10px;">✓ E-Signed Documents Attached</h3>
             <ul style="margin:5px 0;font-size:13px;">
-              ${inlineStatements.map(s => `<li>${s.filename}</li>`).join('')}
+              ${inlineStatements.map(s => `<li>${s.filename}${s.audioFiles && s.audioFiles.length > 0 ? ' <strong>(+ Audio Recording)</strong>' : ''}</li>`).join('')}
             </ul>
+          </div>` : ''}
+          ${audioFileCount > 0 ? `
+          <div style="background:#dbeafe;border:1px solid #3b82f6;padding:15px;margin-bottom:20px;border-radius:8px;">
+            <h3 style="color:#3b82f6;margin:0 0 5px;">🎤 ${audioFileCount} Audio Recording(s) Attached</h3>
+            <p style="margin:0;font-size:12px;color:#64748b;">Audio statements are attached to this email.</p>
           </div>` : ''}
           <p style="font-size:13px;color:#6e7681;">Submitted by: ${formData.submitterName || 'N/A'} (${formData.submitterEmail || 'N/A'})</p>
         </div>
@@ -995,7 +1030,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
         html: emailHtml,
         attachments
       });
-      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL}`);
+      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL} with ${attachments.length} attachments (including ${audioFileCount} audio files)`);
     } catch (err) {
       console.error('❌ Email error:', err.message);
     }
