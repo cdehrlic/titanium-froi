@@ -333,20 +333,13 @@ return e('div',{className:'content'},
   // Collection method selection
   e('div',{className:'form-group full-width'},
     e('label',null,'How would you like to collect this ',type==='hipaa'?'authorization':'statement','?'),
-    e('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginTop:8}},
+    e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginTop:8}},
       e('div',{
         className:'option-card'+(d[optKey]==='now'?' selected':''),
         onClick:()=>{u(optKey,'now');prefillClaimant();}
       },
         e('h4',null,'✍️ Complete Now'),
         e('p',null,'Person is present — collect signature immediately')
-      ),
-      e('div',{
-        className:'option-card'+(d[optKey]==='later'?' selected':''),
-        onClick:()=>u(optKey,'later')
-      },
-        e('h4',null,'📧 Send Link'),
-        e('p',null,'Generate secure link to email')
       ),
       e('div',{
         className:'option-card'+(d[optKey]==='skip'?' selected':''),
@@ -604,81 +597,12 @@ return e('div',{className:'content'},
   ),
   
   // ═══════════════════════════════════════════════════════════════════════════
-  // OPTION: SEND LINK LATER
-  // ═══════════════════════════════════════════════════════════════════════════
-  d[optKey]==='later'&&e('div',{style:{marginTop:24}},
-    e('div',{style:{padding:16,background:'rgba(91,164,230,0.1)',borderRadius:12,border:'1px solid rgba(91,164,230,0.3)',marginBottom:20}},
-      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:8}},'📧 How This Works'),
-      e('p',{style:{fontSize:12,color:'var(--tm)'}},'Enter the person\'s contact information below. We\'ll generate a secure, unique link they can use to complete and sign the ',type==='hipaa'?'authorization':'statement',' electronically.')
-    ),
-    e('div',{className:'form-grid'},
-      e('div',{className:'form-group'},
-        e('label',null,'Name ',e('span',{className:'required'},'*')),
-        e('input',{className:'input-field',value:data.linkName||'',onChange:x=>setData('linkName',x.target.value),placeholder:'Full name'})
-      ),
-      e('div',{className:'form-group'},
-        e('label',null,'Email ',e('span',{className:'required'},'*')),
-        e('input',{type:'email',className:'input-field',value:data.linkEmail||'',onChange:x=>setData('linkEmail',x.target.value),placeholder:'email@example.com'})
-      ),
-      e('div',{className:'form-group'},
-        e('label',null,'Phone (optional)'),
-        e('input',{className:'input-field',type:'tel',value:data.linkPhone||'',onChange:x=>setData('linkPhone',x.target.value),placeholder:'(555) 555-5555'})
-      ),
-      e('div',{className:'form-group'},
-        e('label',null,'Expires In'),
-        e('select',{className:'input-field',value:data.linkExpiry||'7',onChange:x=>setData('linkExpiry',x.target.value)},
-          e('option',{value:'3'},'3 days'),
-          e('option',{value:'7'},'7 days'),
-          e('option',{value:'14'},'14 days'),
-          e('option',{value:'30'},'30 days')
-        )
-      )
-    ),
-    e('div',{className:'form-group',style:{marginTop:12}},
-      e('label',null,'Custom Message (optional)'),
-      e('textarea',{className:'input-field',rows:2,value:data.linkMessage||'',onChange:x=>setData('linkMessage',x.target.value),placeholder:'Add a personal message to include in the email...'})
-    ),
-    !d[linkKey]?e('button',{
-      className:'nav-btn primary',
-      style:{marginTop:16,padding:'14px 28px'},
-      disabled:!data.linkName||!data.linkEmail,
-      onClick:async()=>{
-        if(!data.linkName||!data.linkEmail){
-          alert('Please enter name and email address');
-          return;
-        }
-        const link=await generateLink(type,data.linkName,data.linkEmail,data.linkPhone);
-        if(link){
-          u(linkKey,link);
-          alert('✓ Secure link generated and email sent!');
-        }else{
-          alert('Error generating link. Please try again.');
-        }
-      }
-    },'📧 Generate & Send Link'):e('div',{style:{marginTop:16}},
-      e('div',{style:{padding:16,background:'rgba(52,211,153,0.1)',border:'1px solid var(--tg)',borderRadius:12}},
-        e('p',{style:{fontSize:14,color:'var(--tg)',fontWeight:600,marginBottom:8}},'✓ Link Generated & Sent'),
-        e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'An email has been sent to '+data.linkEmail+' with instructions to complete the ',type==='hipaa'?'authorization':'statement','.'),
-        e('div',{style:{background:'var(--td)',padding:12,borderRadius:8,wordBreak:'break-all'}},
-          e('p',{style:{fontSize:10,color:'var(--tm)',marginBottom:4}},'Secure Link:'),
-          e('p',{style:{fontSize:11,color:'var(--ta)'}},d[linkKey])
-        ),
-        e('button',{
-          className:'nav-btn secondary',
-          style:{marginTop:12,padding:'8px 16px',fontSize:12},
-          onClick:()=>{navigator.clipboard.writeText(d[linkKey]);alert('Link copied to clipboard!')}
-        },'📋 Copy Link')
-      )
-    )
-  ),
-  
-  // ═══════════════════════════════════════════════════════════════════════════
   // OPTION: SKIP
   // ═══════════════════════════════════════════════════════════════════════════
   d[optKey]==='skip'&&e('div',{style:{marginTop:24}},
     e('div',{className:'info-tip'},
       e('p',{style:{marginBottom:8}},'⏭️ This ',type==='hipaa'?'authorization':'statement',' will be collected after the claim is submitted.'),
-      e('p',{style:{fontSize:12,color:'var(--tm)'}},'You can generate a link or collect the signature later from the claim details page.')
+      e('p',{style:{fontSize:12,color:'var(--tm)'}},'You can collect the signature later from the claim details page.')
     )
   )
 );
