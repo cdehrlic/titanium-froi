@@ -776,6 +776,13 @@ if(step===1){
   
   const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
   
+  // Filter to only Towne Group entities
+  const towneEntities = entities.filter(ent => 
+    ent.toLowerCase().includes('towne') || 
+    ent.toLowerCase().includes('shiftster') || 
+    ent.toLowerCase().includes('eshyft')
+  );
+  
   return e('div',{className:'content'},
     e('div',{className:'section-header'},
       e('h2',null,'Claim Information'),
@@ -784,7 +791,7 @@ if(step===1){
     // Entity selection
     e('div',{className:'form-group full-width'},
       e('label',null,'Entity ',e('span',{className:'required'},'*')),
-      sel('entity',[...entities,'Other - Enter Manually'],'Select Entity'),
+      sel('entity',[...towneEntities,'Other - Enter Manually'],'Select Entity'),
       d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
     ),
     // Date and Time row
@@ -1149,10 +1156,6 @@ if(step===3){
             e('label',null,'Facility Address'),
             inp('referralAddress','Address')
           )
-        ),
-        e('div',{className:'form-group full-width',style:{marginTop:12}},
-          e('label',null,'Referral Notes / Special Instructions'),
-          e('textarea',{className:'input-field',rows:2,value:d.referralNotes||'',onChange:x=>u('referralNotes',x.target.value),placeholder:'Any special instructions, authorization numbers, or notes for the facility...'})
         )
       ),
       
@@ -1182,8 +1185,8 @@ if(step===3){
 if(step===4){
   return e('div',{className:'content'},
     e('div',{className:'section-header'},
-      e('h2',null,'Witnesses & Evidence'),
-      e('p',{className:'section-subtitle'},'Document witnesses, preserve evidence, and upload photos/documents')
+      e('h2',null,'Evidence'),
+      e('p',{className:'section-subtitle'},'Document video footage, supervisor input, and upload photos')
     ),
     
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1227,64 +1230,6 @@ if(step===4){
     ),
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // WITNESS #1
-    // ═══════════════════════════════════════════════════════════════════════════
-    e('div',{className:'witness-card'},
-      e('div',{className:'witness-header'},'👤 Witness #1'),
-      e('div',{className:'form-grid'},
-        e('div',{className:'form-group'},
-          e('label',null,'Name'),
-          inp('witness1Name','Full name')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Phone'),
-          inp('witness1Phone','Phone number','tel')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Email'),
-          inp('witness1Email','Email address','email')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Relationship'),
-          inp('witness1Relationship','Coworker, Supervisor, Customer...')
-        )
-      ),
-      e('div',{className:'form-group',style:{marginTop:12}},
-        e('label',null,'Witness Statement Summary'),
-        e('textarea',{className:'input-field',rows:3,value:d.witness1Statement||'',onChange:x=>u('witness1Statement',x.target.value),placeholder:'Brief summary of what this witness observed. Include their location relative to the incident...'})
-      )
-    ),
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // WITNESS #2
-    // ═══════════════════════════════════════════════════════════════════════════
-    e('div',{className:'witness-card'},
-      e('div',{className:'witness-header'},'👤 Witness #2'),
-      e('div',{className:'form-grid'},
-        e('div',{className:'form-group'},
-          e('label',null,'Name'),
-          inp('witness2Name','Full name')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Phone'),
-          inp('witness2Phone','Phone number','tel')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Email'),
-          inp('witness2Email','Email address','email')
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Relationship'),
-          inp('witness2Relationship','Coworker, Supervisor, Customer...')
-        )
-      ),
-      e('div',{className:'form-group',style:{marginTop:12}},
-        e('label',null,'Witness Statement Summary'),
-        e('textarea',{className:'input-field',rows:3,value:d.witness2Statement||'',onChange:x=>u('witness2Statement',x.target.value),placeholder:'Brief summary of what this witness observed...'})
-      )
-    ),
-    
-    // ═══════════════════════════════════════════════════════════════════════════
     // SUPERVISOR COMMENTS
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
@@ -1310,33 +1255,7 @@ if(step===4){
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
       e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'📷 Photo Documentation'),
-      e('div',{className:'form-grid'},
-        e('div',{className:'form-group'},
-          e('label',null,'Scene Photos Taken?'),
-          tog('hasScenePhotos',[
-            {v:true,l:'Yes',c:'success'},
-            {v:false,l:'No'},
-            {v:'pending',l:'Pending'}
-          ])
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Injury Photos Taken?'),
-          tog('hasInjuryPhotos',[
-            {v:true,l:'Yes',c:'success'},
-            {v:false,l:'No'},
-            {v:'pending',l:'Pending'}
-          ])
-        )
-      ),
-      (d.hasScenePhotos===true||d.hasInjuryPhotos===true)&&e('div',{className:'info-tip',style:{marginTop:12}},'📋 Good documentation! Photos should show the scene from multiple angles, any hazards, equipment involved, and visible injuries (with employee consent).')
-    ),
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // FILE UPLOADS - PHOTOS & DOCUMENTS
-    // ═══════════════════════════════════════════════════════════════════════════
-    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'📎 Upload Evidence Files'),
-      e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:16}},'Upload scene photos, injury photos, witness statements, or any other relevant documents.'),
+      e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:16}},'Upload scene and injury photos to document the incident.'),
       
       // Scene Photos Upload
       e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,marginBottom:12,border:'1px solid var(--tb)'}},
@@ -1365,7 +1284,7 @@ if(step===4){
       ),
       
       // Injury Photos Upload
-      e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,marginBottom:12,border:'1px solid var(--tb)'}},
+      e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,border:'1px solid var(--tb)'}},
         e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'INJURY PHOTOS'),
         e('input',{
           type:'file',
@@ -1387,58 +1306,6 @@ if(step===4){
               e('button',{type:'button',onClick:()=>setD(p=>({...p,injuryPhotoFiles:p.injuryPhotoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
             ))
           )
-        )
-      ),
-      
-      // Other Documents Upload
-      e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,border:'1px solid var(--tb)'}},
-        e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'OTHER DOCUMENTS'),
-        e('p',{style:{fontSize:11,color:'var(--tm)',marginBottom:8}},'Witness statements, incident reports, medical records, etc.'),
-        e('input',{
-          type:'file',
-          multiple:true,
-          accept:'image/*,.pdf,.doc,.docx,.txt',
-          id:'evidence-docs-upload',
-          style:{display:'none'},
-          onChange:x=>{
-            const files=Array.from(x.target.files);
-            setD(p=>({...p,evidenceDocFiles:[...(p.evidenceDocFiles||[]),...files]}));
-          }
-        }),
-        e('label',{htmlFor:'evidence-docs-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'📄 Choose Documents'),
-        d.evidenceDocFiles?.length>0&&e('div',{style:{marginTop:10}},
-          e('p',{style:{fontSize:12,color:'var(--tg)'}},'✓ '+d.evidenceDocFiles.length+' document(s) selected'),
-          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
-            ...d.evidenceDocFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
-              '📄 '+f.name.substring(0,25)+(f.name.length>25?'...':''),
-              e('button',{type:'button',onClick:()=>setD(p=>({...p,evidenceDocFiles:p.evidenceDocFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
-            ))
-          )
-        )
-      )
-    ),
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // STATEMENT STATUS TOGGLES
-    // ═══════════════════════════════════════════════════════════════════════════
-    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'📝 Written Statement Status'),
-      e('div',{className:'form-grid'},
-        e('div',{className:'form-group'},
-          e('label',null,'Witness Statement Obtained?'),
-          tog('hasWitnessStatement',[
-            {v:true,l:'Yes',c:'success'},
-            {v:false,l:'No'},
-            {v:'pending',l:'Pending'}
-          ])
-        ),
-        e('div',{className:'form-group'},
-          e('label',null,'Employee Statement Obtained?'),
-          tog('hasEmployeeStatement',[
-            {v:true,l:'Yes',c:'success'},
-            {v:false,l:'No'},
-            {v:'pending',l:'Pending'}
-          ])
         )
       )
     )
