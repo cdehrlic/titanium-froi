@@ -383,25 +383,48 @@ textarea.input-field{min-height:120px;resize:vertical}
     if (!isRecording) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        
+        // Try to use mp4/m4a format first, fall back to webm
+        let mimeType = 'audio/webm;codecs=opus';
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+          mimeType = 'audio/ogg;codecs=opus';
+        }
+        
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
         audioChunks = [];
         
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          const url = URL.createObjectURL(audioBlob);
-          document.getElementById('audioPlayer').src = url;
-          document.getElementById('audioPreview').style.display = 'block';
-          stream.getTracks().forEach(t => t.stop());
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            audioChunks.push(e.data);
+          }
         };
         
-        mediaRecorder.start();
+        mediaRecorder.onstop = () => {
+          const audioType = mediaRecorder.mimeType || 'audio/webm';
+          audioBlob = new Blob(audioChunks, { type: audioType });
+          const url = URL.createObjectURL(audioBlob);
+          const player = document.getElementById('audioPlayer');
+          player.src = url;
+          player.load();
+          document.getElementById('audioPreview').style.display = 'block';
+          stream.getTracks().forEach(t => t.stop());
+          console.log('Audio recorded:', audioBlob.size, 'bytes,', audioType);
+        };
+        
+        mediaRecorder.start(1000); // Collect data every second
         isRecording = true;
         btn.classList.add('recording');
         btn.textContent = '⏹';
         status.textContent = 'Recording... Click to stop';
         status.style.color = '#f87171';
       } catch (err) {
+        console.error('Microphone error:', err);
         alert('Could not access microphone. Please allow microphone access and try again.');
       }
     } else {
@@ -508,7 +531,12 @@ textarea.input-field{min-height:120px;resize:vertical}
       fd.append('signatureData', JSON.stringify(signatureData));
       
       if (audioBlob) {
-        fd.append('files', audioBlob, 'audio-statement.webm');
+        // Determine file extension based on mime type
+        let ext = 'webm';
+        if (audioBlob.type.includes('mp4')) ext = 'm4a';
+        else if (audioBlob.type.includes('ogg')) ext = 'ogg';
+        else if (audioBlob.type.includes('wav')) ext = 'wav';
+        fd.append('files', audioBlob, 'audio-statement.' + ext);
       }
 
       const res = await fetch('/api/submit-statement/' + token, {
