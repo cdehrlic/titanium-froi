@@ -168,7 +168,7 @@ const u=(f,v)=>setD(p=>({...p,[f]:v}));
 const uNested=(parent,f,v)=>setD(p=>({...p,[parent]:{...p[parent],[f]:v}}));
 const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter(x=>x!==v):[...a,v]}});
 
-const steps=[{t:'Employee',i:'👤'},{t:'Claim',i:'📋'},{t:'Incident',i:'⚡'},{t:'Medical',i:'🏥'},{t:'Evidence',i:'👁️'},{t:'Work Status',i:'💼'},{t:'Root Cause',i:'🔍'},{t:'Flags',i:'🚩'},{t:'Witness Stmt',i:'👥'},{t:'Claimant Stmt',i:'📝'},{t:'HIPAA',i:'🔐'},{t:'Submit',i:'✅'}];
+const steps=[{t:'Employee',i:''},{t:'Claim',i:''},{t:'Incident',i:''},{t:'Medical',i:''},{t:'Evidence',i:''},{t:'Work Status',i:''},{t:'Root Cause',i:''},{t:'Flags',i:''},{t:'Witness Stmt',i:''},{t:'Claimant Stmt',i:'📝'},{t:'HIPAA',i:'🔐'},{t:'Submit',i:'✅'}];
 
 const startDraw=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current?.beginPath();sigCtxRef.current?.moveTo(x,y)};
 const draw=(ev)=>{if(!isDrawingRef.current||!sigCtxRef.current)return;ev.preventDefault();const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current.lineTo(x,y);sigCtxRef.current.stroke()};
@@ -340,14 +340,14 @@ return e('div',{className:'content'},
         className:'option-card'+(d[optKey]==='now'?' selected':''),
         onClick:()=>{u(optKey,'now');prefillClaimant();}
       },
-        e('h4',null,'✍️ Complete Now'),
+        e('h4',null,' Complete Now'),
         e('p',null,'Person is present — collect signature immediately')
       ),
       e('div',{
         className:'option-card'+(d[optKey]==='skip'?' selected':''),
         onClick:()=>u(optKey,'skip')
       },
-        e('h4',null,'⏭️ Skip'),
+        e('h4',null,' Skip'),
         e('p',null,'Collect after submission')
       )
     )
@@ -360,7 +360,7 @@ return e('div',{className:'content'},
     
     // WITNESS FORM
     type==='witness'&&e('div',null,
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'👤 Witness Information'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Witness Information'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Witness Name ',e('span',{className:'required'},'*')),
@@ -400,7 +400,7 @@ return e('div',{className:'content'},
     
     // CLAIMANT FORM
     type==='claimant'&&e('div',null,
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'👤 Claimant Information'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Claimant Information'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Claimant Name ',e('span',{className:'required'},'*')),
@@ -511,7 +511,7 @@ return e('div',{className:'content'},
             className:'rec-btn'+(recording===type?' recording':''),
             onClick:()=>recording===type?stopRecording():startRecording(type),
             style:{width:56,height:56}
-          },recording===type?'⏹':'🎤'),
+          },recording===type?'':'🎤'),
           e('div',null,
             e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},
               recording===type?'Recording in progress...':'Click to start recording'
@@ -535,7 +535,7 @@ return e('div',{className:'content'},
     // SIGNATURE SECTION
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
       e('div',{className:'sig-section'},
-        e('h3',{style:{marginBottom:16}},'✍️ Electronic Signature'),
+        e('h3',{style:{marginBottom:16}},' Electronic Signature'),
         e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Use your mouse or finger to sign in the box below'),
         e('div',{className:'sig-canvas-wrap',style:{border:'2px solid var(--tb)',borderRadius:8}},
           e('canvas',{
@@ -588,7 +588,7 @@ return e('div',{className:'content'},
                 alert('Error saving signature. Please try again.');
               }
             }
-          },'✍️ Sign & Save Document'),
+          },' Sign & Save Document'),
           !canSign()&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},'Complete all required fields to enable signing')
         ):e('div',{style:{marginTop:20,padding:16,background:'rgba(52,211,153,0.1)',border:'1px solid var(--tg)',borderRadius:12,textAlign:'center'}},
           e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},'✓ Document Signed Successfully'),
@@ -672,7 +672,7 @@ if(step===0)return e('div',{className:'content'},
   ),
   // Employee Summary Display (shows when name is entered)
   (d.firstName || d.lastName) && e('div',{className:'employee-summary'},
-    e('h4',null,'👤 Employee Summary'),
+    e('h4',null,' Employee Summary'),
     e('p',null,e('strong',null,(d.firstName||'')+' '+(d.lastName||''))),
     d.occupation && e('p',null,e('span',null,'Position: '),d.occupation),
     d.phone && e('p',null,e('span',null,'Phone: '),d.phone),
@@ -780,7 +780,7 @@ if(step===1){
     ),
     // Wage calculation helper
     d.weeklyWage&&e('div',{className:'info-tip',style:{marginTop:12}},
-      e('strong',null,'💰 Wage Info: '),
+      e('strong',null,' Wage Info: '),
       'Weekly: $'+parseFloat(d.weeklyWage||0).toFixed(2)+
       ' | Annual: $'+(parseFloat(d.weeklyWage||0)*52).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+
       ' | Daily: $'+(parseFloat(d.weeklyWage||0)/5).toFixed(2)
@@ -956,7 +956,7 @@ if(step===3){
     // PATH A: Already received treatment
     // ═══════════════════════════════════════════════════════════════════════════
     d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:20}},
-      e('div',{className:'info-tip'},'📋 Enter details of the medical treatment received.'),
+      e('div',{className:'info-tip'},' Enter details of the medical treatment received.'),
       e('div',{className:'form-grid',style:{marginTop:16}},
         e('div',{className:'form-group'},
           e('label',null,'Facility Name'),
@@ -1008,7 +1008,7 @@ if(step===3){
     // ═══════════════════════════════════════════════════════════════════════════
     d.soughtMedicalTreatment===false&&e('div',{style:{marginTop:20}},
       e('div',{style:{background:'rgba(91,164,230,0.1)',border:'1px solid rgba(91,164,230,0.25)',borderRadius:12,padding:16,marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:8}},'🏥 Medical Referral Decision Guide'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:8}},' Medical Referral Decision Guide'),
         e('p',{style:{fontSize:12,color:'var(--tm)'}},'Answer the following questions to determine the appropriate referral.')
       ),
       
@@ -1050,9 +1050,9 @@ if(step===3){
         borderRadius:12,padding:16,marginTop:20,marginBottom:20
       }},
         e('h4',{style:{color:referral.color,fontSize:14,marginBottom:8}},
-          referral.type==='emergency'?'🚨 EMERGENCY REFERRAL':
-          referral.type==='refused'?'⚠️ TREATMENT REFUSED':
-          referral.type==='hospital'?'🏥 HOSPITAL REFERRAL':
+          referral.type==='emergency'?' EMERGENCY REFERRAL':
+          referral.type==='refused'?' TREATMENT REFUSED':
+          referral.type==='hospital'?' HOSPITAL REFERRAL':
           '✓ OCCUPATIONAL CLINIC REFERRAL'
         ),
         e('p',{style:{fontSize:13,color:'var(--tt)'}},referral.msg)
@@ -1060,7 +1060,7 @@ if(step===3){
       
       // Referral details (if not refused)
       d.refusedTreatment!==true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:16}},'📍 Referral Details'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:16}},' Referral Details'),
         e('div',{className:'form-grid'},
           e('div',{className:'form-group'},
             e('label',null,'Referral Type'),
@@ -1086,8 +1086,8 @@ if(step===3){
       
       // Refused treatment documentation
       d.refusedTreatment===true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
-        e('h4',{style:{color:'var(--tw)',fontSize:13,marginBottom:16}},'📝 Document Treatment Refusal'),
-        e('div',{className:'warning-box',style:{marginBottom:16}},'⚠️ Important: Have employee sign a written refusal form. Document that treatment was offered and declined.'),
+        e('h4',{style:{color:'var(--tw)',fontSize:13,marginBottom:16}},' Document Treatment Refusal'),
+        e('div',{className:'warning-box',style:{marginBottom:16}},'  Important: Have employee sign a written refusal form. Document that treatment was offered and declined.'),
         e('div',{className:'form-group'},
           e('label',null,'Reason for Refusal'),
           e('textarea',{className:'input-field',rows:2,value:d.refusalReason||'',onChange:x=>u('refusalReason',x.target.value),placeholder:'Why did employee refuse treatment?'})
@@ -1397,7 +1397,7 @@ if(step===5){
     // SALARY CONTINUATION / PAYMENT STATUS
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'💰 Payment Status'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Payment Status'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Still Being Paid?'),
@@ -1440,7 +1440,7 @@ if(step===5){
           e('label',null,'Salary Continuation Notes'),
           e('textarea',{className:'input-field',rows:2,value:d.salaryContinuationNotes||'',onChange:x=>u('salaryContinuationNotes',x.target.value),placeholder:'Any details about salary continuation arrangement, percentage paid, etc.'})
         ),
-        e('div',{className:'info-tip',style:{marginTop:12}},'💡 Salary continuation may be recoverable from workers\' comp benefits. Document the arrangement for potential reimbursement.')
+        e('div',{className:'info-tip',style:{marginTop:12}},' Salary continuation may be recoverable from workers\' comp benefits. Document the arrangement for potential reimbursement.')
       ),
       // PTO/Sick time used
       e('div',{className:'form-group',style:{marginTop:16}},
@@ -1461,7 +1461,7 @@ if(step===5){
     // RETURN TO WORK STATUS
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'🔄 Return to Work'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Return to Work'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Return Status'),
@@ -1546,14 +1546,14 @@ if(step===5){
 if(step===6){
   // Organized root cause categories
   const ROOT_CAUSE_CATEGORIES=[
-    {cat:'Training & Knowledge',icon:'📚',items:[
+    {cat:'Training & Knowledge',icon:'',items:[
       {v:'no_training',l:'No Training Provided'},
       {v:'inadequate_training',l:'Inadequate Training'},
       {v:'training_not_followed',l:'Training Not Followed'},
       {v:'lack_of_knowledge',l:'Lack of Knowledge/Skill'},
       {v:'new_task',l:'New/Unfamiliar Task'}
     ]},
-    {cat:'Supervision',icon:'👔',items:[
+    {cat:'Supervision',icon:'',items:[
       {v:'no_supervision',l:'Lack of Supervision'},
       {v:'inadequate_supervision',l:'Inadequate Supervision'},
       {v:'supervisor_not_present',l:'Supervisor Not Present'}
@@ -1565,13 +1565,13 @@ if(step===6){
       {v:'defective_tool',l:'Defective Tool'},
       {v:'equipment_unavailable',l:'Equipment Not Available'}
     ]},
-    {cat:'PPE Issues',icon:'🦺',items:[
+    {cat:'PPE Issues',icon:'',items:[
       {v:'no_ppe',l:'No PPE Provided'},
       {v:'ppe_not_worn',l:'PPE Not Worn'},
       {v:'improper_ppe',l:'Wrong PPE for Task'},
       {v:'ppe_defective',l:'Defective PPE'}
     ]},
-    {cat:'Human Factors',icon:'🧠',items:[
+    {cat:'Human Factors',icon:'',items:[
       {v:'rushing',l:'Rushing / Time Pressure'},
       {v:'fatigue',l:'Fatigue / Exhaustion'},
       {v:'distraction',l:'Distraction / Inattention'},
@@ -1580,7 +1580,7 @@ if(step===6){
       {v:'shortcut_taken',l:'Shortcut Taken'},
       {v:'failure_to_communicate',l:'Communication Failure'}
     ]},
-    {cat:'Workplace Environment',icon:'🏢',items:[
+    {cat:'Workplace Environment',icon:'',items:[
       {v:'poor_housekeeping',l:'Poor Housekeeping'},
       {v:'wet_floor',l:'Wet / Slippery Surface'},
       {v:'poor_lighting',l:'Inadequate Lighting'},
@@ -1590,7 +1590,7 @@ if(step===6){
       {v:'noise',l:'Excessive Noise'},
       {v:'temperature',l:'Temperature Extremes'}
     ]},
-    {cat:'Procedures & Policies',icon:'📋',items:[
+    {cat:'Procedures & Policies',icon:'',items:[
       {v:'no_procedure',l:'No Procedure Exists'},
       {v:'procedure_not_followed',l:'Procedure Not Followed'},
       {v:'inadequate_procedure',l:'Inadequate Procedure'},
@@ -1606,25 +1606,25 @@ if(step===6){
   ];
 
   const CORRECTIVE_CATEGORIES=[
-    {cat:'Training Actions',icon:'📚',items:[
+    {cat:'Training Actions',icon:'',items:[
       {v:'training_scheduled',l:'Training Scheduled'},
       {v:'training_completed',l:'Training Completed'},
       {v:'retraining_required',l:'Retraining Required'},
       {v:'new_training_developed',l:'New Training Developed'}
     ]},
-    {cat:'Procedure Actions',icon:'📋',items:[
+    {cat:'Procedure Actions',icon:'',items:[
       {v:'reviewed_procedures',l:'Reviewed Procedures with Employee'},
       {v:'new_procedures',l:'New Procedures Created'},
       {v:'procedures_updated',l:'Procedures Updated'},
       {v:'job_hazard_analysis',l:'Job Hazard Analysis Completed'}
     ]},
-    {cat:'Discipline',icon:'⚠️',items:[
+    {cat:'Discipline',icon:'',items:[
       {v:'discipline_verbal',l:'Verbal Warning'},
       {v:'discipline_written',l:'Written Warning'},
       {v:'discipline_suspension',l:'Suspension'},
       {v:'discipline_termination',l:'Termination'}
     ]},
-    {cat:'Equipment & Environment',icon:'🔧',items:[
+    {cat:'Equipment & Environment',icon:'',items:[
       {v:'equipment_repaired',l:'Equipment Repaired'},
       {v:'equipment_replaced',l:'Equipment Replaced'},
       {v:'ppe_provided',l:'PPE Provided'},
@@ -1633,7 +1633,7 @@ if(step===6){
       {v:'signage_added',l:'Warning Signs Added'},
       {v:'lighting_improved',l:'Lighting Improved'}
     ]},
-    {cat:'Administrative',icon:'📝',items:[
+    {cat:'Administrative',icon:'',items:[
       {v:'safety_meeting',l:'Safety Meeting Held'},
       {v:'incident_review',l:'Incident Review Completed'},
       {v:'supervision_increased',l:'Increased Supervision'},
@@ -1660,7 +1660,7 @@ if(step===6){
     // PROCEDURES & TRAINING SECTION
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'📋 Procedures & Training Assessment'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Procedures & Training Assessment'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Were procedures in place for this task?'),
@@ -1722,7 +1722,7 @@ if(step===6){
     // ROOT CAUSE CATEGORIES
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--tw)',marginBottom:16}},'🔍 Contributing Factors (Select all that apply)'),
+      e('h3',{style:{fontSize:14,color:'var(--tw)',marginBottom:16}},' Contributing Factors (Select all that apply)'),
       ...ROOT_CAUSE_CATEGORIES.map(cat=>
         e('div',{key:cat.cat,style:{marginBottom:20}},
           e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'flex',alignItems:'center',gap:6,marginBottom:10}},
@@ -1845,7 +1845,7 @@ if(step===6){
     
     // Summary of selections
     (d.rootCauseSymptoms?.length>0||d.correctiveActions?.length>0)&&e('div',{style:{marginTop:24,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
-      e('h4',{style:{fontSize:13,color:'var(--ta)',marginBottom:12}},'📊 Analysis Summary'),
+      e('h4',{style:{fontSize:13,color:'var(--ta)',marginBottom:12}},' Analysis Summary'),
       d.rootCauseSymptoms?.length>0&&e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:8}},
         e('strong',{style:{color:'var(--tw)'}},'Contributing Factors: '),
         d.rootCauseSymptoms.length+' identified'
@@ -1863,28 +1863,28 @@ if(step===6){
 if(step===7){
   // Organized fraud indicator categories
   const FLAG_CATEGORIES=[
-    {cat:'Reporting Red Flags',icon:'📅',items:[
+    {cat:'Reporting Red Flags',icon:'',items:[
       {v:'delayed_report',l:'Delayed Reporting (3+ days)'},
       {v:'monday_claim',l:'Monday Morning Claim'},
       {v:'friday_injury',l:'Friday Afternoon Injury'},
       {v:'reported_after_termination',l:'Reported After Termination Notice'},
       {v:'reported_after_discipline',l:'Reported After Disciplinary Action'}
     ]},
-    {cat:'Witness & Evidence Issues',icon:'👁️',items:[
+    {cat:'Witness & Evidence Issues',icon:'',items:[
       {v:'no_witnesses',l:'No Witnesses to Incident'},
       {v:'conflicting_accounts',l:'Conflicting Witness Accounts'},
       {v:'witness_is_friend',l:'Only Witness is Friend/Relative'},
       {v:'refuses_recorded_statement',l:'Refuses Recorded Statement'},
       {v:'no_physical_evidence',l:'No Physical Evidence'}
     ]},
-    {cat:'Description Concerns',icon:'📝',items:[
+    {cat:'Description Concerns',icon:'',items:[
       {v:'vague_description',l:'Vague/Unclear Description'},
       {v:'inconsistent_story',l:'Story Changes Over Time'},
       {v:'description_doesnt_match',l:'Description Doesn\'t Match Injury'},
       {v:'mechanism_implausible',l:'Mechanism of Injury Implausible'},
       {v:'cant_identify_location',l:'Cannot Identify Exact Location'}
     ]},
-    {cat:'Employment Factors',icon:'💼',items:[
+    {cat:'Employment Factors',icon:'',items:[
       {v:'new_employee',l:'New Employee (<90 days)'},
       {v:'recent_discipline',l:'Recent Disciplinary Action'},
       {v:'pending_layoff',l:'Facing Layoff/Termination'},
@@ -1892,14 +1892,14 @@ if(step===7){
       {v:'job_dissatisfaction',l:'Known Job Dissatisfaction'},
       {v:'disgruntled',l:'Disgruntled Employee'}
     ]},
-    {cat:'Claims History',icon:'📊',items:[
+    {cat:'Claims History',icon:'',items:[
       {v:'history_claims',l:'History of Prior WC Claims'},
       {v:'prior_similar',l:'Prior Similar Injuries'},
       {v:'claims_at_multiple_employers',l:'Claims at Multiple Employers'},
       {v:'frequent_injuries',l:'Frequently Injured'},
       {v:'litigated_prior_claim',l:'Prior Litigated Claim'}
     ]},
-    {cat:'Medical Red Flags',icon:'🏥',items:[
+    {cat:'Medical Red Flags',icon:'',items:[
       {v:'refused_then_sought',l:'Refused Then Sought Treatment'},
       {v:'excessive_treatment',l:'Excessive Treatment Requests'},
       {v:'doctor_shopping',l:'Changed Doctors Multiple Times'},
@@ -1908,7 +1908,7 @@ if(step===7){
       {v:'preexisting',l:'Possible Pre-existing Condition'},
       {v:'soft_tissue_only',l:'Soft Tissue Only / Hard to Verify'}
     ]},
-    {cat:'Behavioral Indicators',icon:'🚨',items:[
+    {cat:'Behavioral Indicators',icon:'',items:[
       {v:'attorney_immediate',l:'Attorney Retained Immediately'},
       {v:'demanding_settlement',l:'Demanding Quick Settlement'},
       {v:'uncooperative',l:'Uncooperative with Investigation'},
@@ -1916,14 +1916,14 @@ if(step===7){
       {v:'coaching_suspected',l:'Coaching Suspected'},
       {v:'malingering_signs',l:'Signs of Malingering'}
     ]},
-    {cat:'Financial & Personal',icon:'💰',items:[
+    {cat:'Financial & Personal',icon:'',items:[
       {v:'financial_problems',l:'Known Financial Problems'},
       {v:'second_job',l:'Works Second Job'},
       {v:'bankruptcy',l:'Recent/Pending Bankruptcy'},
       {v:'personal_issues',l:'Known Personal/Domestic Issues'},
       {v:'substance_abuse_history',l:'History of Substance Abuse'}
     ]},
-    {cat:'Other Concerns',icon:'⚠️',items:[
+    {cat:'Other Concerns',icon:'',items:[
       {v:'off_premises_possible',l:'May Have Occurred Off Premises'},
       {v:'not_work_related',l:'May Not Be Work-Related'},
       {v:'horseplay_suspected',l:'Horseplay Suspected'},
@@ -1943,7 +1943,7 @@ if(step===7){
     ),
     
     // Important disclaimer
-    e('div',{className:'warning-box'},'⚠️ Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud. Many legitimate claims have one or more of these indicators.'),
+    e('div',{className:'warning-box'},' Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud. Many legitimate claims have one or more of these indicators.'),
     
     // ═══════════════════════════════════════════════════════════════════════════
     // PRIMARY VALIDITY QUESTION
@@ -2036,7 +2036,7 @@ if(step===7){
     // INVESTIGATION NOTES
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'📝 Investigation Notes'),
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},' Investigation Notes'),
       e('div',{className:'form-group'},
         e('label',null,'Investigation Notes / Observations'),
         e('textarea',{className:'input-field',rows:4,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document any investigation findings, observations, interviews conducted, evidence reviewed, etc. This information will be included in the claim report.'})
@@ -2047,7 +2047,7 @@ if(step===7){
     // RECOMMENDATIONS
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--tr)',marginBottom:16}},'⚡ Recommendations'),
+      e('h3',{style:{fontSize:14,color:'var(--tr)',marginBottom:16}},' Recommendations'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Recommend Deny Claim?'),
@@ -2081,7 +2081,7 @@ if(step===7){
     // THIRD PARTY / SUBROGATION
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-      e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'💰 Third Party / Subrogation Potential'),
+      e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},' Third Party / Subrogation Potential'),
       e('div',{className:'form-group'},
         e('label',null,'Is a third party potentially responsible?'),
         tog('thirdPartyInvolved',[
@@ -2092,7 +2092,7 @@ if(step===7){
       ),
       (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:16}},
         e('div',{style:{background:'rgba(52,211,153,0.1)',border:'1px solid var(--tg)',borderRadius:12,padding:16,marginBottom:16}},
-          e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},'💰 Subrogation Potential Identified!'),
+          e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},' Subrogation Potential Identified!'),
           e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'Preserve all evidence. Document third party information for potential recovery.')
         ),
         e('div',{className:'form-grid'},
@@ -2234,11 +2234,11 @@ if(step===11){
           )
         ),
         inlineStmts.length>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:8}},
-          e('span',{style:{fontSize:18}},'📝'),
+          e('span',{style:{fontSize:18}},''),
           e('span',{style:{fontSize:13,color:'var(--tg)'}},inlineStmts.length+' e-signed document'+(inlineStmts.length>1?'s':'')+' attached')
         ),
         totalFiles>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8}},
-          e('span',{style:{fontSize:18}},'📎'),
+          e('span',{style:{fontSize:18}},''),
           e('span',{style:{fontSize:13,color:'var(--tm)'}},totalFiles+' file'+(totalFiles>1?'s':'')+' to upload')
         )
       )
@@ -2283,7 +2283,7 @@ if(step===11){
     showPreview&&e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)',padding:20,marginBottom:20}},
       // Employee Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'👤 EMPLOYEE INFORMATION'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' EMPLOYEE INFORMATION'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Name: '),e('span',{style:{color:'var(--tt)'}},d.firstName+' '+d.lastName||'—')),
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Occupation: '),e('span',{style:{color:'var(--tt)'}},d.occupation||'—')),
@@ -2295,7 +2295,7 @@ if(step===11){
       ),
       // Claim Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'📋 CLAIM INFORMATION'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' CLAIM INFORMATION'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Entity: '),e('span',{style:{color:'var(--tt)'}},d.entity==='Other - Enter Manually'?d.customEntity:d.entity||'—')),
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Date of Injury: '),e('span',{style:{color:'var(--tt)'}},d.dateOfInjury||'—')),
@@ -2307,7 +2307,7 @@ if(step===11){
       ),
       // Incident Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'⚡ INCIDENT DETAILS'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' INCIDENT DETAILS'),
         e('div',{style:{fontSize:13,marginBottom:12}},
           e('span',{style:{color:'var(--tm)'}},'Description: '),
           e('p',{style:{color:'var(--tt)',marginTop:4,padding:8,background:'rgba(30,42,56,0.5)',borderRadius:6}},d.accidentDescription||'—')
@@ -2321,7 +2321,7 @@ if(step===11){
       ),
       // Medical Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'🏥 MEDICAL TREATMENT'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' MEDICAL TREATMENT'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Treatment Received: '),e('span',{style:{color:'var(--tt)'}},d.soughtMedicalTreatment===true?'Yes':d.soughtMedicalTreatment===false?'No':'—')),
           d.initialFacilityName&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Facility: '),e('span',{style:{color:'var(--tt)'}},d.initialFacilityName)),
@@ -2331,7 +2331,7 @@ if(step===11){
       ),
       // Work Status Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'💼 WORK STATUS'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' WORK STATUS'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Losing Time: '),e('span',{style:{color:d.losingTime?'var(--tw)':'var(--tg)'}},d.losingTime===true?'Yes - Lost Time':d.losingTime===false?'No - Medical Only':'—')),
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Date Last Worked: '),e('span',{style:{color:'var(--tt)'}},d.dateLastWorked||'—')),
@@ -2341,7 +2341,7 @@ if(step===11){
       ),
       // Witnesses Section
       e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'👁️ WITNESSES & EVIDENCE'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' WITNESSES & EVIDENCE'),
         e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
           e('div',null,e('span',{style:{color:'var(--tm)'}},'Witnesses: '),e('span',{style:{color:'var(--tt)'}},d.witnesses?.length>0?d.witnesses.length+' recorded':'None')),
           d.witnesses?.length>0&&e('div',{style:{gridColumn:'1/-1',marginTop:4}},
@@ -2355,7 +2355,7 @@ if(step===11){
       ),
       // Root Cause Section
       (d.rootCauseSymptoms?.length>0||d.correctiveActions?.length>0)&&e('div',{style:{marginBottom:20}},
-        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'🔍 ROOT CAUSE ANALYSIS'),
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},' ROOT CAUSE ANALYSIS'),
         d.directCause&&e('div',{style:{fontSize:13,marginBottom:8}},
           e('span',{style:{color:'var(--tm)'}},'Direct Cause: '),
           e('span',{style:{color:'var(--tt)'}},d.directCause)
@@ -2387,24 +2387,24 @@ if(step===11){
     // ═══════════════════════════════════════════════════════════════════════════
     !showPreview&&e('div',{className:'summary-grid'},
       e('div',{className:'summary-section'},
-        e('h4',null,'👤 Employee'),
+        e('h4',null,' Employee'),
         e('p',{style:{fontWeight:600}},(d.firstName||'—')+' '+(d.lastName||'')),
         e('p',null,d.occupation||'No occupation specified'),
         d.phone&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.phone)
       ),
       e('div',{className:'summary-section'},
-        e('h4',null,'📋 Claim'),
+        e('h4',null,' Claim'),
         e('p',{style:{fontWeight:600}},d.entity==='Other - Enter Manually'?d.customEntity||'—':d.entity||'No entity selected'),
         e('p',null,d.dateOfInjury||'No date specified'),
         d.injuryType&&e('p',{style:{fontSize:12,color:'var(--tm)'}},INJURY_TYPES.find(t=>t.v===d.injuryType)?.l)
       ),
       e('div',{className:'summary-section'},
-        e('h4',null,'🏥 Medical'),
+        e('h4',null,' Medical'),
         e('p',null,d.soughtMedicalTreatment===true?'Treatment received':d.soughtMedicalTreatment===false?'Needs referral':'Not specified'),
         d.initialFacilityName&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.initialFacilityName)
       ),
       e('div',{className:'summary-section'},
-        e('h4',null,'💼 Work Status'),
+        e('h4',null,' Work Status'),
         e('p',{style:{color:d.losingTime?'var(--tw)':'var(--tg)'}},d.losingTime===true?'Lost Time Claim':d.losingTime===false?'Medical Only':'Not specified'),
         d.returnStatus&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.returnStatus)
       )
@@ -2468,7 +2468,7 @@ if(step===11){
     // SUBMITTER INFORMATION
     // ═══════════════════════════════════════════════════════════════════════════
     e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
-      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'✍️ Submitter Information'),
+      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},' Submitter Information'),
       e('div',{className:'form-grid'},
         e('div',{className:'form-group'},
           e('label',null,'Your Name ',e('span',{className:'required'},'*')),
