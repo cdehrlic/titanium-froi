@@ -3,394 +3,2575 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titanium Defense Group - Workers' Compensation Reporting</title>
+<title>Titanium Defense Group - Smart Claim Intake</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --td:#1e2a38;
-  --tn:#2d3a4a;
-  --ts:#3d4f63;
-  --tl:#4a6178;
-  --ta:#5ba4e6;
-  --ta2:#7eb8f0;
-  --tg:#34d399;
-  --tw:#fbbf24;
-  --tr:#f87171;
-  --tt:#f1f5f9;
-  --tm:#94a3b8;
-  --tb:rgba(148,163,184,0.15);
-  --gb:rgba(45,58,74,0.6);
-  --gbd:rgba(148,163,184,0.12);
-}
-
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--td);
-  min-height:100vh;
-  color:var(--tt);
-  display:flex;
-  flex-direction:column;
-}
-
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);
-  pointer-events:none;
-  z-index:0;
-}
-
-.landing{
-  position:relative;
-  z-index:1;
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
-
-/* Header */
-.header{
-  background:linear-gradient(180deg,var(--tn) 0%,var(--td) 100%);
-  border-bottom:1px solid var(--gbd);
-  padding:20px 32px;
-}
-
-.header-content{
-  max-width:1200px;
-  margin:0 auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
-
-.brand-logo{
-  height:48px;
-}
-
-.brand-logo img{
-  height:100%;
-  width:auto;
-}
-
-.header-tag{
-  background:var(--gb);
-  border:1px solid var(--gbd);
-  padding:8px 16px;
-  border-radius:8px;
-  font-size:12px;
-  color:var(--tm);
-  font-weight:500;
-}
-
-/* Main Content */
-.main{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:40px 24px;
-}
-
-.container{
-  max-width:900px;
-  width:100%;
-  text-align:center;
-}
-
-.hero-title{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:42px;
-  font-weight:700;
-  color:white;
-  margin-bottom:16px;
-  line-height:1.2;
-}
-
-.hero-subtitle{
-  font-size:18px;
-  color:var(--tm);
-  margin-bottom:48px;
-  max-width:600px;
-  margin-left:auto;
-  margin-right:auto;
-  line-height:1.6;
-}
-
-/* Industry Cards */
-.industry-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:24px;
-  margin-bottom:48px;
-}
-
-.industry-card{
-  background:var(--gb);
-  border:2px solid var(--gbd);
-  border-radius:20px;
-  padding:32px 24px;
-  cursor:pointer;
-  transition:all 0.3s ease;
-  text-decoration:none;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:20px;
-}
-
-.industry-card:hover{
-  border-color:var(--ta);
-  transform:translateY(-4px);
-  box-shadow:0 12px 40px rgba(91,164,230,0.15);
-}
-
-.industry-card:hover .industry-icon{
-  background:linear-gradient(135deg,var(--ta) 0%,var(--ta2) 100%);
-  color:white;
-}
-
-.industry-card:hover .industry-name{
-  color:var(--ta2);
-}
-
-.industry-icon{
-  width:80px;
-  height:80px;
-  background:rgba(91,164,230,0.1);
-  border:2px solid rgba(91,164,230,0.2);
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:all 0.3s ease;
-}
-
-.industry-icon svg{
-  width:40px;
-  height:40px;
-  stroke:var(--ta);
-  stroke-width:1.5;
-  fill:none;
-  transition:all 0.3s ease;
-}
-
-.industry-card:hover .industry-icon svg{
-  stroke:white;
-}
-
-.industry-name{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:20px;
-  font-weight:600;
-  color:white;
-  transition:all 0.3s ease;
-}
-
-.industry-desc{
-  font-size:14px;
-  color:var(--tm);
-  line-height:1.5;
-}
-
-/* Features */
-.features{
-  display:flex;
-  justify-content:center;
-  gap:40px;
-  flex-wrap:wrap;
-  padding-top:32px;
-  border-top:1px solid var(--gbd);
-}
-
-.feature{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  color:var(--tm);
-  font-size:14px;
-}
-
-.feature-icon{
-  width:32px;
-  height:32px;
-  background:rgba(52,211,153,0.1);
-  border:1px solid rgba(52,211,153,0.2);
-  border-radius:8px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.feature-icon svg{
-  width:16px;
-  height:16px;
-  stroke:var(--tg);
-  stroke-width:2;
-  fill:none;
-}
-
-/* Footer */
-.footer{
-  padding:24px 32px;
-  border-top:1px solid var(--gbd);
-  text-align:center;
-}
-
-.footer p{
-  font-size:12px;
-  color:var(--tm);
-}
-
-.footer a{
-  color:var(--ta);
-  text-decoration:none;
-}
-
-.footer a:hover{
-  text-decoration:underline;
-}
-
-/* Responsive */
-@media(max-width:800px){
-  .industry-grid{
-    grid-template-columns:1fr;
-    max-width:400px;
-    margin-left:auto;
-    margin-right:auto;
-  }
-  
-  .hero-title{
-    font-size:32px;
-  }
-  
-  .hero-subtitle{
-    font-size:16px;
-  }
-  
-  .features{
-    flex-direction:column;
-    align-items:center;
-    gap:20px;
-  }
-  
-  .header-tag{
-    display:none;
-  }
-}
+:root{--td:#1e2a38;--tn:#2d3a4a;--ts:#3d4f63;--tl:#4a6178;--ta:#5ba4e6;--ta2:#7eb8f0;--tg:#34d399;--tw:#fbbf24;--tr:#f87171;--tt:#f1f5f9;--tm:#94a3b8;--tb:rgba(148,163,184,0.15);--gb:rgba(45,58,74,0.6);--gbd:rgba(148,163,184,0.12)}
+body{font-family:'DM Sans',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+.portal{position:relative;z-index:1}
+.header{background:linear-gradient(180deg,var(--tn) 0%,var(--td) 100%);border-bottom:1px solid var(--gbd);padding:16px 28px;position:sticky;top:0;z-index:100}
+.header-content{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{height:44px}
+.brand-logo img{height:100%;width:auto}
+.brand-text h1{font-family:'Space Grotesk',sans-serif;font-size:18px;color:white}
+.brand-text p{font-size:11px;color:var(--tm)}
+.completion-badge{display:flex;align-items:center;gap:12px;background:var(--gb);padding:10px 18px;border-radius:12px;border:1px solid var(--gbd)}
+.completion-bar{width:100px;height:8px;background:rgba(30,42,56,0.8);border-radius:4px;overflow:hidden}
+.completion-fill{height:100%;background:linear-gradient(90deg,var(--tg) 0%,#10b981 100%);border-radius:4px;transition:width 0.5s}
+.completion-text{font-size:13px;font-weight:700;color:var(--tg)}
+.body{display:flex;max-width:1280px;margin:0 auto;padding:24px;gap:24px}
+.sidebar{width:220px;flex-shrink:0}
+.steps{background:var(--gb);border-radius:16px;border:1px solid var(--gbd);padding:12px}
+.step{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;margin-bottom:4px;border:1px solid transparent}
+.step:hover{background:rgba(91,164,230,0.08)}
+.step.active{background:linear-gradient(135deg,rgba(91,164,230,0.15) 0%,rgba(91,164,230,0.08) 100%);border-color:rgba(91,164,230,0.3)}
+.step-num{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--td);border-radius:8px;color:var(--tm)}
+.step.active .step-num{background:var(--ta);color:white}
+.step span{font-size:12px;color:var(--tm)}
+.step.active span{color:var(--ta2);font-weight:600}
+.main{flex:1;min-width:0}
+.content{background:var(--gb);border-radius:20px;border:1px solid var(--gbd);padding:28px}
+.section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gbd)}
+.section-header h2{font-family:'Space Grotesk',sans-serif;font-size:22px;color:white;margin-bottom:6px}
+.section-subtitle{font-size:14px;color:var(--tm)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full-width{grid-column:1/-1}
+.form-group label{font-size:12px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.5px}
+.required{color:var(--tr)}
+.input-field{background:rgba(30,42,56,0.8);border:1px solid var(--tb);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tt);font-family:'DM Sans',sans-serif;width:100%;transition:all 0.2s}
+.input-field:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(91,164,230,0.15)}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-btn{padding:10px 18px;border-radius:10px;border:1px solid var(--tb);background:rgba(30,42,56,0.6);color:var(--tm);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.toggle-btn:hover{border-color:var(--tl)}
+.toggle-btn.active{background:linear-gradient(135deg,rgba(91,164,230,0.2) 0%,rgba(91,164,230,0.1) 100%);border-color:var(--ta);color:var(--ta2)}
+.toggle-btn.active.success{background:linear-gradient(135deg,rgba(52,211,153,0.2) 0%,rgba(52,211,153,0.1) 100%);border-color:var(--tg);color:var(--tg)}
+.toggle-btn.active.warning{background:linear-gradient(135deg,rgba(251,191,36,0.2) 0%,rgba(251,191,36,0.1) 100%);border-color:var(--tw);color:var(--tw)}
+.toggle-btn.active.danger{background:linear-gradient(135deg,rgba(248,113,113,0.15) 0%,rgba(248,113,113,0.08) 100%);border-color:var(--tr);color:var(--tr)}
+.injury-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.injury-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:12px;border:1px solid var(--tb);background:rgba(30,42,56,0.5);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.injury-btn:hover{border-color:var(--tl)}
+.injury-btn.active{background:linear-gradient(135deg,rgba(91,164,230,0.15) 0%,rgba(91,164,230,0.08) 100%);border-color:var(--ta)}
+.injury-icon{font-size:11px;font-weight:700;color:var(--ta);text-transform:uppercase;letter-spacing:0.5px}
+.injury-label{font-size:10px;color:var(--tm);text-align:center}
+.injury-btn.active .injury-label{color:var(--ta2)}
+.chip-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--tb);background:rgba(30,42,56,0.5);color:var(--tm);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.chip-btn:hover{border-color:var(--tl)}
+.chip-btn.active{background:linear-gradient(135deg,rgba(91,164,230,0.15) 0%,rgba(91,164,230,0.08) 100%);border-color:var(--ta);color:var(--ta2)}
+.chip-btn.active.warning{border-color:var(--tw);color:var(--tw)}
+.chip-btn.active.success{border-color:var(--tg);color:var(--tg)}
+.chip-btn.active.danger{border-color:var(--tr);color:var(--tr)}
+.info-tip{padding:14px 16px;background:linear-gradient(135deg,rgba(91,164,230,0.1) 0%,rgba(91,164,230,0.05) 100%);border-radius:12px;border-left:3px solid var(--ta);margin:12px 0;font-size:13px}
+.warning-box{background:linear-gradient(135deg,rgba(251,191,36,0.12) 0%,rgba(251,191,36,0.06) 100%);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:16px;font-size:14px;color:var(--tw);margin-bottom:18px}
+.witness-card{background:rgba(30,42,56,0.5);border:1px solid var(--tb);border-radius:12px;padding:16px;margin-top:14px}
+.witness-header{font-size:13px;font-weight:700;color:var(--ta);margin-bottom:12px;text-transform:uppercase}
+.option-card{background:rgba(30,42,56,0.5);border:1px solid var(--gbd);border-radius:12px;padding:18px;margin:10px 0;cursor:pointer;transition:all 0.2s}
+.option-card:hover{border-color:var(--ta)}
+.option-card.selected{border-color:var(--ta);background:linear-gradient(135deg,rgba(91,164,230,0.1) 0%,rgba(91,164,230,0.05) 100%)}
+.option-card h4{color:var(--ta);font-size:14px;margin-bottom:4px}
+.option-card p{color:var(--tm);font-size:12px}
+.sig-section{background:rgba(30,42,56,0.5);border-radius:12px;padding:20px;margin-top:20px;border:1px solid var(--gbd)}
+.sig-section h3{color:var(--ta);font-size:14px;margin-bottom:16px}
+.sig-canvas-wrap{background:white;border-radius:8px;margin:12px 0;overflow:hidden}
+.sig-canvas{width:100%;height:120px;cursor:crosshair;touch-action:none;display:block}
+.checkbox-group{display:flex;align-items:flex-start;gap:10px;margin:12px 0}
+.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--ta);flex-shrink:0}
+.checkbox-group label{font-size:13px;color:var(--tt);line-height:1.4}
+.legal-text{font-size:11px;color:var(--tm);line-height:1.5;padding:12px;background:rgba(30,42,56,0.5);border-radius:8px;margin:12px 0}
+.audio-rec{background:rgba(30,42,56,0.5);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--gbd)}
+.audio-rec h4{color:var(--ta);font-size:13px;margin-bottom:8px}
+.rec-btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--tr);color:white;display:flex;align-items:center;justify-content:center}
+.rec-btn.recording{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.link-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,0.15);border:1px solid var(--tg);color:var(--tg);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600}
+.nav{display:flex;justify-content:space-between;margin-top:28px;padding-top:24px;border-top:1px solid var(--gbd)}
+.nav-btn{padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.nav-btn.secondary{background:transparent;border:1px solid var(--tb);color:var(--tm)}
+.nav-btn.secondary:hover{border-color:var(--tl);color:var(--tt)}
+.nav-btn.primary{background:linear-gradient(135deg,var(--tg) 0%,#10b981 100%);color:white}
+.nav-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(52,211,153,0.4)}
+.nav-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0}
+.summary-section{background:rgba(30,42,56,0.6);border-radius:12px;padding:18px;border:1px solid var(--gbd)}
+.summary-section h4{font-size:11px;color:var(--ta);margin-bottom:10px;text-transform:uppercase}
+.summary-section p{font-size:14px;color:var(--tt);margin-bottom:4px}
+.success-container{max-width:520px;margin:80px auto;text-align:center;padding:48px;background:var(--gb);border-radius:24px;border:1px solid var(--gbd)}
+.success-icon{width:88px;height:88px;background:linear-gradient(135deg,rgba(52,211,153,0.2) 0%,rgba(52,211,153,0.1) 100%);border:2px solid var(--tg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:32px;font-weight:700;color:var(--tg)}
+.ref-number{font-size:36px;font-family:'Space Grotesk',monospace;color:white;font-weight:700;margin:20px 0}
+.employee-summary{background:linear-gradient(135deg,rgba(91,164,230,0.1) 0%,rgba(91,164,230,0.05) 100%);border:1px solid rgba(91,164,230,0.2);border-radius:12px;padding:16px;margin-top:20px}
+.employee-summary h4{color:var(--ta);font-size:12px;margin-bottom:8px;text-transform:uppercase}
+.employee-summary p{color:var(--tt);font-size:14px;margin:4px 0}
+.employee-summary span{color:var(--tm);font-size:12px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.status-badge.success{background:rgba(52,211,153,0.15);border:1px solid var(--tg);color:var(--tg)}
+.status-badge.warning{background:rgba(251,191,36,0.15);border:1px solid var(--tw);color:var(--tw)}
+.status-badge.danger{background:rgba(248,113,113,0.15);border:1px solid var(--tr);color:var(--tr)}
+@media(max-width:900px){.body{flex-direction:column}.sidebar{width:100%}.steps{display:flex;overflow-x:auto;gap:8px;padding:10px}.step{flex-shrink:0;margin-bottom:0}.form-grid,.summary-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="landing">
-  <header class="header">
-    <div class="header-content">
-      <div class="brand">
-        <div class="brand-logo">
-          <img src="/Titanium logo.webp" alt="Titanium Defense Group">
-        </div>
-      </div>
-      <div class="header-tag">Workers' Compensation Reporting Portal</div>
-    </div>
-  </header>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const e=React.createElement,{useState:S,useEffect:E,useRef:R}=React;
+
+// INJURY TYPES - No emojis, using short codes
+const INJURY_TYPES=[
+  {v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'STF'},
+  {v:'struck_by',l:'Struck By',i:'STK'},
+  {v:'strain_sprain',l:'Strain/Sprain',i:'STR'},
+  {v:'cut_laceration',l:'Cut/Laceration',i:'CUT'},
+  {v:'burn',l:'Burn',i:'BRN'},
+  {v:'caught_in',l:'Caught In',i:'CGT'},
+  {v:'vehicle',l:'Vehicle',i:'VEH'},
+  {v:'assault',l:'Assault',i:'AST'},
+  {v:'exposure',l:'Exposure',i:'EXP'},
+  {v:'repetitive',l:'Repetitive',i:'RPT'},
+  {v:'other',l:'Other',i:'OTH'}
+];
+
+const BODY_PARTS=['Head','Face','Neck','Shoulder-L','Shoulder-R','Upper Back','Lower Back','Hip-L','Hip-R','Wrist-L','Wrist-R','Hand-L','Hand-R','Knee-L','Knee-R','Ankle-L','Ankle-R','Multiple'];
+
+const ROOT_CAUSES=[
+  {v:'no_training',l:'No Training'},
+  {v:'inadequate_training',l:'Inadequate Training'},
+  {v:'training_not_followed',l:'Training Not Followed'},
+  {v:'no_supervision',l:'Lack of Supervision'},
+  {v:'equipment_failure',l:'Equipment Failure'},
+  {v:'no_ppe',l:'No PPE'},
+  {v:'ppe_not_worn',l:'PPE Not Worn'},
+  {v:'rushing',l:'Rushing'},
+  {v:'fatigue',l:'Fatigue'},
+  {v:'poor_housekeeping',l:'Poor Housekeeping'},
+  {v:'wet_floor',l:'Wet Floor'},
+  {v:'combative_patient',l:'Combative Patient'}
+];
+
+const CORRECTIVE=[
+  {v:'reviewed_procedures',l:'Reviewed Procedures'},
+  {v:'training_scheduled',l:'Training Scheduled'},
+  {v:'training_completed',l:'Training Completed'},
+  {v:'discipline_verbal',l:'Verbal Warning'},
+  {v:'discipline_written',l:'Written Warning'},
+  {v:'equipment_repaired',l:'Equipment Repaired'},
+  {v:'ppe_provided',l:'PPE Provided'},
+  {v:'area_cleaned',l:'Area Cleaned'},
+  {v:'safety_meeting',l:'Safety Meeting'}
+];
+
+const FRAUD=[
+  {v:'delayed_report',l:'Delayed Reporting'},
+  {v:'monday_claim',l:'Monday Claim'},
+  {v:'no_witnesses',l:'No Witnesses'},
+  {v:'vague_description',l:'Vague Description'},
+  {v:'recent_discipline',l:'Recent Discipline'},
+  {v:'new_employee',l:'New Employee'},
+  {v:'history_claims',l:'History of Claims'},
+  {v:'attorney_immediate',l:'Attorney Immediately'},
+  {v:'preexisting',l:'Pre-existing'}
+];
+
+const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+function App(){
+const[entities,setEntities]=S([]);
+const[step,setStep]=S(0);
+const[submitting,setSubmitting]=S(false);
+const[result,setResult]=S(null);
+const[d,setD]=S({
+  // STEP 0 - EMPLOYEE
+  firstName:'',
+  lastName:'',
+  mailingAddress:'',
+  city:'',
+  state:'',
+  zipCode:'',
+  phone:'',
+  dateOfBirth:'',
+  dateOfHire:'',
+  ssn:'',
+  occupation:'',
   
-  <main class="main">
-    <div class="container">
-      <h1 class="hero-title">Report a Workplace Injury</h1>
-      <p class="hero-subtitle">Select your industry below to access the appropriate claim reporting form with industry-specific guidance and compliance requirements.</p>
-      
-      <div class="industry-grid">
-        <!-- Construction -->
-        <a href="/portal.html?industry=construction" class="industry-card">
-          <div class="industry-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-6h6v6"/>
-              <path d="M12 4v2M3 12l2-1.5M19 12l2-1.5"/>
-              <rect x="9" y="10" width="6" height="4" rx="0.5"/>
-            </svg>
-          </div>
-          <div class="industry-name">Construction</div>
-          <div class="industry-desc">Building, trades, contractors, heavy equipment, and construction site operations</div>
-        </a>
-        
-        <!-- Healthcare -->
-        <a href="/portal.html?industry=healthcare" class="industry-card">
-          <div class="industry-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-              <circle cx="12" cy="12" r="4"/>
-              <path d="M12 10v4M10 12h4"/>
-            </svg>
-          </div>
-          <div class="industry-name">Healthcare</div>
-          <div class="industry-desc">Hospitals, nursing facilities, clinics, home health, and medical staffing</div>
-        </a>
-        
-        <!-- General Industry -->
-        <a href="/portal.html?industry=general" class="industry-card">
-          <div class="industry-icon">
-            <svg viewBox="0 0 24 24">
-              <rect x="2" y="7" width="20" height="14" rx="2"/>
-              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-              <path d="M12 12v4M10 14h4"/>
-              <path d="M2 12h20"/>
-            </svg>
-          </div>
-          <div class="industry-name">General Industry</div>
-          <div class="industry-desc">Manufacturing, retail, office, warehouse, and other workplace environments</div>
-        </a>
-      </div>
-      
-      <div class="features">
-        <div class="feature">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M9 12l2 2 4-4"/>
-              <circle cx="12" cy="12" r="10"/>
-            </svg>
-          </div>
-          <span>OSHA Compliant Forms</span>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </div>
-          <span>Secure & Encrypted</span>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-            </svg>
-          </div>
-          <span>Instant PDF Generation</span>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <path d="M9 12l2 2 4-4"/>
-            </svg>
-          </div>
-          <span>E-Signature Capture</span>
-        </div>
-      </div>
-    </div>
-  </main>
+  // STEP 1 - CLAIM
+  entity:'',
+  customEntity:'',
+  dateOfInjury:'',
+  timeOfInjury:'',
+  dateReported:'',
+  reportedImmediately:null,
+  weeklyWage:'',
+  workType:'',
   
-  <footer class="footer">
-    <p>&copy; 2025 Titanium Defense Group. All rights reserved. <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
-  </footer>
-</div>
+  // STEP 2 - INCIDENT
+  accidentDescription:'',
+  injuryType:'',
+  bodyParts:[],
+  jobDutiesAtTime:'',
+  natureOfInjury:'',
+  causeOfInjury:'',
+  customBodyPart:'',
+  accidentAtWorksite:true,
+  accidentStreet:'',
+  accidentCity:'',
+  accidentState:'',
+  accidentZip:'',
+  
+  // STEP 3 - MEDICAL
+  soughtMedicalTreatment:null,
+  treatingPhysician:'',
+  treatmentDate:'',
+  treatmentType:'',
+  treatmentNotes:'',
+  workRestrictionsGiven:null,
+  restrictionDetails:'',
+  refusedTreatment:null,
+  severeInjury:null,
+  employeeRequestedHospital:null,
+  referralType:'',
+  referralFacility:'',
+  referralPhone:'',
+  referralAddress:'',
+  referralNotes:'',
+  refusalReason:'',
+  refusalFormSigned:null,
+  initialFacilityName:'',
+  
+  // STEP 4 - EVIDENCE
+  videoLocation:'',
+  videoSystemType:'',
+  videoPreserved:null,
+  videoNotes:'',
+  witness1Name:'',
+  witness1Phone:'',
+  witness1Email:'',
+  witness1Relationship:'',
+  witness1Statement:'',
+  witness2Name:'',
+  witness2Phone:'',
+  witness2Email:'',
+  witness2Relationship:'',
+  witness2Statement:'',
+  supervisorName:'',
+  supervisorPhone:'',
+  supervisorComments:'',
+  hasScenePhotos:null,
+  hasInjuryPhotos:null,
+  scenePhotoFiles:[],
+  injuryPhotoFiles:[],
+  evidenceDocFiles:[],
+  hasVideo:null,
+  hasWitnessStatement:null,
+  hasEmployeeStatement:null,
+  witnesses:[],
+  
+  // STEP 5 - WORK STATUS
+  losingTime:null,
+  dateLastWorked:'',
+  lastDayPaid:'',
+  disabilityBeganDate:'',
+  expectedReturnDate:'',
+  stillBeingPaid:null,
+  hasSalaryContinuation:null,
+  salaryContinuationDuration:'',
+  salaryContinuationEndDate:'',
+  salaryContinuationNotes:'',
+  ptoUsed:null,
+  ptoHoursUsed:'',
+  returnStatus:'',
+  lightDutyAvailable:null,
+  lightDutyOffered:null,
+  lightDutyAccepted:null,
+  lightDutyStartDate:'',
+  lightDutyDescription:'',
+  actualReturnDate:'',
+  normalSchedule:'',
+  hoursPerWeek:'',
+  
+  // STEP 6 - ROOT CAUSE
+  directCause:'',
+  rootCauseSymptoms:[],
+  correctiveActions:[],
+  proceduresInPlace:null,
+  proceduresFollowed:null,
+  trainingProvided:null,
+  trainingFrequency:'',
+  lastTrainingDate:'',
+  trainingType:'',
+  customRootCause:'',
+  customCorrectiveAction:'',
+  correctiveActionNotes:'',
+  
+  // STEP 7 - FLAGS
+  validityConcerns:null,
+  concernDetails:'',
+  fraudIndicators:[],
+  customRedFlag:'',
+  investigationNotes:'',
+  recommendDeny:null,
+  recommendSIU:null,
+  denyReason:'',
+  siuReason:'',
+  thirdPartyInvolved:null,
+  thirdPartyName:'',
+  thirdPartyPhone:'',
+  thirdPartyCompany:'',
+  thirdPartyInsurance:'',
+  thirdPartyDetails:'',
+  subrogationType:null,
+  
+  // STEPS 8-10 - STATEMENTS
+  witnessOpt:null,
+  witnessData:{},
+  witnessLink:null,
+  witnessSigned:false,
+  claimantOpt:null,
+  claimantData:{},
+  claimantLink:null,
+  claimantSigned:false,
+  hipaaOpt:null,
+  hipaaData:{},
+  hipaaLink:null,
+  hipaaSigned:false,
+  
+  // STEP 11 - SUBMIT
+  submitterName:'',
+  submitterEmail:'',
+  submitterTitle:'',
+  submitterPhone:''
+});
+
+const[uploadedFiles,setUploadedFiles]=S([]);
+const[inlineStmts,setInlineStmts]=S([]);
+const[score,setScore]=S(0);
+const[lastSaved,setLastSaved]=S(null);
+const[recording,setRecording]=S(null);
+const[audioBlobs,setAudioBlobs]=S({});
+const[showPreview,setShowPreview]=S(false);
+
+const sigCanvasRef=R(null);
+const sigCtxRef=R(null);
+const isDrawingRef=R(false);
+const mediaRecorderRef=R(null);
+const audioChunksRef=R([]);
+
+// Fetch entities on mount
+E(()=>{fetch('/api/entities').then(r=>r.json()).then(setEntities).catch(()=>{})},[]);
+
+// Calculate completion score
+E(()=>{
+  const req=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];
+  let s=0;
+  req.forEach(f=>{if(d[f])s+=10});
+  setScore(Math.min(100,Math.round(s)));
+},[d]);
+
+// Auto-save draft
+E(()=>{
+  try{
+    localStorage.setItem('wcr_draft',JSON.stringify({data:d,savedAt:Date.now()}));
+    setLastSaved(new Date().toLocaleTimeString());
+  }catch(x){}
+},[d]);
+
+// Initialize signature canvas
+E(()=>{
+  if((step===8||step===9||step===10)&&sigCanvasRef.current){
+    const c=sigCanvasRef.current;
+    const rect=c.getBoundingClientRect();
+    c.width=rect.width||400;
+    c.height=120;
+    const ctx=c.getContext('2d');
+    ctx.strokeStyle='#1a1f26';
+    ctx.lineWidth=2;
+    ctx.lineCap='round';
+    sigCtxRef.current=ctx;
+  }
+},[step,d.witnessOpt,d.claimantOpt,d.hipaaOpt]);
+
+// Helper functions for state updates
+const u=(f,v)=>setD(p=>({...p,[f]:v}));
+const uNested=(parent,f,v)=>setD(p=>({...p,[parent]:{...p[parent],[f]:v}}));
+const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter(x=>x!==v):[...a,v]}});
+
+// Steps configuration - NO EMOJIS, using step numbers
+const steps=[
+  {t:'Employee',n:'01'},
+  {t:'Claim',n:'02'},
+  {t:'Incident',n:'03'},
+  {t:'Medical',n:'04'},
+  {t:'Evidence',n:'05'},
+  {t:'Work Status',n:'06'},
+  {t:'Root Cause',n:'07'},
+  {t:'Flags',n:'08'},
+  {t:'Witness',n:'09'},
+  {t:'Claimant',n:'10'},
+  {t:'HIPAA',n:'11'},
+  {t:'Submit',n:'12'}
+];
+
+// Signature drawing functions
+const startDraw=(ev)=>{
+  ev.preventDefault();
+  isDrawingRef.current=true;
+  const rect=ev.target.getBoundingClientRect();
+  const x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left;
+  const y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;
+  sigCtxRef.current?.beginPath();
+  sigCtxRef.current?.moveTo(x,y);
+};
+
+const draw=(ev)=>{
+  if(!isDrawingRef.current||!sigCtxRef.current)return;
+  ev.preventDefault();
+  const rect=ev.target.getBoundingClientRect();
+  const x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left;
+  const y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;
+  sigCtxRef.current.lineTo(x,y);
+  sigCtxRef.current.stroke();
+};
+
+const stopDraw=(dataKey)=>{
+  if(isDrawingRef.current&&sigCanvasRef.current){
+    isDrawingRef.current=false;
+    uNested(dataKey,'signature',sigCanvasRef.current.toDataURL());
+  }
+};
+
+const clearSig=(dataKey)=>{
+  if(sigCtxRef.current&&sigCanvasRef.current){
+    sigCtxRef.current.clearRect(0,0,sigCanvasRef.current.width,sigCanvasRef.current.height);
+    uNested(dataKey,'signature',null);
+  }
+};
+
+// Audio recording functions
+const startRecording=async(type)=>{
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    let mimeType='audio/webm;codecs=opus';
+    if(MediaRecorder.isTypeSupported('audio/mp4')){
+      mimeType='audio/mp4';
+    }else if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')){
+      mimeType='audio/webm;codecs=opus';
+    }else if(MediaRecorder.isTypeSupported('audio/webm')){
+      mimeType='audio/webm';
+    }
+    mediaRecorderRef.current=new MediaRecorder(stream,{mimeType});
+    audioChunksRef.current=[];
+    mediaRecorderRef.current.ondataavailable=ev=>{
+      if(ev.data.size>0)audioChunksRef.current.push(ev.data);
+    };
+    mediaRecorderRef.current.onstop=()=>{
+      const audioType=mediaRecorderRef.current.mimeType||'audio/webm';
+      const blob=new Blob(audioChunksRef.current,{type:audioType});
+      setAudioBlobs(prev=>({...prev,[type]:blob}));
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    mediaRecorderRef.current.start(1000);
+    setRecording(type);
+  }catch(err){
+    console.error('Microphone error:',err);
+    alert('Could not access microphone');
+  }
+};
+
+const stopRecording=()=>{
+  if(mediaRecorderRef.current&&recording){
+    mediaRecorderRef.current.stop();
+    setRecording(null);
+  }
+};
+
+const clearAudio=(type)=>setAudioBlobs(prev=>{const n={...prev};delete n[type];return n});
+
+// API functions
+const generateLink=async(type,name,email,phone)=>{
+  const claimRef='FROI-'+Date.now().toString().slice(-8);
+  try{
+    const res=await fetch('/api/generate-link',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({claimRef,type,personName:name,email,phone})
+    });
+    const json=await res.json();
+    if(json.success)return json.link;
+  }catch(x){console.error(x)}
+  return null;
+};
+
+const submitInlineStmt=async(type,formData,sig,audioBlob)=>{
+  const claimRef='FROI-'+Date.now().toString().slice(-8);
+  try{
+    const fd=new FormData();
+    const preparedData={
+      ...formData,
+      hasAudioRecording:!!audioBlob,
+      statementType:type,
+      claimRef:claimRef
+    };
+    fd.append('formData',JSON.stringify(preparedData));
+    const signerName=formData.typedName||formData.witnessName||formData.claimantName||formData.patientName||'';
+    fd.append('signatureData',JSON.stringify({
+      typedName:signerName,
+      signatureImage:sig
+    }));
+    fd.append('statementType',type);
+    fd.append('claimRef',claimRef);
+    if(audioBlob){
+      let ext='webm';
+      if(audioBlob.type.includes('mp4'))ext='m4a';
+      else if(audioBlob.type.includes('ogg'))ext='ogg';
+      fd.append('files',audioBlob,'audio-'+type+'.'+ext);
+    }
+    const res=await fetch('/api/submit-inline-statement',{method:'POST',body:fd});
+    const json=await res.json();
+    if(json.success){
+      setInlineStmts(prev=>[...prev,{type,pdf:json.pdf,filename:json.filename,audioFiles:json.audioFiles||[]}]);
+      return true;
+    }else{
+      alert('Error: '+(json.error||json.message||'Unknown error'));
+    }
+  }catch(x){
+    alert('Network error: '+x.message);
+  }
+  return false;
+};
+
+const submit=async()=>{
+  setSubmitting(true);
+  try{
+    const fd=new FormData();
+    fd.append('formData',JSON.stringify(d));
+    fd.append('inlineStatements',JSON.stringify(inlineStmts));
+    uploadedFiles.forEach(f=>fd.append('files',f));
+    if(d.scenePhotoFiles)d.scenePhotoFiles.forEach(f=>fd.append('files',f));
+    if(d.injuryPhotoFiles)d.injuryPhotoFiles.forEach(f=>fd.append('files',f));
+    if(d.evidenceDocFiles)d.evidenceDocFiles.forEach(f=>fd.append('files',f));
+    const res=await fetch('/api/submit-claim',{method:'POST',body:fd});
+    const json=await res.json();
+    if(json.success){
+      localStorage.removeItem('wcr_draft');
+      setResult(json);
+    }else{
+      alert('Error: '+(json.error||'Unknown'));
+    }
+  }catch(x){
+    alert('Error: '+x.message);
+  }
+  setSubmitting(false);
+};
+
+// Success screen render
+if(result)return e('div',{className:'portal'},
+  e('header',{className:'header'},
+    e('div',{className:'header-content'},
+      e('div',{className:'brand'},
+        e('div',{className:'brand-logo'},
+          e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'})
+        )
+      )
+    )
+  ),
+  e('div',{className:'success-container'},
+    e('div',{className:'success-icon'},'✓'),
+    e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Claim Submitted Successfully'),
+    e('p',{style:{color:'var(--tm)'}},'Reference Number:'),
+    e('div',{className:'ref-number'},result.referenceNumber),
+    e('p',{style:{color:'var(--tm)',margin:'20px 0'}},'Confirmation sent to '+d.submitterEmail),
+    inlineStmts.length>0&&e('p',{style:{color:'var(--tg)',fontSize:13}},inlineStmts.length+' e-signed document(s) attached'),
+    e('button',{className:'nav-btn primary',style:{marginTop:20},onClick:()=>location.reload()},'Submit Another Claim')
+  )
+);
+
+// Input helper functions
+const inp=(f,p,t='text')=>e('input',{
+  type:t,
+  className:'input-field',
+  value:d[f]||'',
+  onChange:x=>u(f,x.target.value),
+  placeholder:p
+});
+
+const sel=(f,opts,p)=>e('select',{
+  className:'input-field',
+  value:d[f]||'',
+  onChange:x=>u(f,x.target.value)
+},
+  e('option',{value:''},p),
+  ...opts.map(o=>e('option',{key:o,value:o},o))
+);
+
+const tog=(f,opts)=>e('div',{className:'toggle-group'},
+  ...opts.map(o=>e('button',{
+    key:String(o.v),
+    type:'button',
+    className:'toggle-btn'+(d[f]===o.v?' active'+(o.c?' '+o.c:''):''),
+    onClick:()=>u(f,o.v)
+  },o.l))
+);
+
+// E-SIGNATURE STEPS RENDERER (Steps 8, 9, 10)
+const renderStatementStep=(type,title,subtitle,dataKey,optKey,linkKey,signedKey)=>{
+  const data=d[dataKey]||{};
+  const setData=(f,v)=>uNested(dataKey,f,v);
+
+  const prefillClaimant=()=>{
+    if(type==='claimant'&&d.firstName&&!data.claimantName){
+      setData('claimantName',(d.firstName||'')+' '+(d.lastName||''));
+      if(d.dateOfBirth)setData('dateOfBirth',d.dateOfBirth);
+    }
+    if(type==='hipaa'&&d.firstName&&!data.patientName){
+      setData('patientName',(d.firstName||'')+' '+(d.lastName||''));
+      if(d.dateOfBirth)setData('dateOfBirth',d.dateOfBirth);
+      if(d.entity)setData('employer',d.entity==='Other - Enter Manually'?d.customEntity:d.entity);
+    }
+  };
+
+  const canSign=()=>{
+    if(!data.typedName)return false;
+    if(!data.signature)return false;
+    if(!data.consent1||!data.consent2)return false;
+    if(type==='witness'&&!data.witnessName)return false;
+    if(type==='claimant'&&!data.claimantName)return false;
+    if(type==='hipaa'&&!data.patientName)return false;
+    return true;
+  };
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,title),
+      e('p',{className:'section-subtitle'},subtitle),
+      d[signedKey]&&e('div',{style:{marginTop:8}},
+        e('span',{className:'status-badge success'},'Completed & Signed')
+      )
+    ),
+    
+    // Collection method selection
+    e('div',{className:'form-group full-width'},
+      e('label',null,'How would you like to collect this ',type==='hipaa'?'authorization':'statement','?'),
+      e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginTop:8}},
+        e('div',{
+          className:'option-card'+(d[optKey]==='now'?' selected':''),
+          onClick:()=>{u(optKey,'now');prefillClaimant();}
+        },
+          e('h4',null,'Complete Now'),
+          e('p',null,'Person is present — collect signature immediately')
+        ),
+        e('div',{
+          className:'option-card'+(d[optKey]==='skip'?' selected':''),
+          onClick:()=>u(optKey,'skip')
+        },
+          e('h4',null,'Skip'),
+          e('p',null,'Collect after submission')
+        )
+      )
+    ),
+    
+    // OPTION: COMPLETE NOW
+    d[optKey]==='now'&&e('div',{style:{marginTop:24}},
+      
+      // WITNESS FORM
+      type==='witness'&&e('div',null,
+        e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Witness Information'),
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Witness Name ',e('span',{className:'required'},'*')),
+            e('input',{className:'input-field',value:data.witnessName||'',onChange:x=>setData('witnessName',x.target.value),placeholder:'Full legal name'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Phone'),
+            e('input',{className:'input-field',type:'tel',value:data.witnessPhone||'',onChange:x=>setData('witnessPhone',x.target.value),placeholder:'(555) 555-5555'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Email'),
+            e('input',{className:'input-field',type:'email',value:data.witnessEmail||'',onChange:x=>setData('witnessEmail',x.target.value),placeholder:'email@example.com'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Relationship to Claimant'),
+            e('select',{className:'input-field',value:data.relationship||'',onChange:x=>setData('relationship',x.target.value)},
+              e('option',{value:''},'Select relationship'),
+              e('option',{value:'coworker'},'Coworker'),
+              e('option',{value:'supervisor'},'Supervisor'),
+              e('option',{value:'manager'},'Manager'),
+              e('option',{value:'subordinate'},'Subordinate'),
+              e('option',{value:'customer'},'Customer'),
+              e('option',{value:'vendor'},'Vendor/Contractor'),
+              e('option',{value:'other'},'Other')
+            )
+          )
+        ),
+        e('div',{className:'form-group full-width',style:{marginTop:16}},
+          e('label',null,'Where was witness located during incident?'),
+          e('input',{className:'input-field',value:data.witnessLocation||'',onChange:x=>setData('witnessLocation',x.target.value),placeholder:'e.g., Standing 10 feet away near the entrance'})
+        ),
+        e('div',{className:'form-group full-width',style:{marginTop:12}},
+          e('label',null,'Witness Statement ',e('span',{className:'required'},'*')),
+          e('textarea',{className:'input-field',rows:5,value:data.statement||'',onChange:x=>setData('statement',x.target.value),placeholder:'Describe in detail what you witnessed. Include:\n- What were you doing before the incident?\n- What did you see/hear?\n- What happened immediately after?\n- Any other relevant observations...'})
+        )
+      ),
+      
+      // CLAIMANT FORM
+      type==='claimant'&&e('div',null,
+        e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Claimant Information'),
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Claimant Name ',e('span',{className:'required'},'*')),
+            e('input',{className:'input-field',value:data.claimantName||'',onChange:x=>setData('claimantName',x.target.value),placeholder:'Full legal name'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Date of Birth'),
+            e('input',{type:'date',className:'input-field',value:data.dateOfBirth||'',onChange:x=>setData('dateOfBirth',x.target.value)})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Phone'),
+            e('input',{className:'input-field',type:'tel',value:data.claimantPhone||'',onChange:x=>setData('claimantPhone',x.target.value),placeholder:'(555) 555-5555'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Email'),
+            e('input',{className:'input-field',type:'email',value:data.claimantEmail||'',onChange:x=>setData('claimantEmail',x.target.value),placeholder:'email@example.com'})
+          )
+        ),
+        e('div',{className:'form-group full-width',style:{marginTop:16}},
+          e('label',null,'Describe the Incident in Your Own Words'),
+          e('textarea',{className:'input-field',rows:5,value:data.incidentDescription||'',onChange:x=>setData('incidentDescription',x.target.value),placeholder:'Please describe what happened in your own words. Include:\n- What were you doing before the incident?\n- How did the injury occur?\n- Did anyone witness the incident?\n- What did you do immediately after?'})
+        ),
+        e('div',{className:'form-grid',style:{marginTop:16}},
+          e('div',{className:'form-group'},
+            e('label',null,'Body Parts Injured'),
+            e('input',{className:'input-field',value:data.bodyPartsInjured||'',onChange:x=>setData('bodyPartsInjured',x.target.value),placeholder:'e.g., Lower back, right knee'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Current Symptoms'),
+            e('input',{className:'input-field',value:data.currentSymptoms||'',onChange:x=>setData('currentSymptoms',x.target.value),placeholder:'e.g., Pain, swelling, limited mobility'})
+          )
+        ),
+        e('div',{className:'form-grid',style:{marginTop:12}},
+          e('div',{className:'form-group'},
+            e('label',null,'Have you had this injury before?'),
+            e('select',{className:'input-field',value:data.priorInjury||'',onChange:x=>setData('priorInjury',x.target.value)},
+              e('option',{value:''},'Select'),
+              e('option',{value:'no'},'No - First time'),
+              e('option',{value:'yes_same'},'Yes - Same body part'),
+              e('option',{value:'yes_different'},'Yes - Different body part'),
+              e('option',{value:'yes_work'},'Yes - Prior work injury')
+            )
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Are you able to work?'),
+            e('select',{className:'input-field',value:data.ableToWork||'',onChange:x=>setData('ableToWork',x.target.value)},
+              e('option',{value:''},'Select'),
+              e('option',{value:'yes_full'},'Yes - Full duties'),
+              e('option',{value:'yes_light'},'Yes - Light duty only'),
+              e('option',{value:'no'},'No - Unable to work')
+            )
+          )
+        )
+      ),
+      
+      // HIPAA FORM
+      type==='hipaa'&&e('div',null,
+        e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'HIPAA Authorization'),
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Patient Name ',e('span',{className:'required'},'*')),
+            e('input',{className:'input-field',value:data.patientName||'',onChange:x=>setData('patientName',x.target.value),placeholder:'Full legal name'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Date of Birth'),
+            e('input',{type:'date',className:'input-field',value:data.dateOfBirth||'',onChange:x=>setData('dateOfBirth',x.target.value)})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Last 4 of SSN'),
+            e('input',{className:'input-field',maxLength:4,value:data.ssnLast4||'',onChange:x=>setData('ssnLast4',x.target.value.replace(/\D/g,'')),placeholder:'XXXX'})
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Employer'),
+            e('input',{className:'input-field',value:data.employer||'',onChange:x=>setData('employer',x.target.value),placeholder:'Employer name'})
+          )
+        ),
+        e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.6)',borderRadius:12,border:'1px solid var(--gbd)'}},
+          e('h4',{style:{color:'white',fontSize:14,marginBottom:12}},'AUTHORIZATION FOR RELEASE OF PROTECTED HEALTH INFORMATION'),
+          e('div',{style:{fontSize:12,color:'var(--tm)',lineHeight:1.6}},
+            e('p',{style:{marginBottom:12}},'I hereby authorize any healthcare provider, hospital, clinic, pharmacy, or other medical facility that has provided treatment or services to me to release and disclose my protected health information to:'),
+            e('p',{style:{marginBottom:12,fontWeight:600,color:'var(--tt)'}},'Titanium Defense Group and its designated representatives, insurance carriers, and claims administrators'),
+            e('p',{style:{marginBottom:12}},'This authorization includes the release of information related to:'),
+            e('ul',{style:{marginLeft:20,marginBottom:12}},
+              e('li',null,'Medical records, reports, and test results'),
+              e('li',null,'Diagnosis and treatment information'),
+              e('li',null,'Billing and payment records'),
+              e('li',null,'Any other information related to my workers\' compensation claim')
+            ),
+            e('p',{style:{marginBottom:12}},'I understand that:'),
+            e('ul',{style:{marginLeft:20}},
+              e('li',null,'This authorization is voluntary'),
+              e('li',null,'I may revoke this authorization at any time in writing'),
+              e('li',null,'This authorization expires 24 months from the date of signature'),
+              e('li',null,'Information disclosed may be subject to re-disclosure')
+            )
+          )
+        )
+      ),
+      
+      // AUDIO RECORDING (not for HIPAA)
+      type!=='hipaa'&&e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+        e('div',{className:'audio-rec'},
+          e('h4',null,'Audio Recording (Optional)'),
+          e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Record a verbal statement in addition to or instead of the written statement above.'),
+          e('div',{style:{display:'flex',alignItems:'center',gap:16}},
+            e('button',{
+              type:'button',
+              className:'rec-btn'+(recording===type?' recording':''),
+              onClick:()=>recording===type?stopRecording():startRecording(type),
+              style:{width:56,height:56}
+            },recording===type?'STOP':'REC'),
+            e('div',null,
+              e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},
+                recording===type?'Recording in progress...':'Click to start recording'
+              ),
+              recording===type&&e('p',{style:{fontSize:11,color:'var(--tm)'}},'Click the button again to stop')
+            )
+          ),
+          audioBlobs[type]&&e('div',{style:{marginTop:16,padding:12,background:'rgba(52,211,153,0.1)',borderRadius:8,border:'1px solid var(--tg)'}},
+            e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8,fontWeight:600}},'Audio recorded successfully'),
+            e('audio',{src:URL.createObjectURL(audioBlobs[type]),controls:true,style:{width:'100%',borderRadius:6}}),
+            e('button',{
+              type:'button',
+              className:'nav-btn secondary',
+              style:{marginTop:8,padding:'6px 12px',fontSize:11},
+              onClick:()=>clearAudio(type)
+            },'Remove Recording')
+          )
+        )
+      ),
+      
+      // SIGNATURE SECTION
+      e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+        e('div',{className:'sig-section'},
+          e('h3',{style:{marginBottom:16}},'Electronic Signature'),
+          e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Use your mouse or finger to sign in the box below'),
+          e('div',{className:'sig-canvas-wrap',style:{border:'2px solid var(--tb)',borderRadius:8}},
+            e('canvas',{
+              ref:sigCanvasRef,
+              className:'sig-canvas',
+              onMouseDown:startDraw,
+              onMouseMove:draw,
+              onMouseUp:()=>stopDraw(dataKey),
+              onMouseLeave:()=>stopDraw(dataKey),
+              onTouchStart:startDraw,
+              onTouchMove:draw,
+              onTouchEnd:()=>stopDraw(dataKey)
+            })
+          ),
+          e('div',{style:{display:'flex',gap:8,marginTop:8}},
+            e('button',{className:'nav-btn secondary',type:'button',style:{padding:'8px 16px'},onClick:()=>clearSig(dataKey)},'Clear Signature'),
+            data.signature&&e('span',{style:{fontSize:12,color:'var(--tg)',display:'flex',alignItems:'center',gap:4}},'Signature captured')
+          ),
+          e('div',{className:'form-group',style:{marginTop:16}},
+            e('label',null,'Type Full Legal Name ',e('span',{className:'required'},'*')),
+            e('input',{className:'input-field',value:data.typedName||'',onChange:x=>setData('typedName',x.target.value),placeholder:'Type your full legal name'})
+          ),
+          e('div',{style:{marginTop:16}},
+            e('div',{className:'checkbox-group'},
+              e('input',{type:'checkbox',checked:data.consent1||false,onChange:x=>setData('consent1',x.target.checked)}),
+              e('label',null,type==='hipaa'?'I authorize the release of my protected health information as described above.':'I certify that the information provided above is true and correct to the best of my knowledge.')
+            ),
+            e('div',{className:'checkbox-group',style:{marginTop:8}},
+              e('input',{type:'checkbox',checked:data.consent2||false,onChange:x=>setData('consent2',x.target.checked)}),
+              e('label',null,'I consent to sign this document electronically in accordance with the E-SIGN Act and agree that my electronic signature has the same legal effect as a handwritten signature.')
+            )
+          ),
+          // Sign button or success message
+          !d[signedKey]?e('div',{style:{marginTop:20}},
+            e('button',{
+              className:'nav-btn primary',
+              style:{padding:'14px 28px',fontSize:15},
+              disabled:!canSign(),
+              onClick:async()=>{
+                if(!canSign()){
+                  alert('Please complete all required fields, sign above, and check both consent boxes.');
+                  return;
+                }
+                const ok=await submitInlineStmt(type,data,data.signature,audioBlobs[type]);
+                if(ok){
+                  u(signedKey,true);
+                  clearAudio(type);
+                  alert('Document signed and saved successfully!');
+                }else{
+                  alert('Error saving signature. Please try again.');
+                }
+              }
+            },'Sign & Save Document'),
+            !canSign()&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},'Complete all required fields to enable signing')
+          ):e('div',{style:{marginTop:20,padding:16,background:'rgba(52,211,153,0.1)',border:'1px solid var(--tg)',borderRadius:12,textAlign:'center'}},
+            e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},'Document Signed Successfully'),
+            e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'This signed document will be attached to the claim submission.')
+          )
+        )
+      )
+    ),
+    
+    // OPTION: SKIP
+    d[optKey]==='skip'&&e('div',{style:{marginTop:24}},
+      e('div',{className:'info-tip'},
+        e('p',null,'Skipping - this ',type==='hipaa'?'authorization':'statement',' will not be collected at this time.')
+      )
+    )
+  );
+};
+
+// MAIN RENDER STEP FUNCTION
+const renderStep=()=>{
+
+// STEP 0 - EMPLOYEE
+if(step===0)return e('div',{className:'content'},
+  e('div',{className:'section-header'},
+    e('h2',null,'Employee Information'),
+    e('p',{className:'section-subtitle'},'Enter the injured employee\'s personal and employment details')
+  ),
+  e('div',{className:'form-grid'},
+    e('div',{className:'form-group'},
+      e('label',null,'First Name ',e('span',{className:'required'},'*')),
+      inp('firstName','First name')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Last Name ',e('span',{className:'required'},'*')),
+      inp('lastName','Last name')
+    ),
+    e('div',{className:'form-group full-width'},
+      e('label',null,'Mailing Address'),
+      inp('mailingAddress','Street address')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'City'),
+      inp('city','City')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'State'),
+      sel('state',STATES,'Select state')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Zip Code'),
+      inp('zipCode','Zip code')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Phone'),
+      inp('phone','(555) 555-5555','tel')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Date of Birth'),
+      inp('dateOfBirth','','date')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Date of Hire'),
+      inp('dateOfHire','','date')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'SSN'),
+      inp('ssn','XXX-XX-XXXX')
+    ),
+    e('div',{className:'form-group full-width'},
+      e('label',null,'Occupation / Job Title'),
+      inp('occupation','Job title or position')
+    )
+  ),
+  (d.firstName||d.lastName)&&e('div',{className:'employee-summary'},
+    e('h4',null,'Employee Summary'),
+    e('p',null,e('strong',null,(d.firstName||'')+' '+(d.lastName||''))),
+    d.occupation&&e('p',null,e('span',null,'Position: '),d.occupation),
+    d.phone&&e('p',null,e('span',null,'Phone: '),d.phone),
+    d.dateOfHire&&e('p',null,e('span',null,'Hire Date: '),new Date(d.dateOfHire).toLocaleDateString())
+  )
+);
+
+// STEP 1 - CLAIM
+if(step===1){
+  const calcDaysToReport=()=>{
+    if(!d.dateOfInjury||!d.dateReported)return null;
+    const injury=new Date(d.dateOfInjury);
+    const reported=new Date(d.dateReported);
+    const diff=Math.floor((reported-injury)/(1000*60*60*24));
+    return diff;
+  };
+  const daysToReport=calcDaysToReport();
+  
+  const injuryInFuture=d.dateOfInjury&&new Date(d.dateOfInjury)>new Date();
+  const reportBeforeInjury=d.dateOfInjury&&d.dateReported&&new Date(d.dateReported)<new Date(d.dateOfInjury);
+  const hireAfterInjury=d.dateOfHire&&d.dateOfInjury&&new Date(d.dateOfHire)>new Date(d.dateOfInjury);
+  
+  const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
+  
+  const towneEntities=entities.filter(ent=>
+    ent.toLowerCase().includes('towne')||
+    ent.toLowerCase().includes('shiftster')||
+    ent.toLowerCase().includes('eshyft')
+  );
+  
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Claim Information'),
+      e('p',{className:'section-subtitle'},'Claim details, wages, and reporting timeline')
+    ),
+    e('div',{className:'form-group full-width'},
+      e('label',null,'Entity ',e('span',{className:'required'},'*')),
+      sel('entity',[...towneEntities,'Other - Enter Manually'],'Select Entity'),
+      d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
+    ),
+    e('div',{className:'form-grid',style:{marginTop:16}},
+      e('div',{className:'form-group'},
+        e('label',null,'Date of Injury ',e('span',{className:'required'},'*')),
+        inp('dateOfInjury','','date')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Time of Injury'),
+        inp('timeOfInjury','','time')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Date Reported'),
+        inp('dateReported','','date')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Reported Immediately?'),
+        tog('reportedImmediately',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}])
+      )
+    ),
+    daysToReport!==null&&e('div',{style:{marginTop:12,marginBottom:16}},
+      e('div',{className:'status-badge '+(daysToReport<=1?'success':daysToReport<=7?'warning':'danger')},
+        daysToReport===0?'Reported Same Day':
+        daysToReport===1?'Reported Next Day':
+        daysToReport<=7?daysToReport+' Days to Report':
+        daysToReport+' Days to Report — DELAYED'
+      )
+    ),
+    injuryInFuture&&e('div',{className:'warning-box'},'Date of injury is in the future. Please verify this is correct.'),
+    reportBeforeInjury&&e('div',{style:{background:'rgba(248,113,113,0.12)',border:'1px solid rgba(248,113,113,0.3)',borderRadius:12,padding:16,fontSize:14,color:'var(--tr)',marginBottom:18}},'Report date cannot be before injury date. Please correct.'),
+    hireAfterInjury&&e('div',{className:'warning-box'},'Hire date is after injury date. Was employee hired before the incident?'),
+    e('div',{className:'form-grid',style:{marginTop:8}},
+      e('div',{className:'form-group'},
+        e('label',null,'Weekly Wage'),
+        e('div',{style:{position:'relative'}},
+          e('span',{style:{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--tm)',fontSize:14}},'$'),
+          e('input',{
+            type:'text',
+            className:'input-field',
+            style:{paddingLeft:28},
+            value:d.weeklyWage||'',
+            onChange:x=>u('weeklyWage',x.target.value.replace(/[^0-9.]/g,'')),
+            placeholder:'0.00'
+          })
+        )
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Employee Work Type'),
+        sel('workType',WORK_TYPES,'Select work type')
+      )
+    ),
+    d.weeklyWage&&e('div',{className:'info-tip',style:{marginTop:12}},
+      e('strong',null,'Wage Info: '),
+      'Weekly: $'+parseFloat(d.weeklyWage||0).toFixed(2)+
+      ' | Annual: $'+(parseFloat(d.weeklyWage||0)*52).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+
+      ' | Daily: $'+(parseFloat(d.weeklyWage||0)/5).toFixed(2)
+    )
+  );
+}
+
+// STEP 2 - INCIDENT
+if(step===2){
+  const NATURE_OF_INJURY=[
+    {v:'contusion',l:'Contusion/Bruise'},{v:'laceration',l:'Laceration/Cut'},{v:'fracture',l:'Fracture'},
+    {v:'sprain',l:'Sprain'},{v:'strain',l:'Strain'},{v:'puncture',l:'Puncture'},{v:'abrasion',l:'Abrasion'},
+    {v:'burn_thermal',l:'Burn - Thermal'},{v:'burn_chemical',l:'Burn - Chemical'},{v:'concussion',l:'Concussion'},
+    {v:'dislocation',l:'Dislocation'},{v:'amputation',l:'Amputation'},{v:'crushing',l:'Crushing Injury'},
+    {v:'inflammation',l:'Inflammation'},{v:'carpal_tunnel',l:'Carpal Tunnel'},{v:'herniated_disc',l:'Herniated Disc'},
+    {v:'hearing_loss',l:'Hearing Loss'},{v:'foreign_body',l:'Foreign Body'},{v:'multiple',l:'Multiple Injuries'},{v:'other',l:'Other'}
+  ];
+  const CAUSE_OF_INJURY=[
+    {v:'fall_same_level',l:'Fall on Same Level'},{v:'fall_from_height',l:'Fall from Height'},
+    {v:'struck_by_object',l:'Struck by Object'},{v:'struck_against',l:'Struck Against Object'},
+    {v:'caught_in_between',l:'Caught In/Between'},{v:'overexertion_lifting',l:'Overexertion - Lifting'},
+    {v:'overexertion_pushing',l:'Overexertion - Pushing/Pulling'},{v:'repetitive_motion',l:'Repetitive Motion'},
+    {v:'motor_vehicle',l:'Motor Vehicle Accident'},{v:'assault_violence',l:'Assault/Violence'},
+    {v:'exposure_harmful',l:'Exposure to Harmful Substance'},{v:'exposure_temperature',l:'Temperature Extremes'},
+    {v:'contact_electric',l:'Contact with Electricity'},{v:'patient_handling',l:'Patient Handling'},{v:'other',l:'Other'}
+  ];
+  
+  const INJURY_TIPS={
+    'slip_trip_fall':['Preserve video footage immediately - systems auto-delete','Document floor condition, lighting, footwear worn','Check for spills, mats, cords, weather conditions','Take photos of exact location from multiple angles','Interview any witnesses separately'],
+    'struck_by':['Identify the object that struck employee','Document weight, size, and height of fall','Check for overhead hazards, stacking issues','Review material handling procedures','Inspect any equipment involved'],
+    'strain_sprain':['Document weight lifted and technique used','Check if mechanical aids were available','Review patient handling procedures if applicable','Note any pre-existing conditions mentioned','Verify training on proper lifting was provided'],
+    'cut_laceration':['Identify the tool or object causing injury','Check if guards/safety devices were in place','Review PPE requirements for task','Document first aid provided','Preserve any defective equipment'],
+    'burn':['Identify heat source or chemical involved','Document PPE worn at time of incident','Obtain SDS if chemical exposure','Note immediate first aid given','Check equipment temperature settings'],
+    'caught_in':['Identify machine/equipment involved','Check if lockout/tagout was followed','Document guard positions','Review maintenance records','Preserve equipment in current state'],
+    'vehicle':['Obtain police report if applicable','Document all vehicle damage with photos','Check driver qualification file','Review driving policies and MVR','Identify all parties involved'],
+    'assault':['Contact law enforcement if appropriate','Preserve any video evidence immediately','Document all witnesses separately','Review security protocols','Consider employee counseling resources'],
+    'exposure':['Identify substance and obtain SDS','Document duration of exposure','Check ventilation and PPE used','Note symptoms and timeline','Review hazard communication training'],
+    'repetitive':['Document job duties and duration','Review workstation ergonomics','Check for previous similar complaints','Note any job rotation practices','Review break schedules']
+  };
+  const tips=INJURY_TIPS[d.injuryType]||[];
+  
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Incident Details'),
+      e('p',{className:'section-subtitle'},'Describe what happened and the resulting injury')
+    ),
+    e('div',{className:'form-group full-width'},
+      e('label',null,'Description of Accident ',e('span',{className:'required'},'*')),
+      e('textarea',{className:'input-field',rows:4,value:d.accidentDescription||'',onChange:x=>u('accidentDescription',x.target.value),placeholder:'Describe who, what, when, where, and how the injury occurred. Be specific about the sequence of events...'})
+    ),
+    e('div',{className:'form-group full-width',style:{marginTop:12}},
+      e('label',null,'Job Duties at Time of Injury'),
+      e('textarea',{className:'input-field',rows:2,value:d.jobDutiesAtTime||'',onChange:x=>u('jobDutiesAtTime',x.target.value),placeholder:'What specific task was the employee performing when injured?'})
+    ),
+    e('div',{className:'form-group full-width',style:{marginTop:20}},
+      e('label',null,'Injury Type ',e('span',{className:'required'},'*')),
+      e('div',{className:'injury-grid'},...INJURY_TYPES.map(t=>
+        e('button',{key:t.v,type:'button',className:'injury-btn'+(d.injuryType===t.v?' active':''),onClick:()=>u('injuryType',t.v)},
+          e('span',{className:'injury-icon'},t.i),
+          e('span',{className:'injury-label'},t.l)
+        )
+      ))
+    ),
+    tips.length>0&&e('div',{style:{background:'linear-gradient(135deg,rgba(91,164,230,0.1) 0%,rgba(91,164,230,0.05) 100%)',border:'1px solid rgba(91,164,230,0.25)',borderRadius:12,padding:16,marginTop:16}},
+      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:10}},'Investigation Tips for ',INJURY_TYPES.find(t=>t.v===d.injuryType)?.l||''),
+      e('ul',{style:{listStyle:'none',margin:0,padding:0}},
+        ...tips.map((tip,i)=>e('li',{key:i,style:{padding:'5px 0',paddingLeft:18,position:'relative',fontSize:12,color:'var(--tm)'}},
+          e('span',{style:{position:'absolute',left:0,color:'var(--ta)'}},'—'),tip
+        ))
+      )
+    ),
+    e('div',{className:'form-grid',style:{marginTop:20}},
+      e('div',{className:'form-group'},
+        e('label',null,'Nature of Injury'),
+        e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
+          e('option',{value:''},'Select nature of injury'),
+          ...NATURE_OF_INJURY.map(n=>e('option',{key:n.v,value:n.v},n.l))
+        )
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Cause of Injury'),
+        e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
+          e('option',{value:''},'Select cause of injury'),
+          ...CAUSE_OF_INJURY.map(c=>e('option',{key:c.v,value:c.v},c.l))
+        )
+      )
+    ),
+    e('div',{className:'form-group full-width',style:{marginTop:20}},
+      e('label',null,'Body Parts Affected'),
+      e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+        ...BODY_PARTS.map(p=>e('button',{key:p,type:'button',className:'chip-btn'+(d.bodyParts?.includes(p)?' active':''),onClick:()=>ta('bodyParts',p)},p))
+      ),
+      e('div',{style:{marginTop:12}},
+        e('input',{className:'input-field',style:{maxWidth:300},placeholder:'Other body part not listed...',value:d.customBodyPart||'',onChange:x=>u('customBodyPart',x.target.value)})
+      )
+    ),
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Accident Location'),
+      e('div',{className:'checkbox-group',style:{marginBottom:16}},
+        e('input',{type:'checkbox',checked:d.accidentAtWorksite!==false,onChange:x=>u('accidentAtWorksite',x.target.checked)}),
+        e('label',null,'Accident occurred at normal work location')
+      ),
+      d.accidentAtWorksite===false&&e('div',{className:'form-grid'},
+        e('div',{className:'form-group full-width'},
+          e('label',null,'Street Address'),
+          inp('accidentStreet','Street address where accident occurred')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'City'),
+          inp('accidentCity','City')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'State'),
+          sel('accidentState',STATES,'Select state')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Zip Code'),
+          inp('accidentZip','Zip code')
+        )
+      ),
+      d.accidentAtWorksite===false&&e('div',{className:'info-tip',style:{marginTop:12}},'Off-site injuries may require additional documentation. Note the reason employee was at this location.')
+    )
+  );
+}
+
+// STEP 3 - MEDICAL
+if(step===3){
+  const getReferralRecommendation=()=>{
+    if(d.refusedTreatment===true)return {type:'refused',color:'var(--tw)',msg:'Employee refused treatment. Document refusal in writing and have employee sign refusal form if possible.'};
+    if(d.severeInjury===true)return {type:'emergency',color:'var(--tr)',msg:'EMERGENCY - Send to nearest hospital/ER immediately for severe injury.'};
+    if(d.employeeRequestedHospital===true)return {type:'hospital',color:'var(--tw)',msg:'Employee requested hospital. Honor request but document the preference.'};
+    if(d.soughtMedicalTreatment===false&&d.refusedTreatment===false)return {type:'concentra',color:'var(--tg)',msg:'Recommend occupational clinic (Concentra or similar) for evaluation and treatment.'};
+    return null;
+  };
+  const referral=d.soughtMedicalTreatment===false?getReferralRecommendation():null;
+  
+  const REFERRAL_TYPES=[
+    {v:'concentra',l:'Concentra / Occupational Clinic'},
+    {v:'hospital_er',l:'Hospital / Emergency Room'},
+    {v:'urgent_care',l:'Urgent Care'},
+    {v:'primary_care',l:'Primary Care Physician'},
+    {v:'specialist',l:'Specialist'},
+    {v:'telehealth',l:'Telehealth / Nurse Line'},
+    {v:'other',l:'Other'}
+  ];
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Medical Treatment'),
+      e('p',{className:'section-subtitle'},'Treatment details and medical referral guidance')
+    ),
+    e('div',{className:'form-group'},
+      e('label',null,'Has employee received or sought medical treatment?'),
+      tog('soughtMedicalTreatment',[
+        {v:true,l:'Yes - Already Treated',c:'success'},
+        {v:false,l:'No - Needs Referral',c:'warning'}
+      ])
+    ),
+    
+    // PATH A: Already received treatment
+    d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:20}},
+      e('div',{className:'info-tip'},'Enter details of the medical treatment received.'),
+      e('div',{className:'form-grid',style:{marginTop:16}},
+        e('div',{className:'form-group'},
+          e('label',null,'Facility Name'),
+          inp('initialFacilityName','Hospital, clinic, or doctor\'s office')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Treating Physician'),
+          inp('treatingPhysician','Doctor\'s name')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Date of Treatment'),
+          inp('treatmentDate','','date')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Treatment Type'),
+          e('select',{className:'input-field',value:d.treatmentType||'',onChange:x=>u('treatmentType',x.target.value)},
+            e('option',{value:''},'Select type'),
+            e('option',{value:'first_aid'},'First Aid Only'),
+            e('option',{value:'medical_treatment'},'Medical Treatment'),
+            e('option',{value:'emergency'},'Emergency Room'),
+            e('option',{value:'hospitalized'},'Hospitalized'),
+            e('option',{value:'surgery'},'Surgery Required')
+          )
+        )
+      ),
+      e('div',{className:'form-group full-width',style:{marginTop:12}},
+        e('label',null,'Treatment Notes'),
+        e('textarea',{className:'input-field',rows:2,value:d.treatmentNotes||'',onChange:x=>u('treatmentNotes',x.target.value),placeholder:'Brief description of treatment received...'})
+      ),
+      e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
+        e('div',{className:'form-group'},
+          e('label',null,'Were work restrictions given?'),
+          tog('workRestrictionsGiven',[
+            {v:true,l:'Yes',c:'warning'},
+            {v:false,l:'No',c:'success'},
+            {v:'pending',l:'Pending'}
+          ])
+        ),
+        d.workRestrictionsGiven===true&&e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Restriction Details'),
+          e('textarea',{className:'input-field',rows:2,value:d.restrictionDetails||'',onChange:x=>u('restrictionDetails',x.target.value),placeholder:'e.g., No lifting over 10 lbs, no standing more than 2 hours...'})
+        )
+      )
+    ),
+    
+    // PATH B: Needs referral
+    d.soughtMedicalTreatment===false&&e('div',{style:{marginTop:20}},
+      e('div',{style:{background:'rgba(91,164,230,0.1)',border:'1px solid rgba(91,164,230,0.25)',borderRadius:12,padding:16,marginBottom:20}},
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:8}},'Medical Referral Decision Guide'),
+        e('p',{style:{fontSize:12,color:'var(--tm)'}},'Answer the following questions to determine the appropriate referral.')
+      ),
+      
+      e('div',{className:'form-group',style:{marginBottom:16}},
+        e('label',null,'Did employee refuse medical treatment?'),
+        tog('refusedTreatment',[
+          {v:true,l:'Yes - Refused',c:'warning'},
+          {v:false,l:'No - Willing to Go'}
+        ])
+      ),
+      
+      d.refusedTreatment===false&&e('div',{className:'form-group',style:{marginBottom:16}},
+        e('label',null,'Is this a severe/emergency injury?'),
+        e('p',{style:{fontSize:11,color:'var(--tm)',marginBottom:8}},'Head trauma, broken bones, severe bleeding, chest pain, difficulty breathing, loss of consciousness'),
+        tog('severeInjury',[
+          {v:true,l:'Yes - Severe/Emergency',c:'danger'},
+          {v:false,l:'No - Standard Injury'}
+        ])
+      ),
+      
+      d.refusedTreatment===false&&d.severeInjury===false&&e('div',{className:'form-group',style:{marginBottom:16}},
+        e('label',null,'Did employee specifically request hospital/ER?'),
+        tog('employeeRequestedHospital',[
+          {v:true,l:'Yes - Requested Hospital',c:'warning'},
+          {v:false,l:'No - No Preference'}
+        ])
+      ),
+      
+      referral&&e('div',{style:{
+        background:referral.type==='emergency'?'rgba(248,113,113,0.15)':
+                  referral.type==='refused'?'rgba(251,191,36,0.15)':
+                  referral.type==='hospital'?'rgba(251,191,36,0.15)':
+                  'rgba(52,211,153,0.15)',
+        border:'1px solid '+referral.color,
+        borderRadius:12,padding:16,marginTop:20,marginBottom:20
+      }},
+        e('h4',{style:{color:referral.color,fontSize:14,marginBottom:8}},
+          referral.type==='emergency'?'EMERGENCY REFERRAL':
+          referral.type==='refused'?'TREATMENT REFUSED':
+          referral.type==='hospital'?'HOSPITAL REFERRAL':
+          'OCCUPATIONAL CLINIC REFERRAL'
+        ),
+        e('p',{style:{fontSize:13,color:'var(--tt)'}},referral.msg)
+      ),
+      
+      d.refusedTreatment!==true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
+        e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:16}},'Referral Details'),
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Referral Type'),
+            e('select',{className:'input-field',value:d.referralType||'',onChange:x=>u('referralType',x.target.value)},
+              e('option',{value:''},'Select referral type'),
+              ...REFERRAL_TYPES.map(r=>e('option',{key:r.v,value:r.v},r.l))
+            )
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Referral Facility'),
+            inp('referralFacility','Facility name')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Facility Phone'),
+            inp('referralPhone','Phone number','tel')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Facility Address'),
+            inp('referralAddress','Address')
+          )
+        )
+      ),
+      
+      d.refusedTreatment===true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
+        e('h4',{style:{color:'var(--tw)',fontSize:13,marginBottom:16}},'Document Treatment Refusal'),
+        e('div',{className:'warning-box',style:{marginBottom:16}},'Important: Have employee sign a written refusal form. Document that treatment was offered and declined.'),
+        e('div',{className:'form-group'},
+          e('label',null,'Reason for Refusal'),
+          e('textarea',{className:'input-field',rows:2,value:d.refusalReason||'',onChange:x=>u('refusalReason',x.target.value),placeholder:'Why did employee refuse treatment?'})
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Refusal Form Signed?'),
+          tog('refusalFormSigned',[
+            {v:true,l:'Yes - Signed',c:'success'},
+            {v:false,l:'No',c:'warning'},
+            {v:'pending',l:'Pending'}
+          ])
+        )
+      )
+    )
+  );
+}
+
+// STEP 4 - EVIDENCE
+if(step===4){
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Evidence'),
+      e('p',{className:'section-subtitle'},'Document video footage, supervisor input, and upload photos')
+    ),
+    
+    // VIDEO EVIDENCE SECTION
+    e('div',{style:{marginBottom:24}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Video Evidence'),
+      e('div',{className:'form-group'},
+        e('label',null,'Is video footage available?'),
+        tog('hasVideo',[
+          {v:true,l:'Yes - Video Available',c:'success'},
+          {v:false,l:'No Video'},
+          {v:'unknown',l:'Unknown / Checking'}
+        ])
+      ),
+      d.hasVideo===true&&e('div',{style:{marginTop:12}},
+        e('div',{className:'warning-box'},'PRESERVE IMMEDIATELY: Video surveillance systems typically auto-delete footage in 7-30 days. Request preservation in writing TODAY.'),
+        e('div',{className:'form-grid',style:{marginTop:12}},
+          e('div',{className:'form-group'},
+            e('label',null,'Video Location / Camera ID'),
+            inp('videoLocation','e.g., Lobby Camera 3, Parking Lot NW Corner')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Video System Type'),
+            inp('videoSystemType','e.g., DVR, Cloud-based, Body cam')
+          )
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Video Preservation Status'),
+          tog('videoPreserved',[
+            {v:true,l:'Preserved',c:'success'},
+            {v:false,l:'Not Yet',c:'warning'},
+            {v:'requested',l:'Requested'}
+          ])
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Video Notes'),
+          e('textarea',{className:'input-field',rows:2,value:d.videoNotes||'',onChange:x=>u('videoNotes',x.target.value),placeholder:'Time range to preserve, what video shows, who to contact...'})
+        )
+      )
+    ),
+    
+    // WITNESSES SECTION
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+        e('h3',{style:{fontSize:14,color:'var(--ta)',margin:0}},'Witnesses'),
+        e('button',{
+          type:'button',
+          className:'nav-btn secondary',
+          style:{padding:'8px 16px',fontSize:12},
+          onClick:()=>setD(p=>({...p,witnesses:[...(p.witnesses||[]),{name:'',phone:'',email:''}]}))
+        },'+ Add Witness')
+      ),
+      (!d.witnesses||d.witnesses.length===0)?
+        e('div',{style:{padding:20,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px dashed var(--tb)',textAlign:'center'}},
+          e('p',{style:{color:'var(--tm)',fontSize:13}},'No witnesses added yet.'),
+          e('p',{style:{color:'var(--tm)',fontSize:11,marginTop:4}},'Click "+ Add Witness" to add witness contact information.')
+        ):
+        e('div',{style:{display:'flex',flexDirection:'column',gap:12}},
+          ...(d.witnesses||[]).map((w,i)=>
+            e('div',{key:i,className:'witness-card',style:{position:'relative'}},
+              e('button',{
+                type:'button',
+                style:{position:'absolute',top:12,right:12,background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:18,padding:4},
+                onClick:()=>setD(p=>({...p,witnesses:p.witnesses.filter((_,idx)=>idx!==i)}))
+              },'×'),
+              e('div',{className:'witness-header'},'Witness #'+(i+1)),
+              e('div',{className:'form-grid'},
+                e('div',{className:'form-group'},
+                  e('label',null,'Name'),
+                  e('input',{
+                    className:'input-field',
+                    value:w.name||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],name:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'Full name'
+                  })
+                ),
+                e('div',{className:'form-group'},
+                  e('label',null,'Phone'),
+                  e('input',{
+                    className:'input-field',
+                    type:'tel',
+                    value:w.phone||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],phone:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'(555) 555-5555'
+                  })
+                ),
+                e('div',{className:'form-group',style:{gridColumn:'1/-1'}},
+                  e('label',null,'Email'),
+                  e('input',{
+                    className:'input-field',
+                    type:'email',
+                    value:w.email||'',
+                    onChange:x=>{
+                      const newWitnesses=[...d.witnesses];
+                      newWitnesses[i]={...newWitnesses[i],email:x.target.value};
+                      u('witnesses',newWitnesses);
+                    },
+                    placeholder:'witness@email.com'
+                  })
+                )
+              )
+            )
+          )
+        ),
+      d.witnesses?.length>0&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},d.witnesses.length+' witness'+(d.witnesses.length>1?'es':'')+' added')
+    ),
+    
+    // SUPERVISOR COMMENTS
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Supervisor Input'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Supervisor Name'),
+          inp('supervisorName','Supervisor\'s name')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Supervisor Phone'),
+          inp('supervisorPhone','Phone number','tel')
+        )
+      ),
+      e('div',{className:'form-group',style:{marginTop:12}},
+        e('label',null,'Supervisor Comments / Observations'),
+        e('textarea',{className:'input-field',rows:3,value:d.supervisorComments||'',onChange:x=>u('supervisorComments',x.target.value),placeholder:'Supervisor\'s observations about the incident, employee\'s condition, scene conditions, any discrepancies noted...'})
+      )
+    ),
+    
+    // PHOTOS
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Photo Documentation'),
+      e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:16}},'Upload scene and injury photos to document the incident.'),
+      
+      e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,marginBottom:12,border:'1px solid var(--tb)'}},
+        e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'SCENE PHOTOS'),
+        e('input',{
+          type:'file',
+          multiple:true,
+          accept:'image/*',
+          id:'scene-photos-upload',
+          style:{display:'none'},
+          onChange:x=>{
+            const files=Array.from(x.target.files);
+            setD(p=>({...p,scenePhotoFiles:[...(p.scenePhotoFiles||[]),...files]}));
+          }
+        }),
+        e('label',{htmlFor:'scene-photos-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'Choose Scene Photos'),
+        d.scenePhotoFiles?.length>0&&e('div',{style:{marginTop:10}},
+          e('p',{style:{fontSize:12,color:'var(--tg)'}},d.scenePhotoFiles.length+' scene photo(s) selected'),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
+            ...d.scenePhotoFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+              f.name.substring(0,20)+(f.name.length>20?'...':''),
+              e('button',{type:'button',onClick:()=>setD(p=>({...p,scenePhotoFiles:p.scenePhotoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+            ))
+          )
+        )
+      ),
+      
+      e('div',{style:{background:'rgba(30,42,56,0.5)',borderRadius:12,padding:16,border:'1px solid var(--tb)'}},
+        e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'INJURY PHOTOS'),
+        e('input',{
+          type:'file',
+          multiple:true,
+          accept:'image/*',
+          id:'injury-photos-upload',
+          style:{display:'none'},
+          onChange:x=>{
+            const files=Array.from(x.target.files);
+            setD(p=>({...p,injuryPhotoFiles:[...(p.injuryPhotoFiles||[]),...files]}));
+          }
+        }),
+        e('label',{htmlFor:'injury-photos-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'Choose Injury Photos'),
+        d.injuryPhotoFiles?.length>0&&e('div',{style:{marginTop:10}},
+          e('p',{style:{fontSize:12,color:'var(--tg)'}},d.injuryPhotoFiles.length+' injury photo(s) selected'),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
+            ...d.injuryPhotoFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+              f.name.substring(0,20)+(f.name.length>20?'...':''),
+              e('button',{type:'button',onClick:()=>setD(p=>({...p,injuryPhotoFiles:p.injuryPhotoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+            ))
+          )
+        )
+      )
+    )
+  );
+}
+
+// STEP 5 - WORK STATUS
+if(step===5){
+  const calcLostDays=()=>{
+    if(!d.dateLastWorked)return null;
+    const lastWorked=new Date(d.dateLastWorked);
+    const today=new Date();
+    const diff=Math.floor((today-lastWorked)/(1000*60*60*24));
+    return diff>0?diff:0;
+  };
+  const lostDays=d.losingTime===true?calcLostDays():null;
+  
+  const RETURN_STATUSES=[
+    {v:'not_returned',l:'Has Not Returned to Work'},
+    {v:'full_duty',l:'Returned - Full Duty'},
+    {v:'light_duty',l:'Returned - Light Duty / Modified'},
+    {v:'part_time',l:'Returned - Part Time'},
+    {v:'terminated',l:'Employment Terminated'},
+    {v:'resigned',l:'Employee Resigned'},
+    {v:'retired',l:'Employee Retired'},
+    {v:'unknown',l:'Unknown'}
+  ];
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Work Status'),
+      e('p',{className:'section-subtitle'},'Current work status, lost time, and return-to-work details')
+    ),
+    
+    e('div',{className:'form-group'},
+      e('label',null,'Is Employee Losing Time From Work?'),
+      tog('losingTime',[
+        {v:true,l:'Yes - Lost Time Claim',c:'warning'},
+        {v:false,l:'No - Medical Only',c:'success'}
+      ])
+    ),
+    
+    d.losingTime===true&&e('div',{className:'warning-box',style:{marginTop:12}},'Lost Time Claim — This claim will likely involve indemnity benefits. Ensure all medical documentation supports the work restrictions.'),
+    
+    e('div',{className:'form-grid',style:{marginTop:20}},
+      e('div',{className:'form-group'},
+        e('label',null,'Date Last Worked'),
+        inp('dateLastWorked','','date')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Last Day Paid'),
+        inp('lastDayPaid','','date')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Date Disability Began'),
+        inp('disabilityBeganDate','','date')
+      ),
+      e('div',{className:'form-group'},
+        e('label',null,'Expected Return Date'),
+        inp('expectedReturnDate','','date')
+      )
+    ),
+    
+    lostDays!==null&&lostDays>0&&e('div',{style:{marginTop:12}},
+      e('div',{className:'status-badge '+(lostDays<=7?'warning':'danger')},
+        lostDays===1?'1 Day Lost':lostDays+' Days Lost'+(lostDays>30?' — EXTENDED ABSENCE':'')
+      )
+    ),
+    
+    // SALARY CONTINUATION
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Payment Status'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Still Being Paid?'),
+          tog('stillBeingPaid',[
+            {v:true,l:'Yes - Still on Payroll',c:'success'},
+            {v:false,l:'No - Not Being Paid'},
+            {v:'partial',l:'Partial Pay'}
+          ])
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Salary Continuation?'),
+          tog('hasSalaryContinuation',[
+            {v:true,l:'Yes',c:'success'},
+            {v:false,l:'No'}
+          ])
+        )
+      ),
+      d.hasSalaryContinuation===true&&e('div',{style:{marginTop:16}},
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Continuation Duration'),
+            e('select',{className:'input-field',value:d.salaryContinuationDuration||'',onChange:x=>u('salaryContinuationDuration',x.target.value)},
+              e('option',{value:''},'Select duration'),
+              e('option',{value:'1_week'},'1 Week'),
+              e('option',{value:'2_weeks'},'2 Weeks'),
+              e('option',{value:'30_days'},'30 Days'),
+              e('option',{value:'60_days'},'60 Days'),
+              e('option',{value:'90_days'},'90 Days'),
+              e('option',{value:'ongoing'},'Ongoing'),
+              e('option',{value:'other'},'Other')
+            )
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Continuation End Date'),
+            inp('salaryContinuationEndDate','','date')
+          )
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Salary Continuation Notes'),
+          e('textarea',{className:'input-field',rows:2,value:d.salaryContinuationNotes||'',onChange:x=>u('salaryContinuationNotes',x.target.value),placeholder:'Any details about salary continuation arrangement, percentage paid, etc.'})
+        ),
+        e('div',{className:'info-tip',style:{marginTop:12}},'Salary continuation may be recoverable from workers\' comp benefits. Document the arrangement for potential reimbursement.')
+      ),
+      e('div',{className:'form-group',style:{marginTop:16}},
+        e('label',null,'PTO or Sick Time Used?'),
+        tog('ptoUsed',[
+          {v:true,l:'Yes'},
+          {v:false,l:'No'},
+          {v:'unknown',l:'Unknown'}
+        ])
+      ),
+      d.ptoUsed===true&&e('div',{className:'form-group',style:{marginTop:12}},
+        e('label',null,'PTO/Sick Hours Used'),
+        inp('ptoHoursUsed','Number of hours')
+      )
+    ),
+    
+    // RETURN TO WORK
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Return to Work'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Return Status'),
+          e('select',{className:'input-field',value:d.returnStatus||'',onChange:x=>u('returnStatus',x.target.value)},
+            e('option',{value:''},'Select status'),
+            ...RETURN_STATUSES.map(s=>e('option',{key:s.v,value:s.v},s.l))
+          )
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Light Duty Available?'),
+          tog('lightDutyAvailable',[
+            {v:true,l:'Yes - Available',c:'success'},
+            {v:false,l:'No - Not Available',c:'warning'}
+          ])
+        )
+      ),
+      d.lightDutyAvailable===true&&e('div',{style:{marginTop:16}},
+        e('div',{className:'form-group'},
+          e('label',null,'Light Duty Was Offered?'),
+          tog('lightDutyOffered',[
+            {v:true,l:'Yes - Offered',c:'success'},
+            {v:false,l:'No - Not Offered'},
+            {v:'pending',l:'Pending'}
+          ])
+        ),
+        d.lightDutyOffered===true&&e('div',{className:'form-grid',style:{marginTop:12}},
+          e('div',{className:'form-group'},
+            e('label',null,'Light Duty Accepted?'),
+            tog('lightDutyAccepted',[
+              {v:true,l:'Yes - Accepted',c:'success'},
+              {v:false,l:'No - Declined',c:'warning'}
+            ])
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Light Duty Start Date'),
+            inp('lightDutyStartDate','','date')
+          )
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Light Duty Description'),
+          e('textarea',{className:'input-field',rows:2,value:d.lightDutyDescription||'',onChange:x=>u('lightDutyDescription',x.target.value),placeholder:'What light duty tasks are available? Any restrictions accommodated?'})
+        )
+      ),
+      d.lightDutyAvailable===false&&e('div',{className:'warning-box',style:{marginTop:12}},'No light duty available may extend lost time benefits. Consider if any modified work could be accommodated.'),
+      (d.returnStatus==='full_duty'||d.returnStatus==='light_duty'||d.returnStatus==='part_time')&&e('div',{className:'form-group',style:{marginTop:16}},
+        e('label',null,'Actual Return Date'),
+        inp('actualReturnDate','','date')
+      )
+    ),
+    
+    // WORK SCHEDULE
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Work Schedule'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Normal Work Schedule'),
+          e('select',{className:'input-field',value:d.normalSchedule||'',onChange:x=>u('normalSchedule',x.target.value)},
+            e('option',{value:''},'Select schedule'),
+            e('option',{value:'mon_fri'},'Monday - Friday'),
+            e('option',{value:'varies'},'Varies / Rotating'),
+            e('option',{value:'weekends'},'Includes Weekends'),
+            e('option',{value:'nights'},'Night Shift'),
+            e('option',{value:'per_diem'},'Per Diem / On Call'),
+            e('option',{value:'other'},'Other')
+          )
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Hours Per Week'),
+          inp('hoursPerWeek','e.g., 40')
+        )
+      )
+    )
+  );
+}
+
+// STEP 6 - ROOT CAUSE
+if(step===6){
+  const ROOT_CAUSE_CATEGORIES=[
+    {cat:'Training & Knowledge',items:[
+      {v:'no_training',l:'No Training Provided'},
+      {v:'inadequate_training',l:'Inadequate Training'},
+      {v:'training_not_followed',l:'Training Not Followed'},
+      {v:'lack_of_knowledge',l:'Lack of Knowledge/Skill'},
+      {v:'new_task',l:'New/Unfamiliar Task'}
+    ]},
+    {cat:'Supervision',items:[
+      {v:'no_supervision',l:'Lack of Supervision'},
+      {v:'inadequate_supervision',l:'Inadequate Supervision'},
+      {v:'supervisor_not_present',l:'Supervisor Not Present'}
+    ]},
+    {cat:'Equipment & Tools',items:[
+      {v:'equipment_failure',l:'Equipment Failure'},
+      {v:'equipment_not_maintained',l:'Poor Maintenance'},
+      {v:'wrong_equipment',l:'Wrong Equipment for Task'},
+      {v:'defective_tool',l:'Defective Tool'},
+      {v:'equipment_unavailable',l:'Equipment Not Available'}
+    ]},
+    {cat:'PPE Issues',items:[
+      {v:'no_ppe',l:'No PPE Provided'},
+      {v:'ppe_not_worn',l:'PPE Not Worn'},
+      {v:'improper_ppe',l:'Wrong PPE for Task'},
+      {v:'ppe_defective',l:'Defective PPE'}
+    ]},
+    {cat:'Human Factors',items:[
+      {v:'rushing',l:'Rushing / Time Pressure'},
+      {v:'fatigue',l:'Fatigue / Exhaustion'},
+      {v:'distraction',l:'Distraction / Inattention'},
+      {v:'complacency',l:'Complacency'},
+      {v:'horseplay',l:'Horseplay / Misconduct'},
+      {v:'shortcut_taken',l:'Shortcut Taken'},
+      {v:'failure_to_communicate',l:'Communication Failure'}
+    ]},
+    {cat:'Workplace Environment',items:[
+      {v:'poor_housekeeping',l:'Poor Housekeeping'},
+      {v:'wet_floor',l:'Wet / Slippery Surface'},
+      {v:'poor_lighting',l:'Inadequate Lighting'},
+      {v:'cluttered_area',l:'Cluttered Work Area'},
+      {v:'uneven_surface',l:'Uneven Surface'},
+      {v:'weather_conditions',l:'Weather Conditions'}
+    ]},
+    {cat:'Procedures & Policies',items:[
+      {v:'no_procedure',l:'No Procedure Exists'},
+      {v:'procedure_not_followed',l:'Procedure Not Followed'},
+      {v:'inadequate_procedure',l:'Inadequate Procedure'},
+      {v:'outdated_procedure',l:'Outdated Procedure'}
+    ]},
+    {cat:'Healthcare Specific',items:[
+      {v:'combative_patient',l:'Combative Patient/Resident'},
+      {v:'patient_handling',l:'Patient Handling Issue'},
+      {v:'understaffed',l:'Understaffed'},
+      {v:'no_lift_equipment',l:'No Lift Equipment Available'},
+      {v:'needle_stick',l:'Sharps/Needle Stick'}
+    ]}
+  ];
+
+  const CORRECTIVE_CATEGORIES=[
+    {cat:'Training Actions',items:[
+      {v:'training_scheduled',l:'Training Scheduled'},
+      {v:'training_completed',l:'Training Completed'},
+      {v:'retraining_required',l:'Retraining Required'},
+      {v:'new_training_developed',l:'New Training Developed'}
+    ]},
+    {cat:'Procedure Actions',items:[
+      {v:'reviewed_procedures',l:'Reviewed Procedures with Employee'},
+      {v:'new_procedures',l:'New Procedures Created'},
+      {v:'procedures_updated',l:'Procedures Updated'},
+      {v:'job_hazard_analysis',l:'Job Hazard Analysis Completed'}
+    ]},
+    {cat:'Discipline',items:[
+      {v:'discipline_verbal',l:'Verbal Warning'},
+      {v:'discipline_written',l:'Written Warning'},
+      {v:'discipline_suspension',l:'Suspension'},
+      {v:'discipline_termination',l:'Termination'}
+    ]},
+    {cat:'Equipment & Environment',items:[
+      {v:'equipment_repaired',l:'Equipment Repaired'},
+      {v:'equipment_replaced',l:'Equipment Replaced'},
+      {v:'ppe_provided',l:'PPE Provided'},
+      {v:'engineering_control',l:'Engineering Control Added'},
+      {v:'area_cleaned',l:'Area Cleaned/Organized'},
+      {v:'signage_added',l:'Warning Signs Added'},
+      {v:'lighting_improved',l:'Lighting Improved'}
+    ]},
+    {cat:'Administrative',items:[
+      {v:'safety_meeting',l:'Safety Meeting Held'},
+      {v:'incident_review',l:'Incident Review Completed'},
+      {v:'supervision_increased',l:'Increased Supervision'},
+      {v:'staffing_adjusted',l:'Staffing Adjusted'},
+      {v:'schedule_modified',l:'Schedule Modified'}
+    ]}
+  ];
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Root Cause Analysis'),
+      e('p',{className:'section-subtitle'},'Identify what caused the incident and what actions will prevent recurrence')
+    ),
+    
+    e('div',{className:'form-group full-width'},
+      e('label',null,'Direct Cause of Injury'),
+      e('textarea',{className:'input-field',rows:2,value:d.directCause||'',onChange:x=>u('directCause',x.target.value),placeholder:'What was the immediate/direct cause of this injury?'})
+    ),
+    
+    // PROCEDURES & TRAINING
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Procedures & Training Assessment'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Were procedures in place for this task?'),
+          tog('proceduresInPlace',[
+            {v:true,l:'Yes'},
+            {v:false,l:'No',c:'warning'},
+            {v:'partial',l:'Partial'},
+            {v:'unknown',l:'Unknown'}
+          ])
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Were procedures followed?'),
+          tog('proceduresFollowed',[
+            {v:true,l:'Yes',c:'success'},
+            {v:false,l:'No',c:'warning'},
+            {v:'partial',l:'Partially'},
+            {v:'na',l:'N/A'}
+          ])
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Was training provided for this task?'),
+          tog('trainingProvided',[
+            {v:true,l:'Yes',c:'success'},
+            {v:false,l:'No',c:'warning'},
+            {v:'unknown',l:'Unknown'}
+          ])
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Training Frequency'),
+          e('select',{className:'input-field',value:d.trainingFrequency||'',onChange:x=>u('trainingFrequency',x.target.value)},
+            e('option',{value:''},'Select frequency'),
+            e('option',{value:'initial_only'},'Initial Hire Only'),
+            e('option',{value:'annual'},'Annual'),
+            e('option',{value:'semi_annual'},'Semi-Annual'),
+            e('option',{value:'quarterly'},'Quarterly'),
+            e('option',{value:'monthly'},'Monthly'),
+            e('option',{value:'as_needed'},'As Needed'),
+            e('option',{value:'never'},'Never Trained'),
+            e('option',{value:'unknown'},'Unknown')
+          )
+        )
+      ),
+      d.trainingProvided===true&&e('div',{className:'form-grid',style:{marginTop:12}},
+        e('div',{className:'form-group'},
+          e('label',null,'Last Training Date'),
+          inp('lastTrainingDate','','date')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Training Type'),
+          inp('trainingType','e.g., Classroom, Online, OJT')
+        )
+      ),
+      (d.proceduresInPlace===false||d.trainingProvided===false)&&e('div',{className:'warning-box',style:{marginTop:12}},'Missing procedures or training is a significant contributing factor. Consider implementing corrective actions.')
+    ),
+    
+    // ROOT CAUSE CATEGORIES
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--tw)',marginBottom:16}},'Contributing Factors (Select all that apply)'),
+      ...ROOT_CAUSE_CATEGORIES.map(cat=>
+        e('div',{key:cat.cat,style:{marginBottom:20}},
+          e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:10}},cat.cat),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+            ...cat.items.map(item=>
+              e('button',{
+                key:item.v,
+                type:'button',
+                className:'chip-btn'+(d.rootCauseSymptoms?.includes(item.v)?' active warning':''),
+                onClick:()=>ta('rootCauseSymptoms',item.v)
+              },item.l)
+            )
+          )
+        )
+      ),
+      e('div',{className:'form-group',style:{marginTop:16}},
+        e('label',null,'Other Contributing Factor'),
+        e('div',{style:{display:'flex',gap:8}},
+          e('input',{
+            className:'input-field',
+            style:{flex:1},
+            placeholder:'Enter other root cause not listed above...',
+            value:d.customRootCause||'',
+            onChange:x=>u('customRootCause',x.target.value)
+          }),
+          d.customRootCause&&e('button',{
+            type:'button',
+            className:'nav-btn primary',
+            style:{padding:'10px 16px'},
+            onClick:()=>{
+              if(d.customRootCause.trim()){
+                ta('rootCauseSymptoms','custom:'+d.customRootCause.trim());
+                u('customRootCause','');
+              }
+            }
+          },'+ Add')
+        )
+      )
+    ),
+    
+    // CORRECTIVE ACTIONS
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Corrective Actions Taken / Planned'),
+      ...CORRECTIVE_CATEGORIES.map(cat=>
+        e('div',{key:cat.cat,style:{marginBottom:20}},
+          e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:10}},cat.cat),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+            ...cat.items.map(item=>
+              e('button',{
+                key:item.v,
+                type:'button',
+                className:'chip-btn'+(d.correctiveActions?.includes(item.v)?' active success':''),
+                onClick:()=>ta('correctiveActions',item.v)
+              },item.l)
+            )
+          )
+        )
+      ),
+      e('div',{className:'form-group',style:{marginTop:16}},
+        e('label',null,'Other Corrective Action'),
+        e('div',{style:{display:'flex',gap:8}},
+          e('input',{
+            className:'input-field',
+            style:{flex:1},
+            placeholder:'Enter other corrective action not listed above...',
+            value:d.customCorrectiveAction||'',
+            onChange:x=>u('customCorrectiveAction',x.target.value)
+          }),
+          d.customCorrectiveAction&&e('button',{
+            type:'button',
+            className:'nav-btn primary',
+            style:{padding:'10px 16px'},
+            onClick:()=>{
+              if(d.customCorrectiveAction.trim()){
+                ta('correctiveActions','custom:'+d.customCorrectiveAction.trim());
+                u('customCorrectiveAction','');
+              }
+            }
+          },'+ Add')
+        )
+      ),
+      e('div',{className:'form-group',style:{marginTop:20}},
+        e('label',null,'Corrective Action Notes / Implementation Plan'),
+        e('textarea',{className:'input-field',rows:3,value:d.correctiveActionNotes||'',onChange:x=>u('correctiveActionNotes',x.target.value),placeholder:'Additional details about corrective actions, timeline for implementation, responsible parties, etc.'})
+      )
+    ),
+    
+    // Summary
+    (d.rootCauseSymptoms?.length>0||d.correctiveActions?.length>0)&&e('div',{style:{marginTop:24,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
+      e('h4',{style:{fontSize:13,color:'var(--ta)',marginBottom:12}},'Analysis Summary'),
+      d.rootCauseSymptoms?.length>0&&e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:8}},
+        e('strong',{style:{color:'var(--tw)'}},'Contributing Factors: '),
+        d.rootCauseSymptoms.length+' identified'
+      ),
+      d.correctiveActions?.length>0&&e('p',{style:{fontSize:12,color:'var(--tm)'}},
+        e('strong',{style:{color:'var(--tg)'}},'Corrective Actions: '),
+        d.correctiveActions.length+' planned/taken'
+      )
+    )
+  );
+}
+
+// STEP 7 - FLAGS
+if(step===7){
+  const FLAG_CATEGORIES=[
+    {cat:'Reporting Red Flags',items:[
+      {v:'delayed_report',l:'Delayed Reporting (3+ days)'},
+      {v:'monday_claim',l:'Monday Morning Claim'},
+      {v:'friday_injury',l:'Friday Afternoon Injury'},
+      {v:'reported_after_termination',l:'Reported After Termination Notice'},
+      {v:'reported_after_discipline',l:'Reported After Disciplinary Action'}
+    ]},
+    {cat:'Witness & Evidence Issues',items:[
+      {v:'no_witnesses',l:'No Witnesses to Incident'},
+      {v:'conflicting_accounts',l:'Conflicting Witness Accounts'},
+      {v:'witness_is_friend',l:'Only Witness is Friend/Relative'},
+      {v:'refuses_recorded_statement',l:'Refuses Recorded Statement'},
+      {v:'no_physical_evidence',l:'No Physical Evidence'}
+    ]},
+    {cat:'Description Concerns',items:[
+      {v:'vague_description',l:'Vague/Unclear Description'},
+      {v:'inconsistent_story',l:'Story Changes Over Time'},
+      {v:'description_doesnt_match',l:'Description Doesn\'t Match Injury'},
+      {v:'mechanism_implausible',l:'Mechanism of Injury Implausible'},
+      {v:'cant_identify_location',l:'Cannot Identify Exact Location'}
+    ]},
+    {cat:'Employment Factors',items:[
+      {v:'new_employee',l:'New Employee (<90 days)'},
+      {v:'recent_discipline',l:'Recent Disciplinary Action'},
+      {v:'pending_layoff',l:'Facing Layoff/Termination'},
+      {v:'poor_performance',l:'Performance Issues'},
+      {v:'job_dissatisfaction',l:'Known Job Dissatisfaction'},
+      {v:'disgruntled',l:'Disgruntled Employee'}
+    ]},
+    {cat:'Claims History',items:[
+      {v:'history_claims',l:'History of Prior WC Claims'},
+      {v:'prior_similar',l:'Prior Similar Injuries'},
+      {v:'claims_at_multiple_employers',l:'Claims at Multiple Employers'},
+      {v:'frequent_injuries',l:'Frequently Injured'},
+      {v:'litigated_prior_claim',l:'Prior Litigated Claim'}
+    ]},
+    {cat:'Medical Red Flags',items:[
+      {v:'refused_then_sought',l:'Refused Then Sought Treatment'},
+      {v:'excessive_treatment',l:'Excessive Treatment Requests'},
+      {v:'doctor_shopping',l:'Changed Doctors Multiple Times'},
+      {v:'missed_appointments',l:'Missed Medical Appointments'},
+      {v:'non_compliant',l:'Non-Compliant with Treatment'},
+      {v:'preexisting',l:'Possible Pre-existing Condition'},
+      {v:'soft_tissue_only',l:'Soft Tissue Only / Hard to Verify'}
+    ]},
+    {cat:'Behavioral Indicators',items:[
+      {v:'attorney_immediate',l:'Attorney Retained Immediately'},
+      {v:'demanding_settlement',l:'Demanding Quick Settlement'},
+      {v:'uncooperative',l:'Uncooperative with Investigation'},
+      {v:'overly_familiar',l:'Overly Familiar with WC Process'},
+      {v:'coaching_suspected',l:'Coaching Suspected'},
+      {v:'malingering_signs',l:'Signs of Malingering'}
+    ]},
+    {cat:'Other Concerns',items:[
+      {v:'off_premises_possible',l:'May Have Occurred Off Premises'},
+      {v:'not_work_related',l:'May Not Be Work-Related'},
+      {v:'horseplay_suspected',l:'Horseplay Suspected'},
+      {v:'intoxication_suspected',l:'Intoxication Suspected'},
+      {v:'social_media_contradicts',l:'Social Media Activity Contradicts'}
+    ]}
+  ];
+
+  const flagCount=d.fraudIndicators?.length||0;
+  const highRisk=flagCount>=3;
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Investigation Flags'),
+      e('p',{className:'section-subtitle'},'Document concerns for investigation - these are indicators, not accusations')
+    ),
+    
+    e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud. Many legitimate claims have one or more of these indicators.'),
+    
+    e('div',{className:'form-group'},
+      e('label',null,'Do you have any validity concerns about this claim?'),
+      tog('validityConcerns',[
+        {v:true,l:'Yes - Concerns Exist',c:'warning'},
+        {v:false,l:'No Concerns'}
+      ])
+    ),
+    
+    d.validityConcerns===true&&e('div',{className:'form-group',style:{marginTop:12}},
+      e('label',null,'Explain Your Concerns'),
+      e('textarea',{className:'input-field',rows:3,value:d.concernDetails||'',onChange:x=>u('concernDetails',x.target.value),placeholder:'Describe specific concerns about this claim. Be factual and objective...'})
+    ),
+    
+    // RED FLAG CATEGORIES
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+        e('h3',{style:{fontSize:14,color:'var(--tr)'}},'Red Flag Indicators'),
+        flagCount>0&&e('div',{className:'status-badge '+(highRisk?'danger':'warning')},
+          flagCount+' Flag'+(flagCount>1?'s':'')+' Selected'+(highRisk?' - HIGH RISK':'')
+        )
+      ),
+      
+      ...FLAG_CATEGORIES.map(cat=>
+        e('div',{key:cat.cat,style:{marginBottom:20}},
+          e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:10}},cat.cat),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+            ...cat.items.map(item=>
+              e('button',{
+                key:item.v,
+                type:'button',
+                className:'chip-btn'+(d.fraudIndicators?.includes(item.v)?' active danger':''),
+                onClick:()=>ta('fraudIndicators',item.v)
+              },item.l)
+            )
+          )
+        )
+      ),
+      
+      e('div',{className:'form-group',style:{marginTop:16}},
+        e('label',null,'Other Red Flag'),
+        e('div',{style:{display:'flex',gap:8}},
+          e('input',{
+            className:'input-field',
+            style:{flex:1},
+            placeholder:'Enter other red flag indicator not listed above...',
+            value:d.customRedFlag||'',
+            onChange:x=>u('customRedFlag',x.target.value)
+          }),
+          d.customRedFlag&&e('button',{
+            type:'button',
+            className:'nav-btn primary',
+            style:{padding:'10px 16px',background:'var(--tr)'},
+            onClick:()=>{
+              if(d.customRedFlag.trim()){
+                ta('fraudIndicators','custom:'+d.customRedFlag.trim());
+                u('customRedFlag','');
+              }
+            }
+          },'+ Add')
+        )
+      )
+    ),
+    
+    // INVESTIGATION NOTES
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Investigation Notes'),
+      e('div',{className:'form-group'},
+        e('label',null,'Investigation Notes / Observations'),
+        e('textarea',{className:'input-field',rows:4,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document any investigation findings, observations, interviews conducted, evidence reviewed, etc.'})
+      )
+    ),
+    
+    // RECOMMENDATIONS
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--tr)',marginBottom:16}},'Recommendations'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Recommend Deny Claim?'),
+          tog('recommendDeny',[
+            {v:true,l:'Yes - Recommend Denial',c:'danger'},
+            {v:false,l:'No'}
+          ])
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Recommend SIU Referral?'),
+          tog('recommendSIU',[
+            {v:true,l:'Yes - Refer to SIU',c:'danger'},
+            {v:false,l:'No'}
+          ])
+        )
+      ),
+      d.recommendDeny===true&&e('div',{className:'form-group',style:{marginTop:12}},
+        e('label',null,'Denial Recommendation Reason'),
+        e('textarea',{className:'input-field',rows:2,value:d.denyReason||'',onChange:x=>u('denyReason',x.target.value),placeholder:'Explain the basis for recommending denial...'})
+      ),
+      d.recommendSIU===true&&e('div',{className:'form-group',style:{marginTop:12}},
+        e('label',null,'SIU Referral Reason'),
+        e('textarea',{className:'input-field',rows:2,value:d.siuReason||'',onChange:x=>u('siuReason',x.target.value),placeholder:'Explain why SIU investigation is recommended...'})
+      ),
+      (d.recommendDeny===true||d.recommendSIU===true)&&e('div',{style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',borderRadius:12,padding:16,marginTop:16}},
+        e('p',{style:{fontSize:13,color:'var(--tr)',fontWeight:600}},'Important: Recommendations will be reviewed by claims management. Ensure documentation supports the recommendation.')
+      )
+    ),
+    
+    // THIRD PARTY / SUBROGATION
+    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+      e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation Potential'),
+      e('div',{className:'form-group'},
+        e('label',null,'Is a third party potentially responsible?'),
+        tog('thirdPartyInvolved',[
+          {v:true,l:'Yes - Third Party Involved',c:'success'},
+          {v:false,l:'No'},
+          {v:'maybe',l:'Possibly / Investigating'}
+        ])
+      ),
+      (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:16}},
+        e('div',{style:{background:'rgba(52,211,153,0.1)',border:'1px solid var(--tg)',borderRadius:12,padding:16,marginBottom:16}},
+          e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},'Subrogation Potential Identified'),
+          e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'Preserve all evidence. Document third party information for potential recovery.')
+        ),
+        e('div',{className:'form-grid'},
+          e('div',{className:'form-group'},
+            e('label',null,'Third Party Name'),
+            inp('thirdPartyName','Person or company name')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Third Party Phone'),
+            inp('thirdPartyPhone','Phone number','tel')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Third Party Company'),
+            inp('thirdPartyCompany','Company/employer name')
+          ),
+          e('div',{className:'form-group'},
+            e('label',null,'Third Party Insurance'),
+            inp('thirdPartyInsurance','Insurance company if known')
+          )
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Third Party Details'),
+          e('textarea',{className:'input-field',rows:3,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'Describe how the third party was involved, contact information, insurance details, police report number if applicable...'})
+        ),
+        e('div',{className:'form-group',style:{marginTop:12}},
+          e('label',null,'Subrogation Type'),
+          tog('subrogationType',[
+            {v:'motor_vehicle',l:'Motor Vehicle'},
+            {v:'product_liability',l:'Product Liability'},
+            {v:'premises_liability',l:'Premises Liability'},
+            {v:'contractor',l:'Contractor/Vendor'},
+            {v:'other',l:'Other'}
+          ])
+        )
+      )
+    ),
+    
+    highRisk&&e('div',{style:{marginTop:24,padding:16,background:'rgba(248,113,113,0.1)',borderRadius:12,border:'1px solid var(--tr)'}},
+      e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim Summary'),
+      e('p',{style:{fontSize:12,color:'var(--tm)'}},'This claim has '+flagCount+' red flag indicators. Consider:'),
+      e('ul',{style:{fontSize:12,color:'var(--tm)',marginLeft:20,marginTop:8}},
+        e('li',null,'Obtaining recorded statements'),
+        e('li',null,'Requesting additional documentation'),
+        e('li',null,'Early SIU involvement'),
+        e('li',null,'Surveillance consideration')
+      )
+    )
+  );
+}
+
+// STEPS 8, 9, 10 - Statement collection
+if(step===8)return renderStatementStep('witness','Witness Statement','Collect a signed witness statement','witnessData','witnessOpt','witnessLink','witnessSigned');
+if(step===9)return renderStatementStep('claimant','Claimant Statement','Collect the injured worker\'s signed statement','claimantData','claimantOpt','claimantLink','claimantSigned');
+if(step===10)return renderStatementStep('hipaa','HIPAA Authorization','Collect signed HIPAA release for medical records','hipaaData','hipaaOpt','hipaaLink','hipaaSigned');
+
+// STEP 11 - SUBMIT
+if(step===11){
+  const validateClaim=()=>{
+    const errors=[];
+    if(!d.firstName)errors.push({field:'Employee First Name',step:0});
+    if(!d.lastName)errors.push({field:'Employee Last Name',step:0});
+    if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
+    if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
+    if(!d.accidentDescription)errors.push({field:'Accident Description',step:2});
+    if(!d.injuryType)errors.push({field:'Injury Type',step:2});
+    if(!d.submitterName)errors.push({field:'Submitter Name',step:11});
+    if(!d.submitterEmail)errors.push({field:'Submitter Email',step:11});
+    if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:11});
+    return errors;
+  };
+  const validationErrors=validateClaim();
+  const canSubmit=validationErrors.length===0;
+  
+  const calcCompletion=()=>{
+    let filled=0,total=0;
+    const required=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];
+    required.forEach(f=>{total+=2;if(d[f])filled+=2});
+    const important=['phone','occupation','dateOfHire','weeklyWage','workType','dateReported','bodyParts','soughtMedicalTreatment','witness1Name','losingTime','directCause'];
+    important.forEach(f=>{total+=1;if(d[f]&&(Array.isArray(d[f])?d[f].length>0:true))filled+=1});
+    if(d.witnessSigned){filled+=2;total+=2}
+    if(d.claimantSigned){filled+=2;total+=2}
+    if(d.hipaaSigned){filled+=2;total+=2}
+    return Math.min(100,Math.round((filled/total)*100));
+  };
+  const completionScore=calcCompletion();
+  
+  const clearDraft=()=>{
+    if(confirm('Are you sure you want to clear all form data? This cannot be undone.')){
+      localStorage.removeItem('wcr_draft');
+      location.reload();
+    }
+  };
+  
+  const totalFiles=(uploadedFiles?.length||0)+(d.scenePhotoFiles?.length||0)+(d.injuryPhotoFiles?.length||0)+(d.evidenceDocFiles?.length||0);
+
+  return e('div',{className:'content'},
+    e('div',{className:'section-header'},
+      e('h2',null,'Review & Submit'),
+      e('p',{className:'section-subtitle'},'Review your claim information and submit'),
+      lastSaved&&e('p',{style:{fontSize:11,color:'var(--tg)',marginTop:4}},'Draft auto-saved at '+lastSaved)
+    ),
+    
+    // COMPLETION SCORE
+    e('div',{style:{display:'flex',gap:24,alignItems:'center',justifyContent:'center',margin:'24px 0'}},
+      e('div',{style:{textAlign:'center'}},
+        e('div',{style:{
+          display:'inline-block',width:100,height:100,borderRadius:'50%',
+          background:'conic-gradient('+(completionScore>=80?'var(--tg)':completionScore>=50?'var(--tw)':'var(--tr)')+' '+completionScore+'%, rgba(139,148,158,0.2) '+completionScore+'%)',
+          position:'relative'
+        }},
+          e('div',{style:{
+            position:'absolute',top:8,left:8,width:84,height:84,
+            background:'var(--td)',borderRadius:'50%',
+            display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column'
+          }},
+            e('span',{style:{fontSize:28,fontWeight:'bold',color:completionScore>=80?'var(--tg)':completionScore>=50?'var(--tw)':'var(--tr)'}},completionScore+'%'),
+            e('span',{style:{fontSize:10,color:'var(--tm)'}},'Complete')
+          )
+        )
+      ),
+      e('div',{style:{textAlign:'left'}},
+        e('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:8}},
+          e('span',{style:{fontSize:14,fontWeight:600,color:canSubmit?'var(--tg)':'var(--tw)'}},
+            canSubmit?'Ready to Submit':validationErrors.length+' Required Field'+(validationErrors.length>1?'s':'')+' Missing'
+          )
+        ),
+        inlineStmts.length>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:8}},
+          e('span',{style:{fontSize:13,color:'var(--tg)'}},inlineStmts.length+' e-signed document'+(inlineStmts.length>1?'s':'')+' attached')
+        ),
+        totalFiles>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+          e('span',{style:{fontSize:13,color:'var(--tm)'}},totalFiles+' file'+(totalFiles>1?'s':'')+' to upload')
+        )
+      )
+    ),
+    
+    // VALIDATION ERRORS
+    !canSubmit&&e('div',{style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',borderRadius:12,padding:16,marginBottom:20}},
+      e('h4',{style:{color:'var(--tr)',fontSize:13,marginBottom:12}},'Please complete the following required fields:'),
+      e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+        ...validationErrors.map((err,i)=>
+          e('button',{
+            key:i,
+            type:'button',
+            onClick:()=>setStep(err.step),
+            style:{
+              background:'rgba(248,113,113,0.15)',border:'1px solid var(--tr)',color:'var(--tr)',
+              padding:'6px 12px',borderRadius:6,fontSize:12,cursor:'pointer',
+              fontFamily:'DM Sans'
+            }
+          },err.field)
+        )
+      )
+    ),
+    
+    // PREVIEW TOGGLE
+    e('div',{style:{marginBottom:20}},
+      e('button',{
+        type:'button',
+        className:'nav-btn secondary',
+        style:{width:'100%',padding:'12px'},
+        onClick:()=>setShowPreview(!showPreview)
+      },showPreview?'Hide Claim Preview':'Show Full Claim Preview')
+    ),
+    
+    // QUICK SUMMARY
+    !showPreview&&e('div',{className:'summary-grid'},
+      e('div',{className:'summary-section'},
+        e('h4',null,'Employee'),
+        e('p',{style:{fontWeight:600}},(d.firstName||'—')+' '+(d.lastName||'')),
+        e('p',null,d.occupation||'No occupation specified'),
+        d.phone&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.phone)
+      ),
+      e('div',{className:'summary-section'},
+        e('h4',null,'Claim'),
+        e('p',{style:{fontWeight:600}},d.entity==='Other - Enter Manually'?d.customEntity||'—':d.entity||'No entity selected'),
+        e('p',null,d.dateOfInjury||'No date specified'),
+        d.injuryType&&e('p',{style:{fontSize:12,color:'var(--tm)'}},INJURY_TYPES.find(t=>t.v===d.injuryType)?.l)
+      ),
+      e('div',{className:'summary-section'},
+        e('h4',null,'Medical'),
+        e('p',null,d.soughtMedicalTreatment===true?'Treatment received':d.soughtMedicalTreatment===false?'Needs referral':'Not specified'),
+        d.initialFacilityName&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.initialFacilityName)
+      ),
+      e('div',{className:'summary-section'},
+        e('h4',null,'Work Status'),
+        e('p',{style:{color:d.losingTime?'var(--tw)':'var(--tg)'}},d.losingTime===true?'Lost Time Claim':d.losingTime===false?'Medical Only':'Not specified'),
+        d.returnStatus&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.returnStatus)
+      )
+    ),
+    
+    // E-SIGNATURES STATUS
+    e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
+      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'E-Signature Status'),
+      e('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}},
+        e('div',{style:{padding:12,background:d.witnessSigned?'rgba(52,211,153,0.1)':'rgba(30,42,56,0.5)',borderRadius:8,border:'1px solid '+(d.witnessSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
+          e('p',{style:{fontSize:12,color:d.witnessSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.witnessSigned?'Signed':'Pending'),
+          e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Witness Statement')
+        ),
+        e('div',{style:{padding:12,background:d.claimantSigned?'rgba(52,211,153,0.1)':'rgba(30,42,56,0.5)',borderRadius:8,border:'1px solid '+(d.claimantSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
+          e('p',{style:{fontSize:12,color:d.claimantSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.claimantSigned?'Signed':'Pending'),
+          e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Claimant Statement')
+        ),
+        e('div',{style:{padding:12,background:d.hipaaSigned?'rgba(52,211,153,0.1)':'rgba(30,42,56,0.5)',borderRadius:8,border:'1px solid '+(d.hipaaSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
+          e('p',{style:{fontSize:12,color:d.hipaaSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.hipaaSigned?'Signed':'Pending'),
+          e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'HIPAA Authorization')
+        )
+      )
+    ),
+    
+    // ADDITIONAL DOCUMENTS
+    e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
+      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'Additional Documents'),
+      e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Upload any additional documents not already attached (medical records, police reports, etc.)'),
+      e('input',{
+        type:'file',
+        multiple:true,
+        accept:'image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt',
+        onChange:x=>setUploadedFiles(Array.from(x.target.files)),
+        style:{display:'none'},
+        id:'final-file-upload'
+      }),
+      e('label',{htmlFor:'final-file-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px'}},'Choose Files'),
+      uploadedFiles.length>0&&e('div',{style:{marginTop:12}},
+        e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8}},uploadedFiles.length+' additional file(s) selected'),
+        e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+          ...uploadedFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+            f.name.substring(0,25)+(f.name.length>25?'...':''),
+            e('button',{type:'button',onClick:()=>setUploadedFiles(uploadedFiles.filter((_,idx)=>idx!==i)),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+          ))
+        )
+      )
+    ),
+    
+    // SUBMITTER INFORMATION
+    e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.5)',borderRadius:12,border:'1px solid var(--gbd)'}},
+      e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'Submitter Information'),
+      e('div',{className:'form-grid'},
+        e('div',{className:'form-group'},
+          e('label',null,'Your Name ',e('span',{className:'required'},'*')),
+          inp('submitterName','Your full name')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Your Email ',e('span',{className:'required'},'*')),
+          inp('submitterEmail','your.email@company.com','email')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Your Title'),
+          inp('submitterTitle','e.g., HR Manager, Safety Director')
+        ),
+        e('div',{className:'form-group'},
+          e('label',null,'Your Phone'),
+          inp('submitterPhone','Phone number','tel')
+        )
+      )
+    ),
+    
+    // CERTIFICATION
+    e('div',{style:{marginTop:20,padding:16,background:'rgba(30,42,56,0.6)',borderRadius:12,border:'1px solid var(--gbd)'}},
+      e('p',{style:{fontSize:13,color:'var(--tt)',textAlign:'center',fontWeight:600}},'CERTIFICATION'),
+      e('p',{style:{fontSize:12,color:'var(--tm)',textAlign:'center',marginTop:8}},'I certify that the information provided in this report is true and correct to the best of my knowledge. I understand that submitting false information may have legal consequences.')
+    ),
+    
+    // ACTION BUTTONS
+    e('div',{style:{marginTop:24,display:'flex',gap:12,justifyContent:'space-between',flexWrap:'wrap'}},
+      e('button',{
+        type:'button',
+        className:'nav-btn secondary',
+        style:{padding:'12px 20px'},
+        onClick:clearDraft
+      },'Clear Draft'),
+      e('div',{style:{display:'flex',gap:12}},
+        e('button',{
+          type:'button',
+          className:'nav-btn secondary',
+          style:{padding:'12px 20px'},
+          onClick:()=>setStep(0)
+        },'Back to Start'),
+        e('button',{
+          type:'button',
+          className:'nav-btn primary',
+          style:{padding:'14px 32px',fontSize:15,opacity:canSubmit?1:0.6},
+          disabled:submitting||!canSubmit,
+          onClick:submit
+        },submitting?'Submitting...':'Submit Claim')
+      )
+    ),
+    
+    !canSubmit&&e('p',{style:{fontSize:11,color:'var(--tw)',textAlign:'center',marginTop:12}},'Please complete all required fields before submitting.')
+  );
+}
+
+return null;
+};
+
+// MAIN APP RENDER
+return e('div',{className:'portal'},
+  e('header',{className:'header'},
+    e('div',{className:'header-content'},
+      e('div',{className:'brand'},
+        e('div',{className:'brand-logo'},
+          e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'})
+        )
+      ),
+      e('div',{className:'completion-badge'},
+        e('div',{className:'completion-bar'},
+          e('div',{className:'completion-fill',style:{width:score+'%'}})
+        ),
+        e('span',{className:'completion-text'},score+'%'),
+        lastSaved&&e('span',{style:{marginLeft:8,fontSize:10,color:'var(--tg)'}},'Saved')
+      )
+    )
+  ),
+  e('div',{className:'body'},
+    e('aside',{className:'sidebar'},
+      e('div',{className:'steps'},
+        ...steps.map((s,i)=>e('div',{
+          key:i,
+          className:'step'+(i===step?' active':''),
+          onClick:()=>setStep(i)
+        },
+          e('div',{className:'step-num'},s.n),
+          e('span',null,s.t)
+        ))
+      )
+    ),
+    e('main',{className:'main'},
+      renderStep(),
+      step<11&&e('div',{className:'nav'},
+        e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'Back'),
+        e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue')
+      )
+    )
+  )
+);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+</script>
 </body>
 </html>
