@@ -7,29 +7,84 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--td:#1e2a38;--tn:#2d3a4a;--ta:#5ba4e6;--ta2:#7eb8f0;--tg:#34d399;--tt:#f1f5f9;--tm:#94a3b8;--gbd:rgba(148,163,184,0.12)}
-body{font-family:'DM Sans',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* Dark mode (default) */
+:root{
+  --bg:#1e2a38;
+  --bg2:#2d3a4a;
+  --accent:#5ba4e6;
+  --accent2:#7eb8f0;
+  --green:#34d399;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --border:rgba(148,163,184,0.12);
+  --card:rgba(45,58,74,0.6);
+  --glow:rgba(91,164,230,0.08);
+}
+
+/* Light mode */
+[data-theme="light"]{
+  --bg:#f1f5f9;
+  --bg2:#ffffff;
+  --accent:#2563eb;
+  --accent2:#1d4ed8;
+  --green:#059669;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:rgba(148,163,184,0.25);
+  --card:rgba(255,255,255,0.9);
+  --glow:rgba(37,99,235,0.05);
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);transition:background 0.3s,color 0.3s}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,var(--glow) 0%,transparent 50%);pointer-events:none;z-index:0}
 .container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 24px}
 .header{text-align:center;margin-bottom:48px}
 .logo{height:60px;margin-bottom:24px}
 .logo img{height:100%;width:auto}
-h1{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:white;margin-bottom:12px}
-.subtitle{font-size:16px;color:var(--tm);max-width:500px;margin:0 auto}
+h1{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--text);margin-bottom:12px}
+.subtitle{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto}
 .industry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
 @media(max-width:768px){.industry-grid{grid-template-columns:1fr;max-width:400px;margin:48px auto 0}}
-.industry-card{background:rgba(45,58,74,0.6);border:2px solid var(--gbd);border-radius:20px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.3s ease}
-.industry-card:hover{border-color:var(--ta);transform:translateY(-4px);box-shadow:0 12px 40px rgba(91,164,230,0.15)}
+.industry-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.3s ease}
+.industry-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(91,164,230,0.15)}
 .industry-icon{font-size:56px;margin-bottom:20px}
-.industry-name{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:white;margin-bottom:8px}
-.industry-desc{font-size:13px;color:var(--tm);line-height:1.5}
-.industry-card:hover .industry-name{color:var(--ta2)}
-.footer{text-align:center;margin-top:60px;padding-top:24px;border-top:1px solid var(--gbd)}
-.footer p{font-size:12px;color:var(--tm)}
-.footer a{color:var(--ta);text-decoration:none}
+.industry-name{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.industry-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.industry-card:hover .industry-name{color:var(--accent2)}
+.footer{text-align:center;margin-top:60px;padding-top:24px;border-top:1px solid var(--border)}
+.footer p{font-size:12px;color:var(--muted)}
+.footer a{color:var(--accent);text-decoration:none}
+
+/* Theme toggle button */
+.theme-toggle{
+  position:fixed;
+  top:20px;
+  right:20px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:2px solid var(--border);
+  background:var(--card);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  transition:all 0.3s;
+  z-index:100;
+}
+.theme-toggle:hover{
+  border-color:var(--accent);
+  transform:scale(1.1);
+}
 </style>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+  <span id="theme-icon">🌙</span>
+</button>
+
 <div class="container">
   <div class="header">
     <div class="logo">
@@ -65,10 +120,36 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:w
 </div>
 
 <script>
+// Check for saved theme or system preference
+function getPreferredTheme() {
+  const saved = localStorage.getItem('wcr_theme');
+  if (saved) return saved;
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').textContent = theme === 'light' ? '☀️' : '🌙';
+  localStorage.setItem('wcr_theme', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// Initialize theme on load
+setTheme(getPreferredTheme());
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+  if (!localStorage.getItem('wcr_theme')) {
+    setTheme(e.matches ? 'light' : 'dark');
+  }
+});
+
 function selectIndustry(industry) {
-  // Store the selected industry
   localStorage.setItem('wcr_industry', industry);
-  // Redirect to the incident reporting form
   window.location.href = '/portal.html';
 }
 </script>
