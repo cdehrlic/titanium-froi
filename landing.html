@@ -3,155 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Titanium Defense Group - Incident Reporting</title>
+<title>Titanium Defense Group - Workers' Compensation Reporting</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-
-/* Dark mode (default) */
 :root{
-  --bg:#1e2a38;
-  --bg2:#2d3a4a;
-  --accent:#5ba4e6;
-  --accent2:#7eb8f0;
-  --green:#34d399;
-  --text:#f1f5f9;
-  --muted:#94a3b8;
-  --border:rgba(148,163,184,0.12);
-  --card:rgba(45,58,74,0.6);
-  --glow:rgba(91,164,230,0.08);
+  --td:#1e2a38;
+  --tn:#2d3a4a;
+  --ts:#3d4f63;
+  --tl:#4a6178;
+  --ta:#5ba4e6;
+  --ta2:#7eb8f0;
+  --tg:#34d399;
+  --tw:#fbbf24;
+  --tr:#f87171;
+  --tt:#f1f5f9;
+  --tm:#94a3b8;
+  --tb:rgba(148,163,184,0.15);
+  --gb:rgba(45,58,74,0.6);
+  --gbd:rgba(148,163,184,0.12);
 }
 
-/* Light mode */
-[data-theme="light"]{
-  --bg:#f1f5f9;
-  --bg2:#ffffff;
-  --accent:#2563eb;
-  --accent2:#1d4ed8;
-  --green:#059669;
-  --text:#1e293b;
-  --muted:#64748b;
-  --border:rgba(148,163,184,0.25);
-  --card:rgba(255,255,255,0.9);
-  --glow:rgba(37,99,235,0.05);
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--td);
+  min-height:100vh;
+  color:var(--tt);
+  display:flex;
+  flex-direction:column;
 }
 
-body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);transition:background 0.3s,color 0.3s}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,var(--glow) 0%,transparent 50%);pointer-events:none;z-index:0}
-.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 24px}
-.header{text-align:center;margin-bottom:48px}
-.logo{height:60px;margin-bottom:24px}
-.logo img{height:100%;width:auto}
-h1{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--text);margin-bottom:12px}
-.subtitle{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto}
-.industry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
-@media(max-width:768px){.industry-grid{grid-template-columns:1fr;max-width:400px;margin:48px auto 0}}
-.industry-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.3s ease}
-.industry-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(91,164,230,0.15)}
-.industry-icon{font-size:56px;margin-bottom:20px}
-.industry-name{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
-.industry-desc{font-size:13px;color:var(--muted);line-height:1.5}
-.industry-card:hover .industry-name{color:var(--accent2)}
-.footer{text-align:center;margin-top:60px;padding-top:24px;border-top:1px solid var(--border)}
-.footer p{font-size:12px;color:var(--muted)}
-.footer a{color:var(--accent);text-decoration:none}
-
-/* Theme toggle button */
-.theme-toggle{
+body::before{
+  content:'';
   position:fixed;
-  top:20px;
-  right:20px;
-  width:48px;
+  inset:0;
+  background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.landing{
+  position:relative;
+  z-index:1;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Header */
+.header{
+  background:linear-gradient(180deg,var(--tn) 0%,var(--td) 100%);
+  border-bottom:1px solid var(--gbd);
+  padding:20px 32px;
+}
+
+.header-content{
+  max-width:1200px;
+  margin:0 auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.brand-logo{
   height:48px;
-  border-radius:50%;
-  border:2px solid var(--border);
-  background:var(--card);
-  cursor:pointer;
+}
+
+.brand-logo img{
+  height:100%;
+  width:auto;
+}
+
+.header-tag{
+  background:var(--gb);
+  border:1px solid var(--gbd);
+  padding:8px 16px;
+  border-radius:8px;
+  font-size:12px;
+  color:var(--tm);
+  font-weight:500;
+}
+
+/* Main Content */
+.main{
+  flex:1;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:22px;
-  transition:all 0.3s;
-  z-index:100;
+  padding:40px 24px;
 }
-.theme-toggle:hover{
-  border-color:var(--accent);
-  transform:scale(1.1);
+
+.container{
+  max-width:900px;
+  width:100%;
+  text-align:center;
+}
+
+.hero-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:42px;
+  font-weight:700;
+  color:white;
+  margin-bottom:16px;
+  line-height:1.2;
+}
+
+.hero-subtitle{
+  font-size:18px;
+  color:var(--tm);
+  margin-bottom:48px;
+  max-width:600px;
+  margin-left:auto;
+  margin-right:auto;
+  line-height:1.6;
+}
+
+/* Industry Cards */
+.industry-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  margin-bottom:48px;
+}
+
+.industry-card{
+  background:var(--gb);
+  border:2px solid var(--gbd);
+  border-radius:20px;
+  padding:32px 24px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+}
+
+.industry-card:hover{
+  border-color:var(--ta);
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(91,164,230,0.15);
+}
+
+.industry-card:hover .industry-icon{
+  background:linear-gradient(135deg,var(--ta) 0%,var(--ta2) 100%);
+  color:white;
+}
+
+.industry-card:hover .industry-name{
+  color:var(--ta2);
+}
+
+.industry-icon{
+  width:80px;
+  height:80px;
+  background:rgba(91,164,230,0.1);
+  border:2px solid rgba(91,164,230,0.2);
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.3s ease;
+}
+
+.industry-icon svg{
+  width:40px;
+  height:40px;
+  stroke:var(--ta);
+  stroke-width:1.5;
+  fill:none;
+  transition:all 0.3s ease;
+}
+
+.industry-card:hover .industry-icon svg{
+  stroke:white;
+}
+
+.industry-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:20px;
+  font-weight:600;
+  color:white;
+  transition:all 0.3s ease;
+}
+
+.industry-desc{
+  font-size:14px;
+  color:var(--tm);
+  line-height:1.5;
+}
+
+/* Features */
+.features{
+  display:flex;
+  justify-content:center;
+  gap:40px;
+  flex-wrap:wrap;
+  padding-top:32px;
+  border-top:1px solid var(--gbd);
+}
+
+.feature{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:var(--tm);
+  font-size:14px;
+}
+
+.feature-icon{
+  width:32px;
+  height:32px;
+  background:rgba(52,211,153,0.1);
+  border:1px solid rgba(52,211,153,0.2);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.feature-icon svg{
+  width:16px;
+  height:16px;
+  stroke:var(--tg);
+  stroke-width:2;
+  fill:none;
+}
+
+/* Footer */
+.footer{
+  padding:24px 32px;
+  border-top:1px solid var(--gbd);
+  text-align:center;
+}
+
+.footer p{
+  font-size:12px;
+  color:var(--tm);
+}
+
+.footer a{
+  color:var(--ta);
+  text-decoration:none;
+}
+
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* Responsive */
+@media(max-width:800px){
+  .industry-grid{
+    grid-template-columns:1fr;
+    max-width:400px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  
+  .hero-title{
+    font-size:32px;
+  }
+  
+  .hero-subtitle{
+    font-size:16px;
+  }
+  
+  .features{
+    flex-direction:column;
+    align-items:center;
+    gap:20px;
+  }
+  
+  .header-tag{
+    display:none;
+  }
 }
 </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
-  <span id="theme-icon">🌙</span>
-</button>
-
-<div class="container">
-  <div class="header">
-    <div class="logo">
-      <img src="/Titanium logo.webp" alt="Titanium Defense Group">
+<div class="landing">
+  <header class="header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="/Titanium logo.webp" alt="Titanium Defense Group">
+        </div>
+      </div>
+      <div class="header-tag">Workers' Compensation Reporting Portal</div>
     </div>
-    <h1>Incident Reporting Form</h1>
-    <p class="subtitle">Select your industry to begin reporting a workplace incident</p>
-  </div>
+  </header>
   
-  <div class="industry-grid">
-    <div class="industry-card" onclick="selectIndustry('construction')">
-      <div class="industry-icon">🏗️</div>
-      <div class="industry-name">Construction</div>
-      <div class="industry-desc">Building, renovation, demolition, and related trades</div>
+  <main class="main">
+    <div class="container">
+      <h1 class="hero-title">Report a Workplace Injury</h1>
+      <p class="hero-subtitle">Select your industry below to access the appropriate claim reporting form with industry-specific guidance and compliance requirements.</p>
+      
+      <div class="industry-grid">
+        <!-- Construction -->
+        <a href="/portal?industry=construction" class="industry-card">
+          <div class="industry-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-6h6v6"/>
+              <path d="M12 4v2M3 12l2-1.5M19 12l2-1.5"/>
+              <rect x="9" y="10" width="6" height="4" rx="0.5"/>
+            </svg>
+          </div>
+          <div class="industry-name">Construction</div>
+          <div class="industry-desc">Building, trades, contractors, heavy equipment, and construction site operations</div>
+        </a>
+        
+        <!-- Healthcare -->
+        <a href="/portal?industry=healthcare" class="industry-card">
+          <div class="industry-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 10v4M10 12h4"/>
+            </svg>
+          </div>
+          <div class="industry-name">Healthcare</div>
+          <div class="industry-desc">Hospitals, nursing facilities, clinics, home health, and medical staffing</div>
+        </a>
+        
+        <!-- General Industry -->
+        <a href="/portal?industry=general" class="industry-card">
+          <div class="industry-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="2" y="7" width="20" height="14" rx="2"/>
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              <path d="M12 12v4M10 14h4"/>
+              <path d="M2 12h20"/>
+            </svg>
+          </div>
+          <div class="industry-name">General Industry</div>
+          <div class="industry-desc">Manufacturing, retail, office, warehouse, and other workplace environments</div>
+        </a>
+      </div>
+      
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4"/>
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+          </div>
+          <span>OSHA Compliant Forms</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <span>Secure & Encrypted</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+            </svg>
+          </div>
+          <span>Instant PDF Generation</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <span>E-Signature Capture</span>
+        </div>
+      </div>
     </div>
-    
-    <div class="industry-card" onclick="selectIndustry('healthcare')">
-      <div class="industry-icon">🏥</div>
-      <div class="industry-name">Healthcare</div>
-      <div class="industry-desc">Hospitals, clinics, nursing, home care, and staffing</div>
-    </div>
-    
-    <div class="industry-card" onclick="selectIndustry('general')">
-      <div class="industry-icon">🏢</div>
-      <div class="industry-name">General Industry</div>
-      <div class="industry-desc">Office, retail, manufacturing, and other workplaces</div>
-    </div>
-  </div>
+  </main>
   
-  <div class="footer">
-    <p>Powered by <a href="https://wcreporting.com">WCReporting.com</a></p>
-  </div>
+  <footer class="footer">
+    <p>&copy; 2025 Titanium Defense Group. All rights reserved. <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
+  </footer>
 </div>
-
-<script>
-// Check for saved theme or system preference
-function getPreferredTheme() {
-  const saved = localStorage.getItem('wcr_theme');
-  if (saved) return saved;
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-}
-
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('theme-icon').textContent = theme === 'light' ? '☀️' : '🌙';
-  localStorage.setItem('wcr_theme', theme);
-}
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  setTheme(current === 'dark' ? 'light' : 'dark');
-}
-
-// Initialize theme on load
-setTheme(getPreferredTheme());
-
-// Listen for system theme changes
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-  if (!localStorage.getItem('wcr_theme')) {
-    setTheme(e.matches ? 'light' : 'dark');
-  }
-});
-
-function selectIndustry(industry) {
-  localStorage.setItem('wcr_industry', industry);
-  window.location.href = '/portal.html';
-}
-</script>
 </body>
 </html>
