@@ -684,11 +684,7 @@ if(step===1){
  
  const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
  
- const towneEntities = entities.filter(ent => 
- ent.toLowerCase().includes('towne') || 
- ent.toLowerCase().includes('shiftster') || 
- ent.toLowerCase().includes('eshyft')
- );
+ const ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','SMS Cleaning and Housekeeping Services','Towne Home Care / Towne Staffing LLC','Share Policy','Fairmont & GNP','LiveWell Plus','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
  
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
@@ -697,7 +693,7 @@ if(step===1){
  ),
  e('div',{className:'form-group full-width'},
   e('label',null,'Entity ',e('span',{className:'required'},'*')),
-  sel('entity',[...towneEntities,'Other - Enter Manually'],'Select Entity'),
+  sel('entity',[...ENTITIES,'Other - Enter Manually'],'Select Entity'),
   d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
  ),
  e('div',{className:'form-grid',style:{marginTop:16}},
