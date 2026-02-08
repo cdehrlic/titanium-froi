@@ -194,14 +194,24 @@ const[d,setD]=S({
  thirdPartyInvolved:null,thirdPartyDetails:'',witnessOpt:null,witnessData:{},witnessLink:null,witnessSigned:false,claimantOpt:null,claimantData:{},claimantLink:null,claimantSigned:false,hipaaOpt:null,hipaaData:{},hipaaLink:null,hipaaSigned:false,submitterName:'',submitterEmail:'',
  submitterTitle:'',
  submitterPhone:''});
-const[uploadedFiles,setUploadedFiles]=S([]);const[inlineStmts,setInlineStmts]=S([]);const[score,setScore]=S(0);const[lastSaved,setLastSaved]=S(null);const[recording,setRecording]=S(null);const[audioBlobs,setAudioBlobs]=S({});const[showPreview,setShowPreview]=S(false);const[theme,setTheme]=S(()=>{try{return localStorage.getItem('wcr_theme')||'dark'}catch(e){return 'dark'}});
+const[uploadedFiles,setUploadedFiles]=S([]);const[inlineStmts,setInlineStmts]=S([]);const[score,setScore]=S(0);const[lastSaved,setLastSaved]=S(null);const[recording,setRecording]=S(null);const[audioBlobs,setAudioBlobs]=S({});const[showPreview,setShowPreview]=S(false);const[theme,setTheme]=S(()=>{try{return localStorage.getItem('wcr_theme')||'dark'}catch(e){return 'dark'}});const[hipaaAccepted,setHipaaAccepted]=S(false);const[sessionExpired,setSessionExpired]=S(false);
 const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);const mediaRecorderRef=R(null);const audioChunksRef=R([]);
 
 E(()=>{fetch('/api/entities').then(r=>r.json()).then(setEntities).catch(()=>{})},[]);
 E(()=>{if(theme==='light'){document.body.classList.add('light')}else{document.body.classList.remove('light')};try{localStorage.setItem('wcr_theme',theme)}catch(e){}},[theme]);
 const toggleTheme=()=>setTheme(t=>t==='dark'?'light':'dark');
+
+E(()=>{
+let timer;
+const TIMEOUT=15*60*1000;
+const resetTimer=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!result&&hipaaAccepted){setSessionExpired(true)}},TIMEOUT)};
+const events=['mousedown','keydown','scroll','touchstart','mousemove'];
+events.forEach(ev=>document.addEventListener(ev,resetTimer));
+resetTimer();
+return()=>{clearTimeout(timer);events.forEach(ev=>document.removeEventListener(ev,resetTimer))};
+},[result,hipaaAccepted]);
 E(()=>{const req=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];let s=0;req.forEach(f=>{if(d[f])s+=10});setScore(Math.min(100,Math.round(s)))},[d]);
-E(()=>{try{localStorage.setItem('wcr_draft',JSON.stringify({data:d,savedAt:Date.now()}));setLastSaved(new Date().toLocaleTimeString())}catch(x){}},[d]);
+
 
 E(()=>{
 if((step===8||step===9||step===10)&&sigCanvasRef.current){
@@ -249,28 +259,22 @@ const startRecording=async(type)=>{
   const blob=new Blob(audioChunksRef.current,{type:audioType});
   setAudioBlobs(prev=>({...prev,[type]:blob}));
   stream.getTracks().forEach(t=>t.stop());
-  console.log('Audio recorded:',blob.size,'bytes,',audioType);
  };
  mediaRecorderRef.current.start(1000);
  setRecording(type);
  }catch(err){
- console.error('Microphone error:',err);
+ console.error('Microphone access failed');
  alert('Could not access microphone');
  }
 };
 const stopRecording=()=>{if(mediaRecorderRef.current&&recording){mediaRecorderRef.current.stop();setRecording(null)}};
 const clearAudio=(type)=>setAudioBlobs(prev=>{const n={...prev};delete n[type];return n});
 
-const generateLink=async(type,name,email,phone)=>{const claimRef='FROI-'+Date.now().toString().slice(-8);try{const res=await fetch('/api/generate-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claimRef,type,personName:name,email,phone})});const json=await res.json();if(json.success)return json.link}catch(x){console.error(x)}return null};
+const generateLink=async(type,name,email,phone)=>{const claimRef='FROI-'+Date.now().toString().slice(-8);try{const res=await fetch('/api/generate-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claimRef,type,personName:name,email,phone})});const json=await res.json();if(json.success)return json.link}catch(x){console.error('Link generation failed')}return null};
 
 const submitInlineStmt=async(type,formData,sig,audioBlob)=>{
  const claimRef='FROI-'+Date.now().toString().slice(-8);
- console.log('=== SUBMITTING INLINE STATEMENT ===');
- console.log('Type:', type);
- console.log('Form Data:', formData);
- console.log('Has Signature:', !!sig);
- console.log('Has Audio:', !!audioBlob);
- 
+      
  try{
  const fd=new FormData();
  
@@ -299,25 +303,22 @@ const submitInlineStmt=async(type,formData,sig,audioBlob)=>{
   fd.append('files',audioBlob,'audio-'+type+'.'+ext);
  }
  
- console.log('Sending to /api/submit-inline-statement...');
- 
+  
  const res=await fetch('/api/submit-inline-statement',{method:'POST',body:fd});
  
- console.log('Response status:', res.status);
- 
+  
  const json=await res.json();
  
- console.log('Response:', json);
- 
+  
  if(json.success){
   setInlineStmts(prev=>[...prev,{type,pdf:json.pdf,filename:json.filename,audioFiles:json.audioFiles||[]}]);
   return true;
  } else {
-  console.error('Server returned error:', json.error || json.message);
+  console.error('Statement submission failed');
   alert('Error: '+ (json.error || json.message || 'Unknown error'));
  }
  }catch(x){
- console.error('Submit error:', x);
+ console.error('Submit error');
  alert('Network error: '+ x.message);
  }
  return false;
@@ -328,7 +329,39 @@ uploadedFiles.forEach(f=>fd.append('files',f));
 if(d.scenePhotoFiles)d.scenePhotoFiles.forEach(f=>fd.append('files',f));
 if(d.injuryPhotoFiles)d.injuryPhotoFiles.forEach(f=>fd.append('files',f));
 if(d.evidenceDocFiles)d.evidenceDocFiles.forEach(f=>fd.append('files',f));
-const res=await fetch('/api/submit-claim',{method:'POST',body:fd});const json=await res.json();if(json.success){localStorage.removeItem('wcr_draft');setResult(json)}else alert('Error: '+(json.error||'Unknown'))}catch(x){alert('Error: '+x.message)}setSubmitting(false)};
+const res=await fetch('/api/submit-claim',{method:'POST',body:fd});const json=await res.json();if(json.success){setResult(json)}else alert('Error: '+(json.error||'Unknown'))}catch(x){alert('Error: '+x.message)}setSubmitting(false)};
+
+if(sessionExpired)return e('div',{className:'portal',style:{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:24}},
+e('div',{style:{maxWidth:480,textAlign:'center',padding:40,background:'var(--gb)',borderRadius:16,border:'1px solid var(--gbd)',boxShadow:'0 4px 24px rgba(0,0,0,0.12)'}},
+e('div',{style:{width:64,height:64,background:'rgba(239,68,68,0.12)',border:'2px solid var(--tr)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',fontSize:28,color:'var(--tr)'}},'!'),
+e('h2',{style:{color:'var(--tt)',fontSize:20,marginBottom:12,fontFamily:"'Outfit',sans-serif"}},'Session Expired'),
+e('p',{style:{color:'var(--tm)',fontSize:14,lineHeight:1.6,marginBottom:8}},'Your session has timed out after 15 minutes of inactivity to protect sensitive health information.'),
+e('p',{style:{color:'var(--tm)',fontSize:13,marginBottom:24}},'Any unsaved data has been cleared from this browser.'),
+e('button',{className:'nav-btn primary',style:{padding:'14px 32px'},onClick:()=>location.reload()},'Start New Session')
+));
+
+if(!hipaaAccepted)return e('div',{className:'portal',style:{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:24}},
+e('div',{style:{maxWidth:580,padding:40,background:'var(--gb)',borderRadius:16,border:'1px solid var(--gbd)',boxShadow:'0 4px 24px rgba(0,0,0,0.12)'}},
+e('div',{style:{textAlign:'center',marginBottom:28}},
+e('div',{style:{width:56,height:56,background:'rgba(79,143,239,0.12)',border:'2px solid var(--ta)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:22,color:'var(--ta)'}},'🔒'),
+e('h2',{style:{color:'var(--tt)',fontSize:22,marginBottom:8,fontFamily:"'Outfit',sans-serif"}},'HIPAA Compliance Notice'),
+e('p',{style:{color:'var(--tm)',fontSize:13}},'Titanium Defense Group | Workers\' Compensation Claim Portal')
+),
+e('div',{style:{background:'var(--panel)',borderRadius:12,padding:20,marginBottom:20,border:'1px solid var(--gbd)',fontSize:13,color:'var(--tm)',lineHeight:1.7}},
+e('p',{style:{marginBottom:12}},'This portal collects Protected Health Information (PHI) as defined under the Health Insurance Portability and Accountability Act (HIPAA). By proceeding, you acknowledge that:'),
+e('div',{style:{marginLeft:8}},
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'This system is used to report workers\' compensation claims and may include personal health information, medical records, and employment data.'),
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'All data entered is transmitted securely and handled in accordance with HIPAA privacy and security rules.'),
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'You are an authorized user with a legitimate business need to access and enter this information.'),
+e('p',{style:{paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'Unauthorized access or disclosure of PHI is prohibited and may result in civil and criminal penalties.')
+)
+),
+e('div',{style:{background:'var(--panel)',borderRadius:12,padding:16,marginBottom:24,border:'1px solid var(--gbd)',fontSize:12,color:'var(--tm)'}},
+e('p',{style:{fontWeight:600,marginBottom:6,color:'var(--tt)'}},'Security Measures'),
+e('p',null,'Sessions automatically expire after 15 minutes of inactivity. No PHI is stored locally on this device. SSN fields are masked for privacy protection.')
+),
+e('button',{className:'nav-btn primary',style:{width:'100%',padding:'16px',fontSize:15},onClick:()=>setHipaaAccepted(true)},'I Acknowledge — Proceed to Portal')
+));
 
 if(result)return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))))),e('div',{className:'success-container'},e('div',{className:'success-icon'},''),e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Claim Submitted'),e('p',{style:{color:'var(--tm)'}},'Reference Number:'),e('div',{className:'ref-number'},result.referenceNumber),e('p',{style:{color:'var(--tm)',margin:'20px 0'}},'Confirmation sent to '+d.submitterEmail),inlineStmts.length>0&&e('p',{style:{color:'var(--tg)',fontSize:13}},' '+inlineStmts.length+' e-signed document(s) attached'),e('button',{className:'nav-btn primary',style:{marginTop:20},onClick:()=>location.reload()},'Submit Another Claim')));
 
@@ -680,7 +713,7 @@ if(step===0)return e('div',{className:'content'},
  ),
  e('div',{className:'form-group'},
   e('label',null,'SSN'),
-  inp('ssn','XXX-XX-XXXX')
+  e('div',{style:{position:'relative'}},e('input',{type:'password',className:'input-field',value:d.ssn||'',onChange:x=>{const v=x.target.value.replace(/[^0-9-]/g,'');if(v.length<=11)u('ssn',v)},placeholder:'XXX-XX-XXXX',autoComplete:'off'}),d.ssn&&d.ssn.length>=4&&e('span',{style:{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',fontSize:12,color:'var(--tm)'}},'Last 4: '+d.ssn.replace(/[^0-9]/g,'').slice(-4)))
  ),
  e('div',{className:'form-group full-width'},
   e('label',null,'Occupation / Job Title'),
@@ -2050,8 +2083,7 @@ if(step===11){
  
  const clearDraft=()=>{
  if(confirm('Are you sure you want to clear all form data? This cannot be undone.')){
-  localStorage.removeItem('wcr_draft');
-  location.reload();
+    location.reload();
  }
  };
  
@@ -2061,7 +2093,7 @@ if(step===11){
  e('div',{className:'section-header'},
   e('h2',null,'Review & Submit'),
   e('p',{className:'section-subtitle'},'Review your claim information and submit'),
-  lastSaved&&e('p',{style:{fontSize:11,color:'var(--tg)',marginTop:4}},'Draft auto-saved at '+lastSaved)
+  
  ),
  
  e('div',{style:{display:'flex',gap:24,alignItems:'center',justifyContent:'center',margin:'24px 0'}},
@@ -2320,7 +2352,7 @@ if(step===11){
   className:'nav-btn secondary',
   style:{padding:'12px 20px'},
   onClick:clearDraft
-  },'Clear Draft'),
+  },'Reset Form'),
   e('div',{style:{display:'flex',gap:12}},
   e('button',{
    type:'button',
@@ -2344,7 +2376,7 @@ if(step===11){
 return null;
 };
 
-return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length),lastSaved&&e('span',{style:{marginLeft:8,fontSize:10,color:'var(--tg)'}},'Saved')))))  ,e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<11&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
+return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<11&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
 </script>
