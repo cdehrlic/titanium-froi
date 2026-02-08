@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Titanium Defense Group | Workers' Compensation Claim Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --td:#0b1120;--tn:#111827;--ts:#1e293b;
+  --ta:#4f8fef;--ta2:#7ab5f5;--tg:#34d399;
+  --tw:#f59e0b;--tr:#ef4444;--tt:#f3f4f6;
+  --tm:#94a3b8;--tb:rgba(156,163,175,0.15);
+  --gb:rgba(31,41,55,0.6);--gbd:rgba(75,85,99,0.35);
+  --panel:rgba(17,24,39,0.5);
+}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--td);
+  min-height:100vh;
+  color:var(--tt);
+  overflow-x:hidden;
+}
+body.light{
+  --td:#f1f5f9;--tn:#ffffff;--ts:#e2e8f0;
+  --ta:#3574d4;--ta2:#2d62b8;--tg:#059669;
+  --tw:#d97706;--tr:#dc2626;--tt:#1e293b;
+  --tm:#64748b;--tb:rgba(148,163,184,0.25);
+  --gb:rgba(255,255,255,0.85);--gbd:rgba(203,213,225,0.5);
+  --panel:rgba(241,245,249,0.8);
+  background:#f1f5f9;
+}
+
+/* Background atmosphere */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 20% 0%,rgba(79,143,239,0.07) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(52,211,153,0.04) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+body.light::before{
+  background:
+    radial-gradient(ellipse at 20% 0%,rgba(53,116,212,0.04) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 100%,rgba(5,150,105,0.03) 0%,transparent 50%);
+}
+
+/* Subtle grid pattern */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(79,143,239,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,143,239,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;z-index:0;
+}
+body.light::after{
+  background-image:
+    linear-gradient(rgba(53,116,212,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(53,116,212,0.025) 1px,transparent 1px);
+}
+
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.header{
+  padding:20px 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--gbd);
+  background:var(--tn);
+  backdrop-filter:blur(16px);
+}
+body.light .header{background:rgba(255,255,255,0.9)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{height:44px}
+.brand-logo img{height:100%;width:auto}
+.brand-text h1{font-family:'Outfit',sans-serif;font-size:20px;color:var(--tt);font-weight:700}
+.brand-text p{font-size:11px;color:var(--tm);letter-spacing:0.3px}
+.header-right{display:flex;align-items:center;gap:12px}
+.theme-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:var(--gb);border:1px solid var(--gbd);
+  border-radius:10px;padding:8px 14px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  color:var(--tm);transition:all 0.2s;
+}
+.theme-toggle:hover{border-color:var(--ta);color:var(--tt)}
+.theme-toggle-icon{font-size:16px;line-height:1}
+
+/* Hero section */
+.hero{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 40px 40px;text-align:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(79,143,239,0.08);
+  border:1px solid rgba(79,143,239,0.2);
+  border-radius:40px;padding:8px 20px;
+  font-size:12px;font-weight:600;color:var(--ta);
+  letter-spacing:0.5px;text-transform:uppercase;
+  margin-bottom:28px;
+  animation:fadeDown 0.6s ease;
+}
+body.light .hero-badge{
+  background:rgba(53,116,212,0.06);
+  border-color:rgba(53,116,212,0.18);
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--tg);
+  animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{
+  font-family:'Outfit',sans-serif;font-size:clamp(32px,5vw,52px);
+  font-weight:800;color:var(--tt);
+  letter-spacing:-0.03em;line-height:1.15;
+  margin-bottom:16px;
+  animation:fadeDown 0.6s ease 0.1s both;
+}
+.hero h1 span{
+  background:linear-gradient(135deg,var(--ta),var(--ta2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero p{
+  font-size:clamp(15px,1.8vw,18px);
+  color:var(--tm);max-width:560px;line-height:1.6;
+  margin-bottom:48px;
+  animation:fadeDown 0.6s ease 0.2s both;
+}
+.hero-label{
+  font-size:13px;font-weight:600;color:var(--tm);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:24px;
+  animation:fadeDown 0.6s ease 0.3s both;
+}
+
+/* Industry cards */
+.cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:20px;max-width:960px;width:100%;
+  animation:fadeUp 0.7s ease 0.4s both;
+}
+.card{
+  position:relative;
+  background:var(--gb);
+  border:1.5px solid var(--gbd);
+  border-radius:16px;
+  padding:36px 28px 32px;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  text-align:center;
+  text-decoration:none;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;
+  border-radius:16px;opacity:0;
+  transition:opacity 0.3s ease;
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--ta);
+  box-shadow:0 8px 32px rgba(79,143,239,0.12),0 2px 8px rgba(0,0,0,0.08);
+}
+body.light .card:hover{
+  box-shadow:0 8px 32px rgba(53,116,212,0.1),0 2px 8px rgba(0,0,0,0.04);
+}
+.card:hover::before{opacity:1}
+.card:active{transform:translateY(-2px)}
+
+.card-healthcare::before{background:linear-gradient(135deg,rgba(79,143,239,0.06) 0%,transparent 60%)}
+.card-construction::before{background:linear-gradient(135deg,rgba(245,158,11,0.06) 0%,transparent 60%)}
+.card-general::before{background:linear-gradient(135deg,rgba(52,211,153,0.06) 0%,transparent 60%)}
+
+.card-icon{
+  width:64px;height:64px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  transition:transform 0.3s ease;
+}
+.card:hover .card-icon{transform:scale(1.08)}
+
+.card-healthcare .card-icon{background:rgba(79,143,239,0.1);border:1px solid rgba(79,143,239,0.2)}
+.card-construction .card-icon{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)}
+.card-general .card-icon{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2)}
+
+body.light .card-healthcare .card-icon{background:rgba(53,116,212,0.08);border-color:rgba(53,116,212,0.15)}
+body.light .card-construction .card-icon{background:rgba(217,119,6,0.08);border-color:rgba(217,119,6,0.15)}
+body.light .card-general .card-icon{background:rgba(5,150,105,0.08);border-color:rgba(5,150,105,0.15)}
+
+.card h3{
+  font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;
+  color:var(--tt);letter-spacing:-0.01em;
+}
+.card p{
+  font-size:13px;color:var(--tm);line-height:1.55;
+}
+.card-arrow{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:600;
+  margin-top:auto;padding-top:8px;
+  transition:gap 0.2s ease;
+}
+.card:hover .card-arrow{gap:10px}
+.card-healthcare .card-arrow{color:var(--ta)}
+.card-construction .card-arrow{color:var(--tw)}
+.card-general .card-arrow{color:var(--tg)}
+
+.card-tag{
+  position:absolute;top:14px;right:14px;
+  font-size:10px;font-weight:700;letter-spacing:0.5px;
+  text-transform:uppercase;padding:4px 10px;
+  border-radius:6px;
+}
+.card-healthcare .card-tag{
+  background:rgba(79,143,239,0.1);color:var(--ta);
+  border:1px solid rgba(79,143,239,0.2);
+}
+
+/* Footer */
+.footer{
+  padding:24px 40px;text-align:center;
+  border-top:1px solid var(--gbd);
+  font-size:12px;color:var(--tm);
+}
+.footer a{color:var(--ta);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+.footer-hipaa{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:8px;font-size:11px;color:var(--tm);
+}
+.footer-hipaa-icon{font-size:14px}
+
+/* Animations */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* Coming soon overlay */
+.card-disabled{opacity:0.55;pointer-events:none}
+.card-disabled .card-tag{
+  background:var(--panel);color:var(--tm);
+  border:1px solid var(--gbd);
+}
+
+/* Mobile */
+@media(max-width:768px){
+  .header{padding:16px 20px}
+  .hero{padding:40px 20px 32px}
+  .cards{grid-template-columns:1fr;max-width:400px}
+  .hero h1{font-size:28px}
+  .footer{padding:20px}
+}
+@media(min-width:769px) and (max-width:1024px){
+  .cards{grid-template-columns:repeat(3,1fr);gap:16px;max-width:800px}
+  .card{padding:28px 20px 24px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo"><img src="/Titanium logo.webp" alt="Titanium Defense Group"></div>
+      <div class="brand-text">
+        <h1>Titanium Defense Group</h1>
+        <p>Workers' Compensation Claim Portal</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" type="button">
+        <span class="theme-toggle-icon" id="theme-icon">☀</span>
+        <span id="theme-label">Light</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Secure HIPAA-Compliant Portal
+    </div>
+    <h1>Report a <span>Workers' Compensation</span> Claim</h1>
+    <p>Select your industry below to begin the claim reporting process. Each portal is tailored with industry-specific fields and compliance requirements.</p>
+    
+    <div class="hero-label">Select Your Industry</div>
+    
+    <div class="cards">
+      <!-- Healthcare -->
+      <a href="/portal.html" class="card card-healthcare">
+        <span class="card-tag">Active</span>
+        <div class="card-icon">🏥</div>
+        <h3>Health Care</h3>
+        <p>Hospitals, nursing facilities, home care, staffing agencies, rehabilitation centers</p>
+        <div class="card-arrow">Begin Claim <span>→</span></div>
+      </a>
+      
+      <!-- Construction -->
+      <div class="card card-construction card-disabled">
+        <span class="card-tag">Coming Soon</span>
+        <div class="card-icon">🏗️</div>
+        <h3>Construction</h3>
+        <p>General contractors, specialty trades, heavy construction, residential and commercial projects</p>
+        <div class="card-arrow">Begin Claim <span>→</span></div>
+      </div>
+      
+      <!-- General Industry -->
+      <div class="card card-general card-disabled">
+        <span class="card-tag">Coming Soon</span>
+        <div class="card-icon">🏢</div>
+        <h3>General Industry</h3>
+        <p>Manufacturing, warehousing, retail, office environments, food service, transportation</p>
+        <div class="card-arrow">Begin Claim <span>→</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Titanium Defense Group. All rights reserved.</p>
+    <div class="footer-hipaa">
+      <span class="footer-hipaa-icon">🔒</span>
+      HIPAA Compliant &middot; All data encrypted in transit and at rest
+    </div>
+  </footer>
+</div>
+
+<script>
+function getTheme(){try{return localStorage.getItem('wcr_theme')||'dark'}catch(e){return 'dark'}}
+function setTheme(t){
+  document.body.classList.toggle('light',t==='light');
+  document.getElementById('theme-icon').textContent=t==='dark'?'☀':'☾';
+  document.getElementById('theme-label').textContent=t==='dark'?'Light':'Dark';
+  try{localStorage.setItem('wcr_theme',t)}catch(e){}
+}
+function toggleTheme(){const t=getTheme()==='dark'?'light':'dark';setTheme(t)}
+setTheme(getTheme());
+</script>
+</body>
+</html>
