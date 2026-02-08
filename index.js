@@ -78,8 +78,7 @@ const ENTITIES = [
   'Shiftster LLC / Eshyft',
   'Grandison Management',
   'SMS Cleaning and Housekeeping Services',
-  'Towne Home Care / Towne Staffing LLC Share Policy',
-  'Fairmont & GNP',
+  'Towne Home Care / Towne Staffing LLC',
   'LiveWell Plus',
   'Advanced Care Agency / Baybay',
   'Esky Care',
@@ -1107,7 +1106,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
 // SERVE HTML FILES
 // ═══════════════════════════════════════════════════════════════════════════════
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'portal.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/statement/:token', (req, res) => {
