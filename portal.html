@@ -214,7 +214,7 @@ E(()=>{const req=['firstName','lastName','entity','dateOfInjury','accidentDescri
 
 
 E(()=>{
-if((step===8||step===9||step===10)&&sigCanvasRef.current){
+if((step===8)&&sigCanvasRef.current){
 const c=sigCanvasRef.current;
 const rect=c.getBoundingClientRect();
 c.width=rect.width||400;
@@ -225,13 +225,13 @@ ctx.lineWidth=2;
 ctx.lineCap='round';
 sigCtxRef.current=ctx;
 }
-},[step,d.witnessOpt,d.claimantOpt,d.hipaaOpt]);
+},[step,d.witnessOpt,d.claimantOpt]);
 
 const u=(f,v)=>setD(p=>({...p,[f]:v}));
 const uNested=(parent,f,v)=>setD(p=>({...p,[parent]:{...p[parent],[f]:v}}));
 const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter(x=>x!==v):[...a,v]}});
 
-const steps=[{t:'Employee',n:'01'},{t:'Claim',n:'02'},{t:'Incident',n:'03'},{t:'Medical',n:'04'},{t:'Evidence',n:'05'},{t:'Work Status',n:'06'},{t:'Root Cause',n:'07'},{t:'Flags',n:'08'},{t:'Witness Stmt',n:'09'},{t:'Claimant Stmt',n:'10'},{t:'HIPAA',n:'11'},{t:'Submit',n:'12'}];
+const steps=[{t:'Employee',n:'01'},{t:'Claim',n:'02'},{t:'Incident',n:'03'},{t:'Medical',n:'04'},{t:'Evidence',n:'05'},{t:'Work Status',n:'06'},{t:'Root Cause',n:'07'},{t:'Flags',n:'08'},{t:'Statements',n:'09'},{t:'Submit',n:'10'}];
 
 const startDraw=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current?.beginPath();sigCtxRef.current?.moveTo(x,y)};
 const draw=(ev)=>{if(!isDrawingRef.current||!sigCtxRef.current)return;ev.preventDefault();const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current.lineTo(x,y);sigCtxRef.current.stroke()};
@@ -2048,10 +2048,12 @@ if(step===7){
  )
  );
 }
-if(step===8)return renderStatementStep('witness','Witness Statement','Collect a signed witness statement','witnessData','witnessOpt','witnessLink','witnessSigned');
-if(step===9)return renderStatementStep('claimant','Claimant Statement','Collect the injured worker\'s signed statement','claimantData','claimantOpt','claimantLink','claimantSigned');
-if(step===10)return renderStatementStep('hipaa','HIPAA Authorization','Collect signed HIPAA release for medical records','hipaaData','hipaaOpt','hipaaLink','hipaaSigned');
-if(step===11){
+if(step===8)return e('div',null,
+renderStatementStep('witness','Witness Statement','Collect a signed witness statement','witnessData','witnessOpt','witnessLink','witnessSigned'),
+e('div',{style:{height:20}}),
+renderStatementStep('claimant','Claimant Statement','Collect the injured worker\'s signed statement','claimantData','claimantOpt','claimantLink','claimantSigned')
+);
+if(step===9){
  const validateClaim=()=>{
  const errors=[];
  if(!d.firstName)errors.push({field:'Employee First Name',step:0});
@@ -2060,9 +2062,9 @@ if(step===11){
  if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
  if(!d.accidentDescription)errors.push({field:'Accident Description',step:2});
  if(!d.injuryType)errors.push({field:'Injury Type',step:2});
- if(!d.submitterName)errors.push({field:'Submitter Name',step:11});
- if(!d.submitterEmail)errors.push({field:'Submitter Email',step:11});
- if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:11});
+ if(!d.submitterName)errors.push({field:'Submitter Name',step:9});
+ if(!d.submitterEmail)errors.push({field:'Submitter Email',step:9});
+ if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:9});
  return errors;
  };
  const validationErrors=validateClaim();
@@ -2076,7 +2078,6 @@ if(step===11){
  important.forEach(f=>{total+=1;if(d[f]&&(Array.isArray(d[f])?d[f].length>0:true))filled+=1});
  if(d.witnessSigned){filled+=2;total+=2}
  if(d.claimantSigned){filled+=2;total+=2}
- if(d.hipaaSigned){filled+=2;total+=2}
  return Math.min(100,Math.round((filled/total)*100));
  };
  const completionScore=calcCompletion();
@@ -2275,7 +2276,7 @@ if(step===11){
  
  e('div',{style:{marginTop:20,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
   e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'E-Signature Status'),
-  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}},
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}},
   e('div',{style:{padding:12,background:d.witnessSigned?'rgba(16,185,129,0.08)':'var(--panel)',borderRadius:8,border:'1px solid '+(d.witnessSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
    e('p',{style:{fontSize:12,color:d.witnessSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.witnessSigned?'Signed':'○ Pending'),
    e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Witness Statement')
@@ -2283,10 +2284,6 @@ if(step===11){
   e('div',{style:{padding:12,background:d.claimantSigned?'rgba(16,185,129,0.08)':'var(--panel)',borderRadius:8,border:'1px solid '+(d.claimantSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
    e('p',{style:{fontSize:12,color:d.claimantSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.claimantSigned?'Signed':'○ Pending'),
    e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Claimant Statement')
-  ),
-  e('div',{style:{padding:12,background:d.hipaaSigned?'rgba(16,185,129,0.08)':'var(--panel)',borderRadius:8,border:'1px solid '+(d.hipaaSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
-   e('p',{style:{fontSize:12,color:d.hipaaSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.hipaaSigned?'Signed':'○ Pending'),
-   e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'HIPAA Authorization')
   )
   )
  ),
@@ -2376,7 +2373,7 @@ if(step===11){
 return null;
 };
 
-return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<11&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
+return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<9&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
 </script>
