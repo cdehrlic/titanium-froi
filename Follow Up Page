@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claim Follow-Up | Titanium Defense Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}:root{--td:#111827;--tn:#1f2937;--ts:#374151;--tl:#4b5563;--ta:#4f8fef;--ta2:#7ab5f5;--tg:#34d399;--tw:#f59e0b;--tr:#ef4444;--tt:#f3f4f6;--tm:#94a3b8;--tb:rgba(156,163,175,0.15);--gb:rgba(31,41,55,0.7);--gbd:rgba(75,85,99,0.4);--panel:rgba(17,24,39,0.5);--panel2:rgba(17,24,39,0.6);--panel3:rgba(17,24,39,0.8)}body{font-family:'Inter',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(79,143,239,0.04) 0%,transparent 50%);pointer-events:none;z-index:0}.page{position:relative;z-index:1}.header{background:var(--tn);border-bottom:1px solid var(--gbd);padding:16px 28px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}.header-content{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}.brand{display:flex;align-items:center;gap:14px}.brand-logo{height:44px}.brand-logo img{height:100%;width:auto}.ref-badge{background:rgba(79,143,239,0.1);border:1px solid rgba(79,143,239,0.3);padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--ta2)}.main{max-width:900px;margin:0 auto;padding:32px 24px}.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--gb);border-radius:14px;padding:6px;border:1px solid var(--gbd)}.tab{flex:1;padding:14px 12px;text-align:center;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--tm);transition:all 0.2s;border:1px solid transparent;font-family:'Inter',sans-serif;background:none}.tab:hover{color:var(--tt)}.tab.active{background:rgba(79,143,239,0.1);border-color:rgba(79,143,239,0.25);color:var(--ta2)}.tab.done{color:var(--tg)}.tab .check{display:none;margin-left:6px;font-size:12px}.tab.done .check{display:inline}.content{background:var(--gb);border-radius:14px;border:1px solid var(--gbd);padding:32px}.section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gbd)}.section-header h2{font-family:'Outfit',sans-serif;font-size:22px;color:white;margin-bottom:6px}.section-subtitle{font-size:14px;color:var(--tm)}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.form-group.full-width{grid-column:1/-1}.form-group label{font-size:12.5px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.6px}.required{color:var(--tr)}.input-field{background:var(--panel3);border:1px solid var(--tb);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tt);font-family:'Inter',sans-serif;width:100%;transition:all 0.2s}.input-field:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(79,143,239,0.12)}.chip-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--tb);background:var(--panel);color:var(--tm);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}.chip-btn:hover{border-color:var(--tl)}.chip-btn.active{background:rgba(79,143,239,0.1);border-color:var(--ta);color:var(--ta2)}.chip-btn.active.danger{border-color:var(--tr);color:var(--tr)}.toggle-group{display:flex;gap:8px;flex-wrap:wrap}.toggle-btn{padding:10px 18px;border-radius:10px;border:1px solid var(--tb);background:var(--panel2);color:var(--tm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}.toggle-btn:hover{border-color:var(--tl)}.toggle-btn.active{background:rgba(79,143,239,0.12);border-color:var(--ta);color:var(--ta2)}.toggle-btn.active.success{background:rgba(16,185,129,0.12);border-color:var(--tg);color:var(--tg)}.toggle-btn.active.warning{background:rgba(245,158,11,0.12);border-color:var(--tw);color:var(--tw)}.toggle-btn.active.danger{background:rgba(239,68,68,0.1);border-color:var(--tr);color:var(--tr)}.warning-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px;font-size:14px;color:var(--tw);margin-bottom:18px}.info-tip{padding:14px 16px;background:rgba(79,143,239,0.06);border-radius:12px;border-left:3px solid var(--ta);margin:12px 0;font-size:13px}.sig-canvas-wrap{background:white;border-radius:8px;margin:12px 0;overflow:hidden;border:2px solid var(--tb)}.sig-canvas{width:100%;height:120px;cursor:crosshair;touch-action:none;display:block}.checkbox-group{display:flex;align-items:flex-start;gap:10px;margin:12px 0}.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--ta);flex-shrink:0}.checkbox-group label{font-size:13px;color:var(--tt);line-height:1.4}.nav-btn{padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:all 0.2s}.nav-btn.primary{background:linear-gradient(135deg,var(--ta) 0%,#3574d4 100%);color:white;box-shadow:0 2px 8px rgba(79,143,239,0.25)}.nav-btn.primary:hover{box-shadow:0 4px 20px rgba(79,143,239,0.35);transform:translateY(-1px)}.nav-btn.primary:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}.nav-btn.secondary{background:transparent;border:1px solid var(--tb);color:var(--tm)}.nav-btn.secondary:hover{border-color:var(--tl);color:var(--tt)}.audio-rec{background:var(--panel);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--gbd)}.audio-rec h4{color:var(--ta);font-size:13px;margin-bottom:8px}.rec-btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;font-size:16px;font-weight:700;background:var(--tr);color:white;display:flex;align-items:center;justify-content:center}.rec-btn.recording{animation:pulse 1s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}.success-container{max-width:520px;margin:80px auto;text-align:center;padding:48px;background:var(--gb);border-radius:16px;border:1px solid var(--gbd)}.success-icon{width:80px;height:80px;background:rgba(16,185,129,0.12);border:2px solid var(--tg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:28px}@media(max-width:700px){.form-grid{grid-template-columns:1fr}.tabs{flex-direction:column}.tab{text-align:left;padding:12px 16px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+const{createElement:e,useState:S,useEffect:E,useRef:R}=React;
+const params=new URLSearchParams(window.location.search);
+const refNum=params.get('ref')||'';
+const claimantName=decodeURIComponent(params.get('name')||'');
+const claimantDOB=params.get('dob')||'';
+const entity=decodeURIComponent(params.get('entity')||'');
+
+function App(){
+const[tab,setTab]=S(0);
+const[submitted,setSubmitted]=S(false);
+const[submitting,setSubmitting]=S(false);
+
+// Root Cause state
+const[openRcCat,setOpenRcCat]=S(null);
+const[openCaCat,setOpenCaCat]=S(null);
+const[rootData,setRootData]=S({directCause:'',factors:[],actions:[],proceduresExisted:null,trainingProvided:null,customFactor:'',customAction:''});
+
+// Statement state
+const[witnessData,setWitnessData]=S({witnessName:'',witnessPhone:'',witnessEmail:'',relationship:'',witnessLocation:'',statement:'',typedName:'',signature:null,consent1:false,consent2:false});
+const[claimantData,setClaimantData]=S({claimantName:claimantName,dateOfBirth:claimantDOB,claimantPhone:'',claimantEmail:'',incidentDescription:'',bodyPartsInjured:'',currentSymptoms:'',priorInjury:'',ableToWork:'',typedName:'',signature:null,consent1:false,consent2:false});
+
+const[witnessSigned,setWitnessSigned]=S(false);
+const[claimantSigned,setClaimantSigned]=S(false);
+const[recording,setRecording]=S(null);
+const[audioBlobs,setAudioBlobs]=S({});
+const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);
+const mediaRecorderRef=R(null);const audioChunksRef=R([]);
+
+const tabNames=['Root Cause','Witness Statement','Claimant Statement'];
+const tabDone=[
+ rootData.directCause||rootData.factors.length>0,
+ witnessSigned,
+ claimantSigned
+];
+
+// Signature canvas setup
+E(()=>{
+ if(sigCanvasRef.current){
+  const c=sigCanvasRef.current;
+  c.width=c.offsetWidth;c.height=120;
+  const ctx=c.getContext('2d');
+  ctx.strokeStyle='#1a1a2e';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  sigCtxRef.current=ctx;
+ }
+},[tab]);
+
+const getPos=(ev)=>{
+ const r=sigCanvasRef.current.getBoundingClientRect();
+ const t=ev.touches?ev.touches[0]:ev;
+ return{x:t.clientX-r.left,y:t.clientY-r.top};
+};
+const startDraw=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const p=getPos(ev);sigCtxRef.current?.beginPath();sigCtxRef.current?.moveTo(p.x,p.y)};
+const draw=(ev)=>{if(!isDrawingRef.current)return;ev.preventDefault();const p=getPos(ev);sigCtxRef.current?.lineTo(p.x,p.y);sigCtxRef.current?.stroke()};
+const stopDraw=(setter)=>{if(isDrawingRef.current&&sigCanvasRef.current){isDrawingRef.current=false;setter(p=>({...p,signature:sigCanvasRef.current.toDataURL()}))}};
+const clearSig=(setter)=>{if(sigCtxRef.current&&sigCanvasRef.current){sigCtxRef.current.clearRect(0,0,sigCanvasRef.current.width,sigCanvasRef.current.height);setter(p=>({...p,signature:null}))}};
+
+// Audio recording
+const startRecording=async(type)=>{
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const mr=new MediaRecorder(stream);audioChunksRef.current=[];
+  mr.ondataavailable=(ev)=>{if(ev.data.size>0)audioChunksRef.current.push(ev.data)};
+  mr.onstop=()=>{const blob=new Blob(audioChunksRef.current,{type:'audio/webm'});setAudioBlobs(p=>({...p,[type]:blob}));stream.getTracks().forEach(t=>t.stop())};
+  mr.start();mediaRecorderRef.current=mr;setRecording(type);
+ }catch(err){alert('Unable to access microphone.')}
+};
+const stopRecording=()=>{if(mediaRecorderRef.current&&mediaRecorderRef.current.state==='recording'){mediaRecorderRef.current.stop();setRecording(null)}};
+
+const uRoot=(k,v)=>setRootData(p=>({...p,[k]:v}));
+const toggleArr=(arr,item)=>arr.includes(item)?arr.filter(x=>x!==item):[...arr,item];
+
+// Submit
+const handleSubmit=async()=>{
+ setSubmitting(true);
+ try{
+  const fd=new FormData();
+  fd.append('referenceNumber',refNum);
+  fd.append('rootCause',JSON.stringify(rootData));
+  fd.append('witnessStatement',JSON.stringify(witnessData));
+  fd.append('claimantStatement',JSON.stringify(claimantData));
+  fd.append('witnessSigned',witnessSigned);
+  fd.append('claimantSigned',claimantSigned);
+  if(audioBlobs.witness){fd.append('witnessAudio',audioBlobs.witness,'witness-audio.webm')}
+  if(audioBlobs.claimant){fd.append('claimantAudio',audioBlobs.claimant,'claimant-audio.webm')}
+  const res=await fetch('/api/followup',{method:'POST',body:fd});
+  if(res.ok){setSubmitted(true)}else{alert('Error submitting. Please try again.')}
+ }catch(err){alert('Network error. Please try again.')}
+ setSubmitting(false);
+};
+
+if(submitted)return e('div',{className:'page'},
+ e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))))),
+ e('div',{className:'main'},e('div',{className:'success-container'},
+  e('div',{className:'success-icon'},'✓'),
+  e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Follow-Up Submitted'),
+  e('p',{style:{color:'var(--tm)'}},'Reference: '+refNum),
+  e('p',{style:{color:'var(--tm)',marginTop:12}},'Your root cause analysis and statements have been attached to the claim. The investigation team has been notified.'),
+  e('button',{className:'nav-btn primary',style:{marginTop:24},onClick:()=>window.close()},'Close Window')
+ ))
+);
+
+if(!refNum)return e('div',{className:'page'},
+ e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))))),
+ e('div',{className:'main'},e('div',{className:'content',style:{textAlign:'center',padding:48}},
+  e('h2',{style:{color:'var(--tr)',marginBottom:16}},'Invalid Link'),
+  e('p',{style:{color:'var(--tm)'}},'This follow-up link is missing a claim reference number. Please use the link provided in your confirmation email.')
+ ))
+);
+
+// --- ROOT CAUSE TAB ---
+const renderRootCause=()=>{
+ const RC_CATEGORIES=[
+ {cat:'Training & Knowledge',items:['No Training Provided','Inadequate Training','Employee Not Certified','New to Task','Language Barrier']},
+ {cat:'Supervision',items:['Inadequate Supervision','Supervisor Not Present','No Safety Oversight']},
+ {cat:'Equipment & Tools',items:['Equipment Failure','Wrong Tool Used','Defective Equipment','Missing Safety Guard','Improper Maintenance']},
+ {cat:'PPE Issues',items:['PPE Not Provided','PPE Not Worn','Wrong PPE','Damaged PPE']},
+ {cat:'Human Factors',items:['Fatigue','Rushing/Time Pressure','Complacency','Distraction','Horseplay','Shortcut Taken','Failure to Follow Procedure']},
+ {cat:'Workplace Environment',items:['Poor Housekeeping','Inadequate Lighting','Wet/Slippery Surface','Extreme Temperature','Noise','Cramped Space','Hazardous Material','Blocked Pathway']},
+ {cat:'Procedures & Policies',items:['No Written Procedure','Outdated Procedure','Procedure Not Followed','Inadequate Hazard Assessment']},
+ {cat:'Healthcare Specific',items:['Patient Aggression','Needle Stick','Improper Body Mechanics','Staffing Shortage','Inadequate Lift Equipment']}
+ ];
+ const CA_CATEGORIES=[
+ {cat:'Training',items:['Training Scheduled','Retraining Required','Certification Needed','Safety Meeting Planned']},
+ {cat:'Procedures',items:['New Procedure Created','Procedure Updated','JSA/JHA Required','Hazard Assessment Needed']},
+ {cat:'Discipline',items:['Verbal Warning','Written Warning','Suspension','Termination']},
+ {cat:'Equipment & Environment',items:['Equipment Repaired','Equipment Replaced','Guard Installed','PPE Purchased','Lighting Improved','Housekeeping Corrected','Signage Added']},
+ {cat:'Administrative',items:['Staffing Adjustment','Schedule Modified','Engineering Control Added','Policy Change','Incident Report Filed']}
+ ];
+ const countInCat=(cat,arr)=>cat.items.filter(i=>arr.includes(i)).length;
+
+ return e('div',null,
+  e('div',{className:'form-group'},
+   e('label',null,'Direct Cause of Incident'),
+   e('textarea',{className:'input-field',rows:3,value:rootData.directCause,onChange:x=>uRoot('directCause',x.target.value),placeholder:'What was the direct/immediate cause of this incident?'})
+  ),
+  e('div',{className:'form-grid',style:{marginTop:8}},
+   e('div',{className:'form-group'},
+    e('label',null,'Were procedures in place?'),
+    e('div',{className:'toggle-group'},
+     ...([{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}]).map(o=>
+      e('button',{key:String(o.v),type:'button',className:'toggle-btn'+(rootData.proceduresExisted===o.v?' active '+(o.c||''):''),onClick:()=>uRoot('proceduresExisted',o.v)},o.l))
+    )
+   ),
+   e('div',{className:'form-group'},
+    e('label',null,'Was training provided?'),
+    e('div',{className:'toggle-group'},
+     ...([{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}]).map(o=>
+      e('button',{key:String(o.v),type:'button',className:'toggle-btn'+(rootData.trainingProvided===o.v?' active '+(o.c||''):''),onClick:()=>uRoot('trainingProvided',o.v)},o.l))
+    )
+   )
+  ),
+
+  e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+   e('h3',{style:{fontSize:14,color:'var(--tw)',marginBottom:14}},'Contributing Factors'),
+   rootData.factors.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+    ...rootData.factors.map(f=>e('span',{key:f,style:{background:'rgba(245,158,11,0.1)',border:'1px solid var(--tw)',color:'var(--tw)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>uRoot('factors',toggleArr(rootData.factors,f))},f,' ×'))
+   ),
+   ...RC_CATEGORIES.map((cat,ci)=>{
+    const isOpen=openRcCat===ci;
+    const cc=countInCat(cat,rootData.factors);
+    return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+     e('div',{style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center'},onClick:()=>setOpenRcCat(isOpen?null:ci)},
+      e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+      e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+       cc>0&&e('span',{style:{background:'var(--tw)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},cc),
+       e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)'}},'▾')
+      )
+     ),
+     isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+      ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(rootData.factors.includes(item)?' active':''),onClick:()=>uRoot('factors',toggleArr(rootData.factors,item)),style:{fontSize:12}},item))
+     )
+    );
+   }),
+   e('div',{style:{marginTop:10,display:'flex',gap:8}},
+    e('input',{className:'input-field',style:{flex:1},placeholder:'Other contributing factor...',value:rootData.customFactor,onChange:x=>uRoot('customFactor',x.target.value),
+    onKeyDown:x=>{if(x.key==='Enter'&&rootData.customFactor.trim()){uRoot('factors',[...rootData.factors,rootData.customFactor.trim()]);uRoot('customFactor','')}}
+    }),
+    rootData.customFactor&&e('button',{type:'button',className:'nav-btn secondary',style:{padding:'10px 16px'},onClick:()=>{if(rootData.customFactor.trim()){uRoot('factors',[...rootData.factors,rootData.customFactor.trim()]);uRoot('customFactor','')}}},'+ Add')
+   )
+  ),
+
+  e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+   e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:14}},'Corrective Actions'),
+   rootData.actions.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+    ...rootData.actions.map(a=>e('span',{key:a,style:{background:'rgba(16,185,129,0.1)',border:'1px solid var(--tg)',color:'var(--tg)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>uRoot('actions',toggleArr(rootData.actions,a))},a,' ×'))
+   ),
+   ...CA_CATEGORIES.map((cat,ci)=>{
+    const isOpen=openCaCat===ci;
+    const cc=countInCat(cat,rootData.actions);
+    return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+     e('div',{style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center'},onClick:()=>setOpenCaCat(isOpen?null:ci)},
+      e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+      e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+       cc>0&&e('span',{style:{background:'var(--tg)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},cc),
+       e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)'}},'▾')
+      )
+     ),
+     isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+      ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(rootData.actions.includes(item)?' active':''),onClick:()=>uRoot('actions',toggleArr(rootData.actions,item)),style:{fontSize:12}},item))
+     )
+    );
+   }),
+   e('div',{style:{marginTop:10,display:'flex',gap:8}},
+    e('input',{className:'input-field',style:{flex:1},placeholder:'Other corrective action...',value:rootData.customAction,onChange:x=>uRoot('customAction',x.target.value),
+    onKeyDown:x=>{if(x.key==='Enter'&&rootData.customAction.trim()){uRoot('actions',[...rootData.actions,rootData.customAction.trim()]);uRoot('customAction','')}}
+    }),
+    rootData.customAction&&e('button',{type:'button',className:'nav-btn secondary',style:{padding:'10px 16px'},onClick:()=>{if(rootData.customAction.trim()){uRoot('actions',[...rootData.actions,rootData.customAction.trim()]);uRoot('customAction','')}}},'+ Add')
+   )
+  )
+ );
+};
+
+// --- STATEMENT TAB ---
+const renderStatement=(type,data,setData,signed,setSigned)=>{
+ const isWitness=type==='witness';
+ const canSign=data.typedName&&data.signature&&data.consent1&&data.consent2&&(isWitness?data.witnessName:data.claimantName);
+
+ return e('div',null,
+  signed&&e('div',{style:{marginBottom:20,padding:16,background:'rgba(16,185,129,0.08)',border:'1px solid var(--tg)',borderRadius:12,textAlign:'center'}},
+   e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},'Statement Signed Successfully'),
+   e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'This signed document will be attached to the claim.')
+  ),
+
+  !signed&&e('div',null,
+   isWitness?e('div',null,
+    e('div',{className:'form-grid'},
+     e('div',{className:'form-group'},
+      e('label',null,'Witness Name ',e('span',{className:'required'},'*')),
+      e('input',{className:'input-field',value:data.witnessName,onChange:x=>setData(p=>({...p,witnessName:x.target.value})),placeholder:'Full legal name'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Phone'),
+      e('input',{className:'input-field',type:'tel',value:data.witnessPhone,onChange:x=>setData(p=>({...p,witnessPhone:x.target.value})),placeholder:'(555) 555-5555'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Email'),
+      e('input',{className:'input-field',type:'email',value:data.witnessEmail,onChange:x=>setData(p=>({...p,witnessEmail:x.target.value})),placeholder:'email@example.com'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Relationship to Claimant'),
+      e('select',{className:'input-field',value:data.relationship,onChange:x=>setData(p=>({...p,relationship:x.target.value}))},
+       e('option',{value:''},'Select'),e('option',{value:'coworker'},'Coworker'),e('option',{value:'supervisor'},'Supervisor'),e('option',{value:'manager'},'Manager'),e('option',{value:'other'},'Other')
+      )
+     )
+    ),
+    e('div',{className:'form-group'},
+     e('label',null,'Where were you located during the incident?'),
+     e('input',{className:'input-field',value:data.witnessLocation,onChange:x=>setData(p=>({...p,witnessLocation:x.target.value})),placeholder:'e.g., 10 feet away near the entrance'})
+    ),
+    e('div',{className:'form-group'},
+     e('label',null,'Witness Statement ',e('span',{className:'required'},'*')),
+     e('textarea',{className:'input-field',rows:5,value:data.statement,onChange:x=>setData(p=>({...p,statement:x.target.value})),placeholder:'Describe in detail what you witnessed...'})
+    )
+   ):e('div',null,
+    e('div',{className:'form-grid'},
+     e('div',{className:'form-group'},
+      e('label',null,'Claimant Name ',e('span',{className:'required'},'*')),
+      e('input',{className:'input-field',value:data.claimantName,onChange:x=>setData(p=>({...p,claimantName:x.target.value})),placeholder:'Full legal name'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Date of Birth'),
+      e('input',{type:'date',className:'input-field',value:data.dateOfBirth,onChange:x=>setData(p=>({...p,dateOfBirth:x.target.value}))})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Phone'),
+      e('input',{className:'input-field',type:'tel',value:data.claimantPhone,onChange:x=>setData(p=>({...p,claimantPhone:x.target.value})),placeholder:'(555) 555-5555'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Email'),
+      e('input',{className:'input-field',type:'email',value:data.claimantEmail,onChange:x=>setData(p=>({...p,claimantEmail:x.target.value})),placeholder:'email@example.com'})
+     )
+    ),
+    e('div',{className:'form-group'},
+     e('label',null,'Describe the Incident in Your Own Words'),
+     e('textarea',{className:'input-field',rows:5,value:data.incidentDescription,onChange:x=>setData(p=>({...p,incidentDescription:x.target.value})),placeholder:'What happened? What were you doing? How did the injury occur?'})
+    ),
+    e('div',{className:'form-grid'},
+     e('div',{className:'form-group'},
+      e('label',null,'Body Parts Injured'),
+      e('input',{className:'input-field',value:data.bodyPartsInjured,onChange:x=>setData(p=>({...p,bodyPartsInjured:x.target.value})),placeholder:'e.g., Lower back, right knee'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Current Symptoms'),
+      e('input',{className:'input-field',value:data.currentSymptoms,onChange:x=>setData(p=>({...p,currentSymptoms:x.target.value})),placeholder:'e.g., Pain, swelling, limited mobility'})
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Have you had this injury before?'),
+      e('select',{className:'input-field',value:data.priorInjury,onChange:x=>setData(p=>({...p,priorInjury:x.target.value}))},
+       e('option',{value:''},'Select'),e('option',{value:'no'},'No'),e('option',{value:'yes_same'},'Yes - Same body part'),e('option',{value:'yes_work'},'Yes - Prior work injury')
+      )
+     ),
+     e('div',{className:'form-group'},
+      e('label',null,'Are you able to work?'),
+      e('select',{className:'input-field',value:data.ableToWork,onChange:x=>setData(p=>({...p,ableToWork:x.target.value}))},
+       e('option',{value:''},'Select'),e('option',{value:'yes_full'},'Yes - Full duties'),e('option',{value:'yes_light'},'Yes - Light duty'),e('option',{value:'no'},'No - Unable')
+      )
+     )
+    )
+   ),
+
+   // Audio recording
+   e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+    e('div',{className:'audio-rec'},
+     e('h4',null,'Audio Recording (Optional)'),
+     e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Record a verbal statement.'),
+     e('div',{style:{display:'flex',alignItems:'center',gap:16}},
+      e('button',{type:'button',className:'rec-btn'+(recording===type?' recording':''),onClick:()=>recording===type?stopRecording():startRecording(type)},recording===type?'STOP':'REC'),
+      e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},recording===type?'Recording...':'Click to start')
+     ),
+     audioBlobs[type]&&e('div',{style:{marginTop:12,padding:12,background:'rgba(16,185,129,0.08)',borderRadius:8,border:'1px solid var(--tg)'}},
+      e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8,fontWeight:600}},'Audio recorded'),
+      e('audio',{src:URL.createObjectURL(audioBlobs[type]),controls:true,style:{width:'100%'}}),
+      e('button',{type:'button',className:'nav-btn secondary',style:{marginTop:8,padding:'6px 12px',fontSize:11},onClick:()=>setAudioBlobs(p=>{const n={...p};delete n[type];return n})},'Remove')
+     )
+    )
+   ),
+
+   // Signature
+   e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+    e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Electronic Signature'),
+    e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Sign in the box below'),
+    e('div',{className:'sig-canvas-wrap'},
+     e('canvas',{ref:sigCanvasRef,className:'sig-canvas',
+      onMouseDown:startDraw,onMouseMove:draw,onMouseUp:()=>stopDraw(setData),onMouseLeave:()=>stopDraw(setData),
+      onTouchStart:startDraw,onTouchMove:draw,onTouchEnd:()=>stopDraw(setData)
+     })
+    ),
+    e('div',{style:{display:'flex',gap:8,marginTop:8}},
+     e('button',{className:'nav-btn secondary',type:'button',style:{padding:'8px 16px'},onClick:()=>clearSig(setData)},'Clear'),
+     data.signature&&e('span',{style:{fontSize:12,color:'var(--tg)',display:'flex',alignItems:'center'}},'Signature captured')
+    ),
+    e('div',{className:'form-group',style:{marginTop:16}},
+     e('label',null,'Type Full Legal Name ',e('span',{className:'required'},'*')),
+     e('input',{className:'input-field',value:data.typedName,onChange:x=>setData(p=>({...p,typedName:x.target.value})),placeholder:'Type your full legal name'})
+    ),
+    e('div',{className:'checkbox-group'},
+     e('input',{type:'checkbox',checked:data.consent1,onChange:x=>setData(p=>({...p,consent1:x.target.checked}))}),
+     e('label',null,'I certify that the information provided is true and correct to the best of my knowledge.')
+    ),
+    e('div',{className:'checkbox-group'},
+     e('input',{type:'checkbox',checked:data.consent2,onChange:x=>setData(p=>({...p,consent2:x.target.checked}))}),
+     e('label',null,'I consent to sign electronically per the E-SIGN Act.')
+    ),
+    e('div',{style:{marginTop:20}},
+     e('button',{className:'nav-btn primary',style:{padding:'14px 28px',fontSize:15},disabled:!canSign,onClick:()=>{
+      setSigned(true);
+      alert('Statement signed successfully!');
+     }},'Sign & Save'),
+     !canSign&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},'Complete all required fields, sign above, and check both boxes')
+    )
+   )
+  )
+ );
+};
+
+// --- MAIN RENDER ---
+return e('div',{className:'page'},
+ e('header',{className:'header'},
+  e('div',{className:'header-content'},
+   e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),
+   e('div',{style:{display:'flex',alignItems:'center',gap:16}},
+    e('div',{className:'ref-badge'},'Claim: '+refNum),
+    entity&&e('div',{style:{fontSize:13,color:'var(--tm)'}},entity)
+   )
+  )
+ ),
+ e('div',{className:'main'},
+  e('div',{className:'tabs'},
+   ...tabNames.map((name,i)=>e('div',{key:i,className:'tab'+(tab===i?' active':'')+(tabDone[i]?' done':''),onClick:()=>setTab(i)},
+    name,e('span',{className:'check'},'✓')
+   ))
+  ),
+  e('div',{className:'content'},
+   tab===0&&e('div',null,
+    e('div',{className:'section-header'},
+     e('h2',null,'Root Cause Analysis'),
+     e('p',{className:'section-subtitle'},'Identify contributing factors and corrective actions')
+    ),
+    renderRootCause()
+   ),
+   tab===1&&e('div',null,
+    e('div',{className:'section-header'},
+     e('h2',null,'Witness Statement'),
+     e('p',{className:'section-subtitle'},'Collect a signed witness statement')
+    ),
+    renderStatement('witness',witnessData,setWitnessData,witnessSigned,setWitnessSigned)
+   ),
+   tab===2&&e('div',null,
+    e('div',{className:'section-header'},
+     e('h2',null,'Claimant Statement'),
+     e('p',{className:'section-subtitle'},'Collect the injured worker\'s signed statement')
+    ),
+    renderStatement('claimant',claimantData,setClaimantData,claimantSigned,setClaimantSigned)
+   )
+  ),
+  e('div',{style:{marginTop:24,display:'flex',justifyContent:'flex-end'}},
+   e('button',{className:'nav-btn primary',style:{padding:'16px 36px',fontSize:15},disabled:submitting,onClick:handleSubmit},
+    submitting?'Submitting...':'Submit Follow-Up'
+   )
+  )
+ )
+);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+</script>
+</body>
+</html>
