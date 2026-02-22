@@ -42,11 +42,11 @@ const[audioBlobs,setAudioBlobs]=S({});
 const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);
 const mediaRecorderRef=R(null);const audioChunksRef=R([]);
 
-const tabNames=['Root Cause','Witness Statement','Claimant Statement'];
+const tabNames=['Witness Statement','Claimant Statement','Root Cause'];
 const tabDone=[
- rootData.directCause||rootData.factors.length>0,
  witnessSigned,
- claimantSigned
+ claimantSigned,
+ rootData.directCause||rootData.factors.length>0
 ];
 
 // Signature canvas setup
@@ -391,24 +391,24 @@ return e('div',{className:'page'},
   e('div',{className:'content'},
    tab===0&&e('div',null,
     e('div',{className:'section-header'},
-     e('h2',null,'Root Cause Analysis'),
-     e('p',{className:'section-subtitle'},'Identify contributing factors and corrective actions')
-    ),
-    renderRootCause()
-   ),
-   tab===1&&e('div',null,
-    e('div',{className:'section-header'},
      e('h2',null,'Witness Statement'),
      e('p',{className:'section-subtitle'},'Collect a signed witness statement')
     ),
     renderStatement('witness',witnessData,setWitnessData,witnessSigned,setWitnessSigned)
    ),
-   tab===2&&e('div',null,
+   tab===1&&e('div',null,
     e('div',{className:'section-header'},
      e('h2',null,'Claimant Statement'),
      e('p',{className:'section-subtitle'},'Collect the injured worker\'s signed statement')
     ),
     renderStatement('claimant',claimantData,setClaimantData,claimantSigned,setClaimantSigned)
+   ),
+   tab===2&&e('div',null,
+    e('div',{className:'section-header'},
+     e('h2',null,'Root Cause Analysis'),
+     e('p',{className:'section-subtitle'},'Identify contributing factors and corrective actions')
+    ),
+    renderRootCause()
    )
   ),
   e('div',{style:{marginTop:24,display:'flex',justifyContent:'flex-end'}},
