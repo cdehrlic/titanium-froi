@@ -1123,27 +1123,9 @@ if(step===4){
   ),
   d.hasVideo===true&&e('div',{style:{marginTop:12}},
   e('div',{className:'warning-box'},'PRESERVE IMMEDIATELY! Video surveillance systems typically auto-delete footage in 7-30 days. Request preservation in writing TODAY.'),
-  e('div',{className:'form-grid',style:{marginTop:12}},
-   e('div',{className:'form-group'},
-   e('label',null,'Video Location / Camera ID'),
-   inp('videoLocation','e.g., Lobby Camera 3, Parking Lot NW Corner')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Video System Type'),
-   inp('videoSystemType','e.g., DVR, Cloud-based, Body cam')
-   )
-  ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Video Preservation Status'),
-   tog('videoPreserved',[
-   {v:true,l:'Preserved',c:'success'},
-   {v:false,l:'Not Yet',c:'warning'},
-   {v:'requested',l:'Requested'}
-   ])
-  ),
   e('div',{className:'form-group',style:{marginTop:12}},
    e('label',null,'Video Notes'),
-   e('textarea',{className:'input-field',rows:2,value:d.videoNotes||'',onChange:x=>u('videoNotes',x.target.value),placeholder:'Time range to preserve, what video shows, who to contact...'})
+   e('textarea',{className:'input-field',rows:2,value:d.videoNotes||'',onChange:x=>u('videoNotes',x.target.value),placeholder:'Camera location, time range, preservation status, who to contact...'})
   )
   )
  ),
