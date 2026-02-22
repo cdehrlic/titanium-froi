@@ -1749,34 +1749,6 @@ if(step===7){
  ),
  
  e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--tr)',marginBottom:16}},'Recommendations'),
-  e('div',{className:'form-grid'},
-  e('div',{className:'form-group'},
-   e('label',null,'Recommend Deny Claim?'),
-   tog('recommendDeny',[
-   {v:true,l:'Yes - Recommend Denial',c:'danger'},
-   {v:false,l:'No'}
-   ])
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Recommend SIU Referral?'),
-   tog('recommendSIU',[
-   {v:true,l:'Yes - Refer to SIU',c:'danger'},
-   {v:false,l:'No'}
-   ])
-  )
-  ),
-  d.recommendDeny===true&&e('div',{className:'form-group',style:{marginTop:12}},
-  e('label',null,'Denial Reason'),
-  e('textarea',{className:'input-field',rows:2,value:d.denyReason||'',onChange:x=>u('denyReason',x.target.value),placeholder:'Basis for recommending denial...'})
-  ),
-  d.recommendSIU===true&&e('div',{className:'form-group',style:{marginTop:12}},
-  e('label',null,'SIU Referral Reason'),
-  e('textarea',{className:'input-field',rows:2,value:d.siuReason||'',onChange:x=>u('siuReason',x.target.value),placeholder:'Why SIU investigation is recommended...'})
-  )
- ),
- 
- e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
   e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation'),
   e('div',{className:'form-group'},
   e('label',null,'Is a third party potentially responsible?'),
@@ -1786,42 +1758,10 @@ if(step===7){
    {v:'maybe',l:'Possibly / Investigating'}
   ])
   ),
-  (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:16}},
-  e('div',{style:{background:'rgba(16,185,129,0.08)',border:'1px solid var(--tg)',borderRadius:12,padding:16,marginBottom:16}},
-   e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},'Subrogation Potential Identified'),
-   e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'Preserve all evidence. Document third party information for potential recovery.')
-  ),
-  e('div',{className:'form-grid'},
-   e('div',{className:'form-group'},
-   e('label',null,'Third Party Name'),
-   inp('thirdPartyName','Person or company name')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Third Party Phone'),
-   inp('thirdPartyPhone','Phone number','tel')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Third Party Company'),
-   inp('thirdPartyCompany','Company/employer name')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Third Party Insurance'),
-   inp('thirdPartyInsurance','Insurance company if known')
-   )
-  ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Third Party Details'),
-   e('textarea',{className:'input-field',rows:2,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'How the third party was involved, police report number if applicable...'})
-  ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Subrogation Type'),
-   tog('subrogationType',[
-   {v:'motor_vehicle',l:'Motor Vehicle'},
-   {v:'product_liability',l:'Product Liability'},
-   {v:'premises_liability',l:'Premises Liability'},
-   {v:'contractor',l:'Contractor/Vendor'},
-   {v:'other',l:'Other'}
-   ])
+  (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:12}},
+  e('div',{className:'form-group'},
+   e('label',null,'Brief Details'),
+   e('textarea',{className:'input-field',rows:2,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'Who is the third party and how were they involved?'})
   )
   )
  ),
