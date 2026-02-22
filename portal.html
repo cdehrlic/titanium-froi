@@ -1497,141 +1497,64 @@ if(step===5){
 }
 if(step===6){
  const ROOT_CAUSE_CATEGORIES=[
- {cat:'Training & Knowledge',icon:'',items:[
-  {v:'no_training',l:'No Training Provided'},
-  {v:'inadequate_training',l:'Inadequate Training'},
-  {v:'training_not_followed',l:'Training Not Followed'},
-  {v:'lack_of_knowledge',l:'Lack of Knowledge/Skill'},
-  {v:'new_task',l:'New/Unfamiliar Task'}
- ]},
- {cat:'Supervision',icon:'',items:[
-  {v:'no_supervision',l:'Lack of Supervision'},
-  {v:'inadequate_supervision',l:'Inadequate Supervision'},
-  {v:'supervisor_not_present',l:'Supervisor Not Present'}
- ]},
- {cat:'Equipment & Tools',icon:'',items:[
-  {v:'equipment_failure',l:'Equipment Failure'},
-  {v:'equipment_not_maintained',l:'Poor Maintenance'},
-  {v:'wrong_equipment',l:'Wrong Equipment for Task'},
-  {v:'defective_tool',l:'Defective Tool'},
-  {v:'equipment_unavailable',l:'Equipment Not Available'}
- ]},
- {cat:'PPE Issues',icon:'',items:[
-  {v:'no_ppe',l:'No PPE Provided'},
-  {v:'ppe_not_worn',l:'PPE Not Worn'},
-  {v:'improper_ppe',l:'Wrong PPE for Task'},
-  {v:'ppe_defective',l:'Defective PPE'}
- ]},
- {cat:'Human Factors',icon:'',items:[
-  {v:'rushing',l:'Rushing / Time Pressure'},
-  {v:'fatigue',l:'Fatigue / Exhaustion'},
-  {v:'distraction',l:'Distraction / Inattention'},
-  {v:'complacency',l:'Complacency'},
-  {v:'horseplay',l:'Horseplay / Misconduct'},
-  {v:'shortcut_taken',l:'Shortcut Taken'},
-  {v:'failure_to_communicate',l:'Communication Failure'}
- ]},
- {cat:'Workplace Environment',icon:'',items:[
-  {v:'poor_housekeeping',l:'Poor Housekeeping'},
-  {v:'wet_floor',l:'Wet / Slippery Surface'},
-  {v:'poor_lighting',l:'Inadequate Lighting'},
-  {v:'cluttered_area',l:'Cluttered Work Area'},
-  {v:'uneven_surface',l:'Uneven Surface'},
-  {v:'weather_conditions',l:'Weather Conditions'},
-  {v:'noise',l:'Excessive Noise'},
-  {v:'temperature',l:'Temperature Extremes'}
- ]},
- {cat:'Procedures & Policies',icon:'',items:[
-  {v:'no_procedure',l:'No Procedure Exists'},
-  {v:'procedure_not_followed',l:'Procedure Not Followed'},
-  {v:'inadequate_procedure',l:'Inadequate Procedure'},
-  {v:'outdated_procedure',l:'Outdated Procedure'}
- ]},
- {cat:'Healthcare Specific',icon:'',items:[
-  {v:'combative_patient',l:'Combative Patient/Resident'},
-  {v:'patient_handling',l:'Patient Handling Issue'},
-  {v:'understaffed',l:'Understaffed'},
-  {v:'no_lift_equipment',l:'No Lift Equipment Available'},
-  {v:'needle_stick',l:'Sharps/Needle Stick'}
- ]}
+ {cat:'Training & Knowledge',items:['No Training Provided','Inadequate Training','Training Not Followed','Lack of Knowledge/Skill','New/Unfamiliar Task']},
+ {cat:'Supervision',items:['Lack of Supervision','Inadequate Supervision','Supervisor Not Present']},
+ {cat:'Equipment & Tools',items:['Equipment Failure','Poor Maintenance','Wrong Equipment for Task','Defective Tool','Equipment Not Available']},
+ {cat:'PPE Issues',items:['No PPE Provided','PPE Not Worn','Wrong PPE for Task','Defective PPE']},
+ {cat:'Human Factors',items:['Rushing / Time Pressure','Fatigue / Exhaustion','Distraction / Inattention','Complacency','Horseplay / Misconduct','Shortcut Taken','Communication Failure']},
+ {cat:'Workplace Environment',items:['Poor Housekeeping','Wet / Slippery Surface','Inadequate Lighting','Cluttered Work Area','Uneven Surface','Weather Conditions','Excessive Noise','Temperature Extremes']},
+ {cat:'Procedures & Policies',items:['No Procedure Exists','Procedure Not Followed','Inadequate Procedure','Outdated Procedure']},
+ {cat:'Healthcare Specific',items:['Combative Patient/Resident','Patient Handling Issue','Understaffed','No Lift Equipment Available','Sharps/Needle Stick']}
  ];
 
  const CORRECTIVE_CATEGORIES=[
- {cat:'Training Actions',icon:'',items:[
-  {v:'training_scheduled',l:'Training Scheduled'},
-  {v:'training_completed',l:'Training Completed'},
-  {v:'retraining_required',l:'Retraining Required'},
-  {v:'new_training_developed',l:'New Training Developed'}
- ]},
- {cat:'Procedure Actions',icon:'',items:[
-  {v:'reviewed_procedures',l:'Reviewed Procedures with Employee'},
-  {v:'new_procedures',l:'New Procedures Created'},
-  {v:'procedures_updated',l:'Procedures Updated'},
-  {v:'job_hazard_analysis',l:'Job Hazard Analysis Completed'}
- ]},
- {cat:'Discipline',icon:'!',items:[
-  {v:'discipline_verbal',l:'Verbal Warning'},
-  {v:'discipline_written',l:'Written Warning'},
-  {v:'discipline_suspension',l:'Suspension'},
-  {v:'discipline_termination',l:'Termination'}
- ]},
- {cat:'Equipment & Environment',icon:'',items:[
-  {v:'equipment_repaired',l:'Equipment Repaired'},
-  {v:'equipment_replaced',l:'Equipment Replaced'},
-  {v:'ppe_provided',l:'PPE Provided'},
-  {v:'engineering_control',l:'Engineering Control Added'},
-  {v:'area_cleaned',l:'Area Cleaned/Organized'},
-  {v:'signage_added',l:'Warning Signs Added'},
-  {v:'lighting_improved',l:'Lighting Improved'}
- ]},
- {cat:'Administrative',icon:'',items:[
-  {v:'safety_meeting',l:'Safety Meeting Held'},
-  {v:'incident_review',l:'Incident Review Completed'},
-  {v:'supervision_increased',l:'Increased Supervision'},
-  {v:'staffing_adjusted',l:'Staffing Adjusted'},
-  {v:'schedule_modified',l:'Schedule Modified'}
- ]}
+ {cat:'Training',items:['Training Scheduled','Training Completed','Retraining Required','New Training Developed']},
+ {cat:'Procedures',items:['Reviewed Procedures with Employee','New Procedures Created','Procedures Updated','Job Hazard Analysis Completed']},
+ {cat:'Discipline',items:['Verbal Warning','Written Warning','Suspension','Termination']},
+ {cat:'Equipment & Environment',items:['Equipment Repaired','Equipment Replaced','PPE Provided','Engineering Control Added','Area Cleaned/Organized','Warning Signs Added','Lighting Improved']},
+ {cat:'Administrative',items:['Safety Meeting Held','Incident Review Completed','Increased Supervision','Staffing Adjusted','Schedule Modified']}
  ];
+
+ const[openRcCat,setOpenRcCat]=S(null);
+ const[openCaCat,setOpenCaCat]=S(null);
+
+ const rcSelected=(d.rootCauseFactors||[]);
+ const caSelected=(d.correctiveActions||[]);
+
+ const toggleFactor=(item)=>{
+  const curr=d.rootCauseFactors||[];
+  u('rootCauseFactors',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
+ };
+ const toggleAction=(item)=>{
+  const curr=d.correctiveActions||[];
+  u('correctiveActions',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
+ };
+
+ const countInCat=(cat,arr)=>cat.items.filter(i=>arr.includes(i)).length;
 
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
   e('h2',null,'Root Cause Analysis'),
-  e('p',{className:'section-subtitle'},'Identify what caused the incident and what actions will prevent recurrence')
+  e('p',{className:'section-subtitle'},'Identify what caused the incident and corrective actions taken')
  ),
  
  e('div',{className:'form-group full-width'},
   e('label',null,'Direct Cause of Injury'),
-  e('textarea',{className:'input-field',rows:2,value:d.directCause||'',onChange:x=>u('directCause',x.target.value),placeholder:'What was the immediate/direct cause of this injury? (e.g., "Employee slipped on wet floor and fell, striking head on counter")'})
+  e('textarea',{className:'input-field',rows:2,value:d.directCause||'',onChange:x=>u('directCause',x.target.value),placeholder:'What was the immediate cause? (e.g., "Employee slipped on wet floor and struck head on counter")'})
  ),
  
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Procedures & Training Assessment'),
-  e('div',{className:'form-grid'},
+ e('div',{className:'form-grid',style:{marginTop:20}},
   e('div',{className:'form-group'},
-   e('label',null,'Were procedures in place for this task?'),
-   tog('proceduresInPlace',[
-   {v:true,l:'Yes'},
-   {v:false,l:'No',c:'warning'},
-   {v:'partial',l:'Partial'},
-   {v:'unknown',l:'Unknown'}
-   ])
+   e('label',null,'Were procedures in place?'),
+   tog('proceduresInPlace',[{v:true,l:'Yes'},{v:false,l:'No',c:'warning'},{v:'partial',l:'Partial'},{v:'unknown',l:'Unknown'}])
   ),
   e('div',{className:'form-group'},
    e('label',null,'Were procedures followed?'),
-   tog('proceduresFollowed',[
-   {v:true,l:'Yes',c:'success'},
-   {v:false,l:'No',c:'warning'},
-   {v:'partial',l:'Partially'},
-   {v:'na',l:'N/A'}
-   ])
+   tog('proceduresFollowed',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'},{v:'partial',l:'Partially'},{v:'na',l:'N/A'}])
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Was training provided for this task?'),
-   tog('trainingProvided',[
-   {v:true,l:'Yes',c:'success'},
-   {v:false,l:'No',c:'warning'},
-   {v:'unknown',l:'Unknown'}
-   ])
+   e('label',null,'Was training provided?'),
+   tog('trainingProvided',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'},{v:'unknown',l:'Unknown'}])
   ),
   e('div',{className:'form-group'},
    e('label',null,'Training Frequency'),
@@ -1647,142 +1570,89 @@ if(step===6){
    e('option',{value:'unknown'},'Unknown')
    )
   )
-  ),
-  d.trainingProvided===true&&e('div',{className:'form-grid',style:{marginTop:12}},
-  e('div',{className:'form-group'},
-   e('label',null,'Last Training Date'),
-   inp('lastTrainingDate','','date')
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Training Type'),
-   inp('trainingType','e.g., Classroom, Online, OJT')
-  )
-  ),
-  (d.proceduresInPlace===false||d.trainingProvided===false)&&e('div',{className:'warning-box',style:{marginTop:12}},'Missing procedures or training is a significant contributing factor. Consider implementing corrective actions.')
  ),
- 
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--tw)',marginBottom:16}},'Contributing Factors (Select all that apply)'),
-  ...ROOT_CAUSE_CATEGORIES.map(cat=>
-  e('div',{key:cat.cat,style:{marginBottom:20}},
-   e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'flex',alignItems:'center',gap:6,marginBottom:10}},
-   e('span',null,cat.icon),cat.cat
-   ),
-   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
-   ...cat.items.map(item=>
-    e('button',{
-    key:item.v,
-    type:'button',
-    className:'chip-btn'+(d.rootCauseSymptoms?.includes(item.v)?' active warning':''),
-    onClick:()=>ta('rootCauseSymptoms',item.v)
-    },item.l)
-   )
-   )
-  )
+
+ (d.proceduresInPlace===false||d.trainingProvided===false)&&e('div',{className:'warning-box',style:{marginTop:12}},'Missing procedures or training is a significant contributing factor.'),
+
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+   e('h3',{style:{fontSize:14,color:'var(--tw)',margin:0}},'Contributing Factors'),
+   rcSelected.length>0&&e('span',{style:{fontSize:12,color:'var(--tw)',fontWeight:600}},rcSelected.length+' selected')
   ),
-  e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'Other Contributing Factor'),
-  e('div',{style:{display:'flex',gap:8}},
-   e('input',{
-   className:'input-field',
-   style:{flex:1},
-   placeholder:'Enter other root cause not listed above...',
-   value:d.customRootCause||'',
-   onChange:x=>u('customRootCause',x.target.value)
+
+  rcSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+   ...rcSelected.map(f=>e('span',{key:f,style:{background:'rgba(245,158,11,0.1)',border:'1px solid var(--tw)',color:'var(--tw)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFactor(f)},f,' ×'))
+  ),
+
+  ...ROOT_CAUSE_CATEGORIES.map((cat,ci)=>{
+   const isOpen=openRcCat===ci;
+   const catCount=countInCat(cat,rcSelected);
+   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+    e('div',{
+     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
+     onClick:()=>setOpenRcCat(isOpen?null:ci)
+    },
+     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+      catCount>0&&e('span',{style:{background:'var(--tw)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
+      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
+     )
+    ),
+    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(rcSelected.includes(item)?' active warning':''),onClick:()=>toggleFactor(item),style:{fontSize:12}},item))
+    )
+   );
+  }),
+
+  e('div',{style:{marginTop:10,display:'flex',gap:8}},
+   e('input',{className:'input-field',style:{flex:1},placeholder:'Other contributing factor...',value:d.customRootCause||'',onChange:x=>u('customRootCause',x.target.value),
+   onKeyDown:x=>{if(x.key==='Enter'&&d.customRootCause?.trim()){toggleFactor(d.customRootCause.trim());u('customRootCause','')}}
    }),
-   d.customRootCause&&e('button',{
-   type:'button',
-   className:'nav-btn primary',
-   style:{padding:'10px 16px'},
-   onClick:()=>{
-    if(d.customRootCause.trim()){
-    ta('rootCauseSymptoms','custom:'+d.customRootCause.trim());
-    u('customRootCause','');
-    }
-   }
-   },'+ Add')
-  )
-  ),
-  d.rootCauseSymptoms?.filter(r=>r.startsWith('custom:')).length>0&&e('div',{style:{marginTop:12}},
-  e('label',{style:{fontSize:11,color:'var(--tm)'}},'Custom factors added:'),
-  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:6}},
-   ...d.rootCauseSymptoms.filter(r=>r.startsWith('custom:')).map(r=>
-   e('div',{key:r,style:{background:'rgba(245,158,11,0.1)',border:'1px solid var(--tw)',color:'var(--tw)',padding:'6px 10px',borderRadius:6,fontSize:12,display:'flex',alignItems:'center',gap:6}},
-    r.replace('custom:',''),
-    e('button',{type:'button',onClick:()=>ta('rootCauseSymptoms',r),style:{background:'none',border:'none',color:'var(--tw)',cursor:'pointer',fontSize:14}},'×')
-   )
-   )
-  )
+   d.customRootCause&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px'},onClick:()=>{if(d.customRootCause.trim()){toggleFactor(d.customRootCause.trim());u('customRootCause','')}}},'+ Add')
   )
  ),
- 
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Corrective Actions Taken / Planned'),
-  ...CORRECTIVE_CATEGORIES.map(cat=>
-  e('div',{key:cat.cat,style:{marginBottom:20}},
-   e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'flex',alignItems:'center',gap:6,marginBottom:10}},
-   e('span',null,cat.icon),cat.cat
-   ),
-   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
-   ...cat.items.map(item=>
-    e('button',{
-    key:item.v,
-    type:'button',
-    className:'chip-btn'+(d.correctiveActions?.includes(item.v)?' active success':''),
-    onClick:()=>ta('correctiveActions',item.v)
-    },item.l)
-   )
-   )
-  )
+
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+   e('h3',{style:{fontSize:14,color:'var(--tg)',margin:0}},'Corrective Actions'),
+   caSelected.length>0&&e('span',{style:{fontSize:12,color:'var(--tg)',fontWeight:600}},caSelected.length+' selected')
   ),
-  e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'Other Corrective Action'),
-  e('div',{style:{display:'flex',gap:8}},
-   e('input',{
-   className:'input-field',
-   style:{flex:1},
-   placeholder:'Enter other corrective action not listed above...',
-   value:d.customCorrectiveAction||'',
-   onChange:x=>u('customCorrectiveAction',x.target.value)
+
+  caSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+   ...caSelected.map(a=>e('span',{key:a,style:{background:'rgba(16,185,129,0.1)',border:'1px solid var(--tg)',color:'var(--tg)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleAction(a)},a,' ×'))
+  ),
+
+  ...CORRECTIVE_CATEGORIES.map((cat,ci)=>{
+   const isOpen=openCaCat===ci;
+   const catCount=countInCat(cat,caSelected);
+   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+    e('div',{
+     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
+     onClick:()=>setOpenCaCat(isOpen?null:ci)
+    },
+     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+      catCount>0&&e('span',{style:{background:'var(--tg)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
+      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
+     )
+    ),
+    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(caSelected.includes(item)?' active success':''),onClick:()=>toggleAction(item),style:{fontSize:12}},item))
+    )
+   );
+  }),
+
+  e('div',{style:{marginTop:10,display:'flex',gap:8}},
+   e('input',{className:'input-field',style:{flex:1},placeholder:'Other corrective action...',value:d.customCorrectiveAction||'',onChange:x=>u('customCorrectiveAction',x.target.value),
+   onKeyDown:x=>{if(x.key==='Enter'&&d.customCorrectiveAction?.trim()){toggleAction(d.customCorrectiveAction.trim());u('customCorrectiveAction','')}}
    }),
-   d.customCorrectiveAction&&e('button',{
-   type:'button',
-   className:'nav-btn primary',
-   style:{padding:'10px 16px'},
-   onClick:()=>{
-    if(d.customCorrectiveAction.trim()){
-    ta('correctiveActions','custom:'+d.customCorrectiveAction.trim());
-    u('customCorrectiveAction','');
-    }
-   }
-   },'+ Add')
-  )
+   d.customCorrectiveAction&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px'},onClick:()=>{if(d.customCorrectiveAction.trim()){toggleAction(d.customCorrectiveAction.trim());u('customCorrectiveAction','')}}},'+ Add')
   ),
-  d.correctiveActions?.filter(c=>c.startsWith('custom:')).length>0&&e('div',{style:{marginTop:12}},
-  e('label',{style:{fontSize:11,color:'var(--tm)'}},'Custom actions added:'),
-  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:6}},
-   ...d.correctiveActions.filter(c=>c.startsWith('custom:')).map(c=>
-   e('div',{key:c,style:{background:'rgba(16,185,129,0.1)',border:'1px solid var(--tg)',color:'var(--tg)',padding:'6px 10px',borderRadius:6,fontSize:12,display:'flex',alignItems:'center',gap:6}},
-    c.replace('custom:',''),
-    e('button',{type:'button',onClick:()=>ta('correctiveActions',c),style:{background:'none',border:'none',color:'var(--tg)',cursor:'pointer',fontSize:14}},'×')
-   )
-   )
+
+  e('div',{className:'form-group',style:{marginTop:16}},
+  e('label',null,'Corrective Action Notes'),
+  e('textarea',{className:'input-field',rows:2,value:d.correctiveActionNotes||'',onChange:x=>u('correctiveActionNotes',x.target.value),placeholder:'Implementation details, timeline, responsible parties...'})
   )
-  ),
-  e('div',{className:'form-group',style:{marginTop:20}},
-  e('label',null,'Corrective Action Notes / Implementation Plan'),
-  e('textarea',{className:'input-field',rows:3,value:d.correctiveActionNotes||'',onChange:x=>u('correctiveActionNotes',x.target.value),placeholder:'Additional details about corrective actions, timeline for implementation, responsible parties, etc.'})
-  )
- ),
- 
- (d.rootCauseSymptoms?.length>0||d.correctiveActions?.length>0)&&e('div',{style:{marginTop:24,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
-  e('h4',{style:{fontSize:13,color:'var(--ta)',marginBottom:12}},'Analysis Summary'),
-  d.rootCauseSymptoms?.length>0&&e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:8}},
-  e('strong',{style:{color:'var(--tw)'}},'Contributing Factors: '),
-  d.rootCauseSymptoms.length+' identified'),
-  d.correctiveActions?.length>0&&e('p',{style:{fontSize:12,color:'var(--tm)'}},
-  e('strong',{style:{color:'var(--tg)'}},'Corrective Actions: '),
-  d.correctiveActions.length+' planned/taken')
  )
  );
 }
