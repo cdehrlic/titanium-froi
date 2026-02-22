@@ -235,6 +235,14 @@ function getEntityName(formData) {
   return formData.entity || 'Workers Compensation Claim';
 }
 
+// Helper to build follow-up link
+function buildFollowUpLink(referenceNumber, formData) {
+  const name = encodeURIComponent((formData.firstName || '') + ' ' + (formData.lastName || ''));
+  const dob = formData.dateOfBirth || '';
+  const entity = encodeURIComponent(getEntityName(formData));
+  return `${CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}`;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // E-SIGNATURE PDF GENERATION - WITNESS STATEMENT
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -693,7 +701,7 @@ function generateClaimPDF(formData, referenceNumber) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // API ENDPOINTS
 // ═══════════════════════════════════════════════════════════════════════════════
-app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.1' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.4' }));
 app.get('/health', (req, res) => res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() }));
 app.get('/api/entities', (req, res) => res.json(ENTITIES));
 
@@ -942,7 +950,9 @@ app.post('/api/submit-inline-statement', upload.any(), async (req, res) => {
   }
 });
 
-// Main claim submission - FIXED to include audio files from inline statements
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN CLAIM SUBMISSION (with follow-up link)
+// ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
   try {
     if (!req.body.formData) {
@@ -957,6 +967,9 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     
     // Get entity name
     const entityName = getEntityName(formData);
+
+    // Build follow-up link for root cause & statements
+    const followUpLink = buildFollowUpLink(referenceNumber, formData);
     
     console.log(`📋 Processing claim ${referenceNumber} for ${entityName}`);
 
@@ -1044,6 +1057,11 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
             <h3 style="color:#3b82f6;margin:0 0 5px;">🎤 ${audioFileCount} Audio Recording(s) Attached</h3>
             <p style="margin:0;font-size:12px;color:#64748b;">Audio statements are attached to this email.</p>
           </div>` : ''}
+          <div style="background:#eff6ff;border:1px solid #5ba4e6;padding:15px;margin-bottom:20px;border-radius:8px;">
+            <h3 style="color:#1a1f26;margin:0 0 8px;">📋 Complete Follow-Up</h3>
+            <p style="margin:0 0 10px;font-size:13px;color:#334155;">Use the link below to submit root cause analysis and collect signed statements:</p>
+            <a href="${followUpLink}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Open Follow-Up Form</a>
+          </div>
           <p style="font-size:13px;color:#6e7681;">Submitted by: ${formData.submitterName || 'N/A'} (${formData.submitterEmail || 'N/A'})</p>
         </div>
         <div style="background:#1a1f26;padding:20px;text-align:center;">
@@ -1064,7 +1082,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
       console.error('❌ Email error:', err.message);
     }
 
-    // Confirmation to submitter
+    // Confirmation to submitter (with follow-up link)
     if (formData.submitterEmail) {
       try {
         await transporter.sendMail({
@@ -1085,6 +1103,11 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
                   <p style="margin:0 0 10px;font-size:14px;"><strong>Reference Number:</strong></p>
                   <p style="margin:0;font-size:24px;font-family:monospace;font-weight:bold;">${referenceNumber}</p>
                 </div>
+                <div style="background:#eff6ff;border:1px solid #5ba4e6;padding:15px;margin:20px 0;border-radius:8px;">
+                  <h3 style="color:#1a1f26;margin:0 0 8px;">Next Step: Complete Follow-Up</h3>
+                  <p style="margin:0 0 12px;font-size:13px;color:#334155;">Submit root cause analysis, witness statements, and claimant statements using the link below:</p>
+                  <a href="${followUpLink}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Complete Follow-Up</a>
+                </div>
                 <p style="color:#64748b;">Our team will review and follow up if needed.</p>
               </div>
             </div>`
@@ -1103,6 +1126,128 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// FOLLOW-UP SUBMISSION (Root Cause + Statements)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/followup', upload.any(), async (req, res) => {
+  try {
+    const { referenceNumber, rootCause, witnessStatement, claimantStatement, witnessSigned, claimantSigned } = req.body;
+    
+    if (!referenceNumber) {
+      return res.status(400).json({ error: 'Missing reference number' });
+    }
+
+    const rootCauseData = JSON.parse(rootCause || '{}');
+    const witnessData = JSON.parse(witnessStatement || '{}');
+    const claimantData = JSON.parse(claimantStatement || '{}');
+
+    // Build follow-up summary for email
+    let summary = `CLAIM FOLLOW-UP SUBMITTED\nReference: ${referenceNumber}\nSubmitted: ${new Date().toLocaleString()}\n\n`;
+
+    // Root Cause
+    summary += `=== ROOT CAUSE ANALYSIS ===\n`;
+    if (rootCauseData.directCause) summary += `Direct Cause: ${rootCauseData.directCause}\n`;
+    if (rootCauseData.proceduresExisted !== null && rootCauseData.proceduresExisted !== undefined) summary += `Procedures in Place: ${rootCauseData.proceduresExisted ? 'Yes' : 'No'}\n`;
+    if (rootCauseData.trainingProvided !== null && rootCauseData.trainingProvided !== undefined) summary += `Training Provided: ${rootCauseData.trainingProvided ? 'Yes' : 'No'}\n`;
+    if (rootCauseData.factors && rootCauseData.factors.length > 0) summary += `Contributing Factors (${rootCauseData.factors.length}): ${rootCauseData.factors.join(', ')}\n`;
+    if (rootCauseData.actions && rootCauseData.actions.length > 0) summary += `Corrective Actions (${rootCauseData.actions.length}): ${rootCauseData.actions.join(', ')}\n`;
+
+    // Witness Statement
+    if (witnessSigned === 'true') {
+      summary += `\n=== WITNESS STATEMENT (SIGNED) ===\n`;
+      summary += `Witness: ${witnessData.witnessName || 'N/A'}\n`;
+      summary += `Relationship: ${witnessData.relationship || 'N/A'}\n`;
+      summary += `Location During Incident: ${witnessData.witnessLocation || 'N/A'}\n`;
+      summary += `Statement: ${witnessData.statement || 'N/A'}\n`;
+      summary += `Signed By: ${witnessData.typedName}\n`;
+    }
+
+    // Claimant Statement
+    if (claimantSigned === 'true') {
+      summary += `\n=== CLAIMANT STATEMENT (SIGNED) ===\n`;
+      summary += `Claimant: ${claimantData.claimantName || 'N/A'}\n`;
+      summary += `DOB: ${claimantData.dateOfBirth || 'N/A'}\n`;
+      summary += `Description: ${claimantData.incidentDescription || 'N/A'}\n`;
+      summary += `Body Parts: ${claimantData.bodyPartsInjured || 'N/A'}\n`;
+      summary += `Symptoms: ${claimantData.currentSymptoms || 'N/A'}\n`;
+      summary += `Prior Injury: ${claimantData.priorInjury || 'N/A'}\n`;
+      summary += `Able to Work: ${claimantData.ableToWork || 'N/A'}\n`;
+      summary += `Signed By: ${claimantData.typedName}\n`;
+    }
+
+    // Build attachments array (audio files)
+    const attachments = [];
+    if (req.files) {
+      req.files.forEach(file => {
+        attachments.push({
+          filename: file.originalname,
+          content: file.buffer
+        });
+      });
+    }
+
+    // Build HTML email
+    const emailHtml = `
+      <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;">
+        <div style="background:#1a1f26;padding:25px;text-align:center;">
+          <h1 style="color:white;margin:0;">Follow-Up Received</h1>
+          <p style="color:#5ba4e6;margin:8px 0 0;">${referenceNumber}</p>
+        </div>
+        <div style="padding:25px;background:#f8fafc;">
+          ${rootCauseData.directCause || (rootCauseData.factors && rootCauseData.factors.length > 0) ? `
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
+            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #d97706;padding-bottom:8px;">Root Cause Analysis</h3>
+            ${rootCauseData.directCause ? `<p><strong>Direct Cause:</strong> ${rootCauseData.directCause}</p>` : ''}
+            ${rootCauseData.proceduresExisted !== null && rootCauseData.proceduresExisted !== undefined ? `<p><strong>Procedures in Place:</strong> ${rootCauseData.proceduresExisted ? 'Yes' : '<span style="color:#dc2626;">No</span>'}</p>` : ''}
+            ${rootCauseData.trainingProvided !== null && rootCauseData.trainingProvided !== undefined ? `<p><strong>Training Provided:</strong> ${rootCauseData.trainingProvided ? 'Yes' : '<span style="color:#dc2626;">No</span>'}</p>` : ''}
+            ${rootCauseData.factors && rootCauseData.factors.length > 0 ? `<p><strong>Contributing Factors (${rootCauseData.factors.length}):</strong><br/>${rootCauseData.factors.map(f => `<span style="display:inline-block;background:#fef3c7;border:1px solid #d97706;padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${f}</span>`).join(' ')}</p>` : ''}
+            ${rootCauseData.actions && rootCauseData.actions.length > 0 ? `<p><strong>Corrective Actions (${rootCauseData.actions.length}):</strong><br/>${rootCauseData.actions.map(a => `<span style="display:inline-block;background:#dcfce7;border:1px solid #16a34a;padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${a}</span>`).join(' ')}</p>` : ''}
+          </div>` : ''}
+          ${witnessSigned === 'true' ? `
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
+            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #5ba4e6;padding-bottom:8px;">Witness Statement (Signed)</h3>
+            <p><strong>Witness:</strong> ${witnessData.witnessName || 'N/A'}</p>
+            <p><strong>Relationship:</strong> ${witnessData.relationship || 'N/A'}</p>
+            <p><strong>Statement:</strong> ${witnessData.statement || 'N/A'}</p>
+            <p style="color:#16a34a;font-weight:bold;">✓ Signed by: ${witnessData.typedName}</p>
+          </div>` : ''}
+          ${claimantSigned === 'true' ? `
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
+            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #5ba4e6;padding-bottom:8px;">Claimant Statement (Signed)</h3>
+            <p><strong>Claimant:</strong> ${claimantData.claimantName || 'N/A'}</p>
+            <p><strong>Description:</strong> ${claimantData.incidentDescription || 'N/A'}</p>
+            <p><strong>Body Parts:</strong> ${claimantData.bodyPartsInjured || 'N/A'}</p>
+            <p><strong>Symptoms:</strong> ${claimantData.currentSymptoms || 'N/A'}</p>
+            <p style="color:#16a34a;font-weight:bold;">✓ Signed by: ${claimantData.typedName}</p>
+          </div>` : ''}
+          ${req.files && req.files.length > 0 ? `
+          <div style="background:#dbeafe;border:1px solid #3b82f6;padding:12px;margin-bottom:15px;border-radius:8px;">
+            <p style="color:#3b82f6;margin:0;font-weight:bold;">🎤 ${req.files.length} Audio Recording(s) Attached</p>
+          </div>` : ''}
+        </div>
+        <div style="background:#1a1f26;padding:20px;text-align:center;">
+          <p style="color:#94a3b8;margin:0;font-size:12px;">www.wcreporting.com</p>
+        </div>
+      </div>`;
+
+    // Send notification email
+    await transporter.sendMail({
+      from: CONFIG.SMTP.auth.user,
+      to: CONFIG.CLAIMS_EMAIL,
+      subject: `[FOLLOW-UP] ${referenceNumber} - Root Cause & Statements`,
+      html: emailHtml,
+      text: summary,
+      attachments
+    });
+
+    console.log(`✅ Follow-up received for ${referenceNumber}`);
+    res.json({ success: true, referenceNumber });
+  } catch (error) {
+    console.error('Follow-up submission error:', error);
+    res.status(500).json({ error: 'Failed to submit follow-up' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SERVE HTML FILES
 // ═══════════════════════════════════════════════════════════════════════════════
 app.get('/', (req, res) => {
@@ -1117,8 +1262,8 @@ app.get('/statement/:token', (req, res) => {
 app.listen(PORT, () => {
   console.log('');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  WORKERS COMPENSATION CLAIM INTAKE PORTAL v3.1');
-  console.log('  With E-Signatures, Statements & HIPAA Release');
+  console.log('  WORKERS COMPENSATION CLAIM INTAKE PORTAL v3.4');
+  console.log('  With E-Signatures, Follow-Up, Statements & HIPAA Release');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  🌐 Portal running at: http://localhost:${PORT}`);
   console.log(`  📧 Claims sent to: ${CONFIG.CLAIMS_EMAIL}`);
