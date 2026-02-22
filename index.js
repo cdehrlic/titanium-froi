@@ -1196,7 +1196,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
           hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'witnessAudio'))
         }, sigData);
         attachments.push({
-          filename: `${referenceNumber}-WitnessStatement-${witnessData.witnessName || 'Unknown'}.pdf`,
+          filename: `${entityName}-WitnessStatement-${witnessData.witnessName || 'Unknown'}-${referenceNumber}.pdf`,
           content: witnessPdf,
           contentType: 'application/pdf'
         });
@@ -1222,7 +1222,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
           hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'claimantAudio'))
         }, sigData);
         attachments.push({
-          filename: `${referenceNumber}-ClaimantStatement.pdf`,
+          filename: `${entityName}-ClaimantStatement-${referenceNumber}.pdf`,
           content: claimantPdf,
           contentType: 'application/pdf'
         });
