@@ -88,7 +88,7 @@ const FRAUD=[{v:'delayed_report',l:'Delayed Reporting'},{v:'monday_claim',l:'Mon
 const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
 
 function App(){
-const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);
+const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);
 const[d,setD]=S({
  firstName:'',
  lastName:'',
@@ -1514,9 +1514,6 @@ if(step===6){
  {cat:'Equipment & Environment',items:['Equipment Repaired','Equipment Replaced','PPE Provided','Engineering Control Added','Area Cleaned/Organized','Warning Signs Added','Lighting Improved']},
  {cat:'Administrative',items:['Safety Meeting Held','Incident Review Completed','Increased Supervision','Staffing Adjusted','Schedule Modified']}
  ];
-
- const[openRcCat,setOpenRcCat]=S(null);
- const[openCaCat,setOpenCaCat]=S(null);
 
  const rcSelected=(d.rootCauseFactors||[]);
  const caSelected=(d.correctiveActions||[]);
