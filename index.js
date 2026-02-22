@@ -1131,12 +1131,13 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/followup', upload.any(), async (req, res) => {
   try {
-    const { referenceNumber, rootCause, witnessStatement, claimantStatement, witnessSigned, claimantSigned } = req.body;
+    const { referenceNumber, entity, rootCause, witnessStatement, claimantStatement, witnessSigned, claimantSigned } = req.body;
     
     if (!referenceNumber) {
       return res.status(400).json({ error: 'Missing reference number' });
     }
 
+    const entityName = entity || 'Workers Compensation Claim';
     const rootCauseData = JSON.parse(rootCause || '{}');
     const witnessData = JSON.parse(witnessStatement || '{}');
     const claimantData = JSON.parse(claimantStatement || '{}');
@@ -1191,6 +1192,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
         const witnessPdf = await generateWitnessStatementPDF({
           ...witnessData,
           claimRef: referenceNumber,
+          entityName: entityName,
           hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'witnessAudio'))
         }, sigData);
         attachments.push({
@@ -1216,6 +1218,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
         const claimantPdf = await generateClaimantStatementPDF({
           ...claimantData,
           claimRef: referenceNumber,
+          entityName: entityName,
           hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'claimantAudio'))
         }, sigData);
         attachments.push({
@@ -1244,7 +1247,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
       <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;">
         <div style="background:#1a1f26;padding:25px;text-align:center;">
           <h1 style="color:white;margin:0;">Follow-Up Received</h1>
-          <p style="color:#5ba4e6;margin:8px 0 0;">${referenceNumber}</p>
+          <p style="color:#5ba4e6;margin:8px 0 0;">${referenceNumber} — ${entityName}</p>
         </div>
         <div style="padding:25px;background:#f8fafc;">
           ${rootCauseData.directCause || (rootCauseData.factors && rootCauseData.factors.length > 0) ? `
@@ -1287,7 +1290,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
     await transporter.sendMail({
       from: CONFIG.SMTP.auth.user,
       to: CONFIG.CLAIMS_EMAIL,
-      subject: `[FOLLOW-UP] ${referenceNumber} - Root Cause & Statements`,
+      subject: `[FOLLOW-UP] ${referenceNumber} - ${entityName} - Root Cause & Statements`,
       html: emailHtml,
       text: summary,
       attachments
