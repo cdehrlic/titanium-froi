@@ -74,9 +74,11 @@ const clearSig=(setter)=>{if(sigCtxRef.current&&sigCanvasRef.current){sigCtxRef.
 const startRecording=async(type)=>{
  try{
   const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-  const mr=new MediaRecorder(stream);audioChunksRef.current=[];
+  const mimeType=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';
+  const options=mimeType?{mimeType}:{};
+  const mr=new MediaRecorder(stream,options);audioChunksRef.current=[];
   mr.ondataavailable=(ev)=>{if(ev.data.size>0)audioChunksRef.current.push(ev.data)};
-  mr.onstop=()=>{const blob=new Blob(audioChunksRef.current,{type:'audio/webm'});setAudioBlobs(p=>({...p,[type]:blob}));stream.getTracks().forEach(t=>t.stop())};
+  mr.onstop=()=>{const actualType=mr.mimeType||mimeType||'audio/webm';const blob=new Blob(audioChunksRef.current,{type:actualType});setAudioBlobs(p=>({...p,[type]:blob}));stream.getTracks().forEach(t=>t.stop())};
   mr.start();mediaRecorderRef.current=mr;setRecording(type);
  }catch(err){alert('Unable to access microphone.')}
 };
@@ -96,8 +98,8 @@ const handleSubmit=async()=>{
   fd.append('claimantStatement',JSON.stringify(claimantData));
   fd.append('witnessSigned',witnessSigned);
   fd.append('claimantSigned',claimantSigned);
-  if(audioBlobs.witness){fd.append('witnessAudio',audioBlobs.witness,'witness-audio.webm')}
-  if(audioBlobs.claimant){fd.append('claimantAudio',audioBlobs.claimant,'claimant-audio.webm')}
+  if(audioBlobs.witness){const ext=audioBlobs.witness.type.includes('mp4')?'.mp4':'.webm';fd.append('witnessAudio',audioBlobs.witness,'witness-audio'+ext)}
+  if(audioBlobs.claimant){const ext=audioBlobs.claimant.type.includes('mp4')?'.mp4':'.webm';fd.append('claimantAudio',audioBlobs.claimant,'claimant-audio'+ext)}
   const res=await fetch('/api/followup',{method:'POST',body:fd});
   if(res.ok){setSubmitted(true)}else{alert('Error submitting. Please try again.')}
  }catch(err){alert('Network error. Please try again.')}
