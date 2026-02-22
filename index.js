@@ -9,6 +9,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 // Security: Helmet adds various HTTP headers
@@ -38,7 +39,7 @@ const CONFIG = {
     }
   },
   SECURE_LINK_EXPIRY_DAYS: 7,
-  BASE_URL: process.env.BASE_URL || 'https://wcreporting.com'
+  BASE_URL: process.env.BASE_URL || 'https://www.wcreporting.com'
 };
 
 app.use(express.json({ limit: '50mb' }));
