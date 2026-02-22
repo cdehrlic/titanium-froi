@@ -88,7 +88,7 @@ const FRAUD=[{v:'delayed_report',l:'Delayed Reporting'},{v:'monday_claim',l:'Mon
 const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
 
 function App(){
-const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);
+const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
 const[d,setD]=S({
  firstName:'',
  lastName:'',
@@ -1655,85 +1655,34 @@ if(step===6){
 }
 if(step===7){
  const FLAG_CATEGORIES=[
- {cat:'Reporting Red Flags',icon:'',items:[
-  {v:'delayed_report',l:'Delayed Reporting (3+ days)'},
-  {v:'monday_claim',l:'Monday Morning Claim'},
-  {v:'friday_injury',l:'Friday Afternoon Injury'},
-  {v:'reported_after_termination',l:'Reported After Termination Notice'},
-  {v:'reported_after_discipline',l:'Reported After Disciplinary Action'}
- ]},
- {cat:'Witness & Evidence Issues',icon:'',items:[
-  {v:'no_witnesses',l:'No Witnesses to Incident'},
-  {v:'conflicting_accounts',l:'Conflicting Witness Accounts'},
-  {v:'witness_is_friend',l:'Only Witness is Friend/Relative'},
-  {v:'refuses_recorded_statement',l:'Refuses Recorded Statement'},
-  {v:'no_physical_evidence',l:'No Physical Evidence'}
- ]},
- {cat:'Description Concerns',icon:'',items:[
-  {v:'vague_description',l:'Vague/Unclear Description'},
-  {v:'inconsistent_story',l:'Story Changes Over Time'},
-  {v:'description_doesnt_match',l:'Description Doesn\'t Match Injury'},
-  {v:'mechanism_implausible',l:'Mechanism of Injury Implausible'},
-  {v:'cant_identify_location',l:'Cannot Identify Exact Location'}
- ]},
- {cat:'Employment Factors',icon:'',items:[
-  {v:'new_employee',l:'New Employee (<90 days)'},
-  {v:'recent_discipline',l:'Recent Disciplinary Action'},
-  {v:'pending_layoff',l:'Facing Layoff/Termination'},
-  {v:'poor_performance',l:'Performance Issues'},
-  {v:'job_dissatisfaction',l:'Known Job Dissatisfaction'},
-  {v:'disgruntled',l:'Disgruntled Employee'}
- ]},
- {cat:'Claims History',icon:'',items:[
-  {v:'history_claims',l:'History of Prior WC Claims'},
-  {v:'prior_similar',l:'Prior Similar Injuries'},
-  {v:'claims_at_multiple_employers',l:'Claims at Multiple Employers'},
-  {v:'frequent_injuries',l:'Frequently Injured'},
-  {v:'litigated_prior_claim',l:'Prior Litigated Claim'}
- ]},
- {cat:'Medical Red Flags',icon:'',items:[
-  {v:'refused_then_sought',l:'Refused Then Sought Treatment'},
-  {v:'excessive_treatment',l:'Excessive Treatment Requests'},
-  {v:'doctor_shopping',l:'Changed Doctors Multiple Times'},
-  {v:'missed_appointments',l:'Missed Medical Appointments'},
-  {v:'non_compliant',l:'Non-Compliant with Treatment'},
-  {v:'preexisting',l:'Possible Pre-existing Condition'},
-  {v:'soft_tissue_only',l:'Soft Tissue Only / Hard to Verify'}
- ]},
- {cat:'Behavioral Indicators',icon:'',items:[
-  {v:'attorney_immediate',l:'Attorney Retained Immediately'},
-  {v:'demanding_settlement',l:'Demanding Quick Settlement'},
-  {v:'uncooperative',l:'Uncooperative with Investigation'},
-  {v:'overly_familiar',l:'Overly Familiar with WC Process'},
-  {v:'coaching_suspected',l:'Coaching Suspected'},
-  {v:'malingering_signs',l:'Signs of Malingering'}
- ]},
- {cat:'Financial & Personal',icon:'',items:[
-  {v:'financial_problems',l:'Known Financial Problems'},
-  {v:'second_job',l:'Works Second Job'},
-  {v:'bankruptcy',l:'Recent/Pending Bankruptcy'},
-  {v:'personal_issues',l:'Known Personal/Domestic Issues'},
-  {v:'substance_abuse_history',l:'History of Substance Abuse'}
- ]},
- {cat:'Other Concerns',icon:'',items:[
-  {v:'off_premises_possible',l:'May Have Occurred Off Premises'},
-  {v:'not_work_related',l:'May Not Be Work-Related'},
-  {v:'horseplay_suspected',l:'Horseplay Suspected'},
-  {v:'intoxication_suspected',l:'Intoxication Suspected'},
-  {v:'social_media_contradicts',l:'Social Media Activity Contradicts'}
- ]}
+ {cat:'Reporting Red Flags',items:['Delayed Reporting (3+ days)','Monday Morning Claim','Friday Afternoon Injury','Reported After Termination Notice','Reported After Disciplinary Action']},
+ {cat:'Witness & Evidence Issues',items:['No Witnesses to Incident','Conflicting Witness Accounts','Only Witness is Friend/Relative','Refuses Recorded Statement','No Physical Evidence']},
+ {cat:'Description Concerns',items:['Vague/Unclear Description','Story Changes Over Time','Description Doesn\'t Match Injury','Mechanism of Injury Implausible','Cannot Identify Exact Location']},
+ {cat:'Employment Factors',items:['New Employee (<90 days)','Recent Disciplinary Action','Facing Layoff/Termination','Performance Issues','Known Job Dissatisfaction','Disgruntled Employee']},
+ {cat:'Claims History',items:['History of Prior WC Claims','Prior Similar Injuries','Claims at Multiple Employers','Frequently Injured','Prior Litigated Claim']},
+ {cat:'Medical Red Flags',items:['Refused Then Sought Treatment','Excessive Treatment Requests','Changed Doctors Multiple Times','Missed Medical Appointments','Non-Compliant with Treatment','Possible Pre-existing Condition','Soft Tissue Only / Hard to Verify']},
+ {cat:'Behavioral Indicators',items:['Attorney Retained Immediately','Demanding Quick Settlement','Uncooperative with Investigation','Overly Familiar with WC Process','Coaching Suspected','Signs of Malingering']},
+ {cat:'Financial & Personal',items:['Known Financial Problems','Works Second Job','Recent/Pending Bankruptcy','Known Personal/Domestic Issues','History of Substance Abuse']},
+ {cat:'Other Concerns',items:['May Have Occurred Off Premises','May Not Be Work-Related','Horseplay Suspected','Intoxication Suspected','Social Media Activity Contradicts']}
  ];
 
- const flagCount=d.fraudIndicators?.length||0;
+ const flagSelected=(d.fraudIndicators||[]);
+ const flagCount=flagSelected.length;
  const highRisk=flagCount>=3;
+
+ const toggleFlag=(item)=>{
+  const curr=d.fraudIndicators||[];
+  u('fraudIndicators',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
+ };
+ const countInCat=(cat)=>cat.items.filter(i=>flagSelected.includes(i)).length;
 
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
   e('h2',null,'Investigation Flags'),
-  e('p',{className:'section-subtitle'},'Document concerns for investigation - these are indicators, not accusations')
+  e('p',{className:'section-subtitle'},'Document concerns for investigation — indicators, not accusations')
  ),
  
- e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud. Many legitimate claims have one or more of these indicators.'),
+ e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud.'),
  
  e('div',{className:'form-group'},
   e('label',null,'Do you have any validity concerns about this claim?'),
@@ -1745,84 +1694,61 @@ if(step===7){
  
  d.validityConcerns===true&&e('div',{className:'form-group',style:{marginTop:12}},
   e('label',null,'Explain Your Concerns'),
-  e('textarea',{className:'input-field',rows:3,value:d.concernDetails||'',onChange:x=>u('concernDetails',x.target.value),placeholder:'Describe specific concerns about this claim. Be factual and objective...'})
+  e('textarea',{className:'input-field',rows:3,value:d.concernDetails||'',onChange:x=>u('concernDetails',x.target.value),placeholder:'Describe specific concerns. Be factual and objective...'})
  ),
  
  e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
-  e('h3',{style:{fontSize:14,color:'var(--tr)'}},'Red Flag Indicators'),
-  flagCount>0&&e('div',{style:{
-   padding:'6px 12px',borderRadius:8,fontSize:12,fontWeight:600,
-   background:highRisk?'rgba(248,113,113,0.2)':'rgba(251,191,36,0.2)',
-   color:highRisk?'var(--tr)':'var(--tw)',
-   border:'1px solid '+(highRisk?'var(--tr)':'var(--tw)')
-  }},flagCount+'Flag'+(flagCount>1?'s':'')+'Selected'+(highRisk?'- HIGH RISK':''))
+  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+   e('h3',{style:{fontSize:14,color:'var(--tr)',margin:0}},'Red Flag Indicators'),
+   flagCount>0&&e('div',{style:{
+    padding:'5px 12px',borderRadius:8,fontSize:12,fontWeight:600,
+    background:highRisk?'rgba(248,113,113,0.2)':'rgba(251,191,36,0.2)',
+    color:highRisk?'var(--tr)':'var(--tw)',
+    border:'1px solid '+(highRisk?'var(--tr)':'var(--tw)')
+   }},flagCount+' Flag'+(flagCount>1?'s':'')+' Selected'+(highRisk?' — HIGH RISK':''))
   ),
-  
-  ...FLAG_CATEGORIES.map(cat=>
-  e('div',{key:cat.cat,style:{marginBottom:20}},
-   e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'flex',alignItems:'center',gap:6,marginBottom:10}},
-   e('span',null,cat.icon),cat.cat
-   ),
-   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
-   ...cat.items.map(item=>
-    e('button',{
-    key:item.v,
-    type:'button',
-    className:'chip-btn'+(d.fraudIndicators?.includes(item.v)?'active danger':''),
-    onClick:()=>ta('fraudIndicators',item.v)
-    },item.l)
-   )
-   )
-  )
+
+  flagSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+   ...flagSelected.map(f=>e('span',{key:f,style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFlag(f)},f,' ×'))
   ),
-  
-  e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'Other Red Flag'),
-  e('div',{style:{display:'flex',gap:8}},
-   e('input',{
-   className:'input-field',
-   style:{flex:1},
-   placeholder:'Enter other red flag indicator not listed above...',
-   value:d.customRedFlag||'',
-   onChange:x=>u('customRedFlag',x.target.value)
+
+  ...FLAG_CATEGORIES.map((cat,ci)=>{
+   const isOpen=openFlagCat===ci;
+   const catCount=countInCat(cat);
+   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+    e('div',{
+     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
+     onClick:()=>setOpenFlagCat(isOpen?null:ci)
+    },
+     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+      catCount>0&&e('span',{style:{background:'var(--tr)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
+      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
+     )
+    ),
+    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(flagSelected.includes(item)?' active danger':''),onClick:()=>toggleFlag(item),style:{fontSize:12}},item))
+    )
+   );
+  }),
+
+  e('div',{style:{marginTop:10,display:'flex',gap:8}},
+   e('input',{className:'input-field',style:{flex:1},placeholder:'Other red flag...',value:d.customRedFlag||'',onChange:x=>u('customRedFlag',x.target.value),
+   onKeyDown:x=>{if(x.key==='Enter'&&d.customRedFlag?.trim()){toggleFlag(d.customRedFlag.trim());u('customRedFlag','')}}
    }),
-   d.customRedFlag&&e('button',{
-   type:'button',
-   className:'nav-btn primary',
-   style:{padding:'10px 16px',background:'var(--tr)'},
-   onClick:()=>{
-    if(d.customRedFlag.trim()){
-    ta('fraudIndicators','custom:'+d.customRedFlag.trim());
-    u('customRedFlag','');
-    }
-   }
-   },'+ Add')
-  )
-  ),
-  
-  d.fraudIndicators?.filter(f=>f.startsWith('custom:')).length>0&&e('div',{style:{marginTop:12}},
-  e('label',{style:{fontSize:11,color:'var(--tm)'}},'Custom flags added:'),
-  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:6}},
-   ...d.fraudIndicators.filter(f=>f.startsWith('custom:')).map(f=>
-   e('div',{key:f,style:{background:'rgba(239,68,68,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',padding:'6px 10px',borderRadius:6,fontSize:12,display:'flex',alignItems:'center',gap:6}},
-    f.replace('custom:',''),
-    e('button',{type:'button',onClick:()=>ta('fraudIndicators',f),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
-   )
-   )
-  )
+   d.customRedFlag&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px',background:'var(--tr)'},onClick:()=>{if(d.customRedFlag.trim()){toggleFlag(d.customRedFlag.trim());u('customRedFlag','')}}},'+ Add')
   )
  ),
  
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
   e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Investigation Notes'),
   e('div',{className:'form-group'},
-  e('label',null,'Investigation Notes / Observations'),
-  e('textarea',{className:'input-field',rows:4,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document any investigation findings, observations, interviews conducted, evidence reviewed, etc. This information will be included in the claim report.'})
+  e('label',null,'Notes / Observations'),
+  e('textarea',{className:'input-field',rows:3,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document investigation findings, interviews conducted, evidence reviewed...'})
   )
  ),
  
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
   e('h3',{style:{fontSize:14,color:'var(--tr)',marginBottom:16}},'Recommendations'),
   e('div',{className:'form-grid'},
   e('div',{className:'form-group'},
@@ -1841,20 +1767,17 @@ if(step===7){
   )
   ),
   d.recommendDeny===true&&e('div',{className:'form-group',style:{marginTop:12}},
-  e('label',null,'Denial Recommendation Reason'),
-  e('textarea',{className:'input-field',rows:2,value:d.denyReason||'',onChange:x=>u('denyReason',x.target.value),placeholder:'Explain the basis for recommending denial...'})
+  e('label',null,'Denial Reason'),
+  e('textarea',{className:'input-field',rows:2,value:d.denyReason||'',onChange:x=>u('denyReason',x.target.value),placeholder:'Basis for recommending denial...'})
   ),
   d.recommendSIU===true&&e('div',{className:'form-group',style:{marginTop:12}},
   e('label',null,'SIU Referral Reason'),
-  e('textarea',{className:'input-field',rows:2,value:d.siuReason||'',onChange:x=>u('siuReason',x.target.value),placeholder:'Explain why SIU investigation is recommended...'})
-  ),
-  (d.recommendDeny===true||d.recommendSIU===true)&&e('div',{style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',borderRadius:12,padding:16,marginTop:16}},
-  e('p',{style:{fontSize:13,color:'var(--tr)',fontWeight:600}},'Important: Recommendations will be reviewed by claims management. Ensure documentation supports the recommendation.')
+  e('textarea',{className:'input-field',rows:2,value:d.siuReason||'',onChange:x=>u('siuReason',x.target.value),placeholder:'Why SIU investigation is recommended...'})
   )
  ),
  
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation Potential'),
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation'),
   e('div',{className:'form-group'},
   e('label',null,'Is a third party potentially responsible?'),
   tog('thirdPartyInvolved',[
@@ -1865,7 +1788,7 @@ if(step===7){
   ),
   (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:16}},
   e('div',{style:{background:'rgba(16,185,129,0.08)',border:'1px solid var(--tg)',borderRadius:12,padding:16,marginBottom:16}},
-   e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},'Subrogation Potential Identified!'),
+   e('p',{style:{fontSize:13,color:'var(--tg)',fontWeight:600}},'Subrogation Potential Identified'),
    e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'Preserve all evidence. Document third party information for potential recovery.')
   ),
   e('div',{className:'form-grid'},
@@ -1888,7 +1811,7 @@ if(step===7){
   ),
   e('div',{className:'form-group',style:{marginTop:12}},
    e('label',null,'Third Party Details'),
-   e('textarea',{className:'input-field',rows:3,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'Describe how the third party was involved, contact information, insurance details, police report number if applicable...'})
+   e('textarea',{className:'input-field',rows:2,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'How the third party was involved, police report number if applicable...'})
   ),
   e('div',{className:'form-group',style:{marginTop:12}},
    e('label',null,'Subrogation Type'),
@@ -1904,14 +1827,8 @@ if(step===7){
  ),
  
  highRisk&&e('div',{style:{marginTop:24,padding:16,background:'rgba(248,113,113,0.1)',borderRadius:12,border:'1px solid var(--tr)'}},
-  e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim Summary'),
-  e('p',{style:{fontSize:12,color:'var(--tm)'}},'This claim has '+flagCount+'red flag indicators. Consider:'),
-  e('ul',{style:{fontSize:12,color:'var(--tm)',marginLeft:20,marginTop:8}},
-  e('li',null,'Obtaining recorded statements'),
-  e('li',null,'Requesting additional documentation'),
-  e('li',null,'Early SIU involvement'),
-  e('li',null,'Surveillance consideration')
-  )
+  e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim — '+flagCount+' Flags'),
+  e('p',{style:{fontSize:12,color:'var(--tm)'}},'Consider: recorded statements, additional documentation, early SIU involvement, surveillance.')
  )
  );
 }
