@@ -1175,13 +1175,66 @@ app.post('/api/followup', upload.any(), async (req, res) => {
       summary += `Signed By: ${claimantData.typedName}\n`;
     }
 
-    // Build attachments array (audio files)
+    // Build attachments array
     const attachments = [];
+
+    // Generate Witness Statement PDF if signed
+    if (witnessSigned === 'true' && witnessData.typedName) {
+      try {
+        const sigData = {
+          typedName: witnessData.typedName,
+          signatureImage: witnessData.signature || null,
+          signedAt: new Date().toISOString(),
+          ipAddress: getClientIP(req),
+          documentHash: generateDocumentHash({ witnessData, type: 'witness-followup' })
+        };
+        const witnessPdf = await generateWitnessStatementPDF({
+          ...witnessData,
+          claimRef: referenceNumber,
+          hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'witnessAudio'))
+        }, sigData);
+        attachments.push({
+          filename: `${referenceNumber}-WitnessStatement-${witnessData.witnessName || 'Unknown'}.pdf`,
+          content: witnessPdf,
+          contentType: 'application/pdf'
+        });
+      } catch (pdfErr) {
+        console.error('Witness PDF generation error:', pdfErr.message);
+      }
+    }
+
+    // Generate Claimant Statement PDF if signed
+    if (claimantSigned === 'true' && claimantData.typedName) {
+      try {
+        const sigData = {
+          typedName: claimantData.typedName,
+          signatureImage: claimantData.signature || null,
+          signedAt: new Date().toISOString(),
+          ipAddress: getClientIP(req),
+          documentHash: generateDocumentHash({ claimantData, type: 'claimant-followup' })
+        };
+        const claimantPdf = await generateClaimantStatementPDF({
+          ...claimantData,
+          claimRef: referenceNumber,
+          hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'claimantAudio'))
+        }, sigData);
+        attachments.push({
+          filename: `${referenceNumber}-ClaimantStatement.pdf`,
+          content: claimantPdf,
+          contentType: 'application/pdf'
+        });
+      } catch (pdfErr) {
+        console.error('Claimant PDF generation error:', pdfErr.message);
+      }
+    }
+
+    // Add audio files
     if (req.files) {
       req.files.forEach(file => {
         attachments.push({
           filename: file.originalname,
-          content: file.buffer
+          content: file.buffer,
+          contentType: file.mimetype || 'audio/webm'
         });
       });
     }
