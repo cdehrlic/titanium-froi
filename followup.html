@@ -95,6 +95,7 @@ const handleSubmit=async()=>{
  try{
   const fd=new FormData();
   fd.append('referenceNumber',refNum);
+  fd.append('entity',entity);
   fd.append('rootCause',JSON.stringify(rootData));
   fd.append('witnessStatement',JSON.stringify(witnessData));
   fd.append('claimantStatement',JSON.stringify(claimantData));
