@@ -232,7 +232,7 @@ const u=(f,v)=>setD(p=>({...p,[f]:v}));
 const uNested=(parent,f,v)=>setD(p=>({...p,[parent]:{...p[parent],[f]:v}}));
 const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter(x=>x!==v):[...a,v]}});
 
-const steps=[{t:'Employee',n:'01'},{t:'Claim',n:'02'},{t:'Incident',n:'03'},{t:'Medical',n:'04'},{t:'Evidence',n:'05'},{t:'Work Status',n:'06'},{t:'Root Cause',n:'07'},{t:'Flags',n:'08'},{t:'Statements',n:'09'},{t:'Submit',n:'10'}];
+const steps=[{t:'Employee',n:'01'},{t:'Incident',n:'02'},{t:'Medical & Status',n:'03'},{t:'Evidence',n:'04'},{t:'Flags',n:'05'},{t:'Submit',n:'06'}];
 
 const startDraw=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current?.beginPath();sigCtxRef.current?.moveTo(x,y)};
 const draw=(ev)=>{if(!isDrawingRef.current||!sigCtxRef.current)return;ev.preventDefault();const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current.lineTo(x,y);sigCtxRef.current.stroke()};
@@ -736,23 +736,36 @@ if(step===1){
  if(!d.dateOfInjury||!d.dateReported)return null;
  const injury=new Date(d.dateOfInjury);
  const reported=new Date(d.dateReported);
- const diff=Math.floor((reported-injury)/(1000*60*60*24));
- return diff;
+ return Math.floor((reported-injury)/(1000*60*60*24));
  };
  const daysToReport=calcDaysToReport();
- 
  const injuryInFuture=d.dateOfInjury&&new Date(d.dateOfInjury)>new Date();
  const reportBeforeInjury=d.dateOfInjury&&d.dateReported&&new Date(d.dateReported)<new Date(d.dateOfInjury);
- const hireAfterInjury=d.dateOfHire&&d.dateOfInjury&&new Date(d.dateOfHire)>new Date(d.dateOfInjury);
- 
- const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
- 
+
  const ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','SMS Cleaning and Housekeeping Services','Towne Home Care / Towne Staffing LLC','LiveWell Plus','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
- 
+ const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
+ const NATURE_OF_INJURY=[
+ {v:'contusion',l:'Contusion/Bruise'},{v:'laceration',l:'Laceration/Cut'},{v:'fracture',l:'Fracture'},
+ {v:'sprain',l:'Sprain'},{v:'strain',l:'Strain'},{v:'puncture',l:'Puncture'},{v:'abrasion',l:'Abrasion'},
+ {v:'burn_thermal',l:'Burn - Thermal'},{v:'burn_chemical',l:'Burn - Chemical'},{v:'concussion',l:'Concussion'},
+ {v:'dislocation',l:'Dislocation'},{v:'amputation',l:'Amputation'},{v:'crushing',l:'Crushing Injury'},
+ {v:'inflammation',l:'Inflammation'},{v:'carpal_tunnel',l:'Carpal Tunnel'},{v:'herniated_disc',l:'Herniated Disc'},
+ {v:'hearing_loss',l:'Hearing Loss'},{v:'foreign_body',l:'Foreign Body'},{v:'multiple',l:'Multiple Injuries'},{v:'other',l:'Other'}
+ ];
+ const CAUSE_OF_INJURY=[
+ {v:'fall_same_level',l:'Fall on Same Level'},{v:'fall_from_height',l:'Fall from Height'},
+ {v:'struck_by_object',l:'Struck by Object'},{v:'struck_against',l:'Struck Against Object'},
+ {v:'caught_in_between',l:'Caught In/Between'},{v:'overexertion_lifting',l:'Overexertion - Lifting'},
+ {v:'overexertion_pushing',l:'Overexertion - Pushing/Pulling'},{v:'repetitive_motion',l:'Repetitive Motion'},
+ {v:'motor_vehicle',l:'Motor Vehicle Accident'},{v:'assault_violence',l:'Assault/Violence'},
+ {v:'exposure_harmful',l:'Exposure to Harmful Substance'},{v:'exposure_temperature',l:'Temperature Extremes'},
+ {v:'contact_electric',l:'Contact with Electricity'},{v:'patient_handling',l:'Patient Handling'},{v:'other',l:'Other'}
+ ];
+
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
-  e('h2',null,'Claim Information'),
-  e('p',{className:'section-subtitle'},'Claim details, wages, and reporting timeline')
+  e('h2',null,'Incident Details'),
+  e('p',{className:'section-subtitle'},'What happened, when, and where')
  ),
  e('div',{className:'form-group full-width'},
   e('label',null,'Entity ',e('span',{className:'required'},'*')),
@@ -777,200 +790,93 @@ if(step===1){
   tog('reportedImmediately',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}])
   )
  ),
- daysToReport!==null&&e('div',{style:{marginTop:12,marginBottom:16}},
-  e('div',{style:{
-  display:'inline-flex',alignItems:'center',gap:8,
-  padding:'8px 14px',borderRadius:8,fontSize:13,fontWeight:600,
+ daysToReport!==null&&e('div',{style:{marginTop:12,marginBottom:8}},
+  e('div',{style:{display:'inline-flex',alignItems:'center',gap:8,padding:'8px 14px',borderRadius:8,fontSize:13,fontWeight:600,
   background:daysToReport<=1?'rgba(16,185,129,0.1)':daysToReport<=7?'rgba(245,158,11,0.1)':'rgba(239,68,68,0.1)',
   color:daysToReport<=1?'var(--tg)':daysToReport<=7?'var(--tw)':'var(--tr)',
   border:'1px solid '+(daysToReport<=1?'var(--tg)':daysToReport<=7?'var(--tw)':'var(--tr)')
-  }},
-  daysToReport===0?'Reported Same Day':
-  daysToReport===1?'Reported Next Day':
-  daysToReport<=7?''+daysToReport+'Days to Report':
-  ''+daysToReport+'Days to Report — DELAYED')
+  }},daysToReport===0?'Reported Same Day':daysToReport===1?'Reported Next Day':daysToReport<=7?daysToReport+' Days to Report':daysToReport+' Days to Report \u2014 DELAYED')
  ),
- injuryInFuture&&e('div',{className:'warning-box'},'Date of injury is in the future. Please verify this is correct.'),
- reportBeforeInjury&&e('div',{style:{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',borderRadius:12,padding:16,fontSize:14,color:'var(--tr)',marginBottom:18}},'Report date cannot be before injury date. Please correct.'),
- hireAfterInjury&&e('div',{className:'warning-box'},'Hire date is after injury date. Was employee hired before the incident?'),
- e('div',{className:'form-grid',style:{marginTop:8}},
-  e('div',{className:'form-group'},
-  e('label',null,'Weekly Wage'),
-  e('div',{style:{position:'relative'}},
-   e('span',{style:{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--tm)',fontSize:14}},'$'),
-   e('input',{
-   type:'text',
-   className:'input-field',
-   style:{paddingLeft:28},
-   value:d.weeklyWage||'',
-   onChange:x=>u('weeklyWage',x.target.value.replace(/[^0-9.]/g,'')),
-   placeholder:'0.00'})
+ injuryInFuture&&e('div',{className:'warning-box'},'Date of injury is in the future. Please verify.'),
+ reportBeforeInjury&&e('div',{style:{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',borderRadius:12,padding:16,fontSize:14,color:'var(--tr)',marginBottom:18}},'Report date cannot be before injury date.'),
+
+ e('div',{style:{marginTop:20,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{className:'form-group full-width'},
+  e('label',null,'Description of Accident ',e('span',{className:'required'},'*')),
+  e('textarea',{className:'input-field',rows:4,value:d.accidentDescription||'',onChange:x=>u('accidentDescription',x.target.value),placeholder:'Describe who, what, when, where, and how the injury occurred...'})
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Injury Type ',e('span',{className:'required'},'*')),
+  e('div',{className:'injury-grid'},...INJURY_TYPES.map(t=>
+   e('button',{key:t.v,type:'button',className:'injury-btn'+(d.injuryType===t.v?' active':''),onClick:()=>u('injuryType',t.v)},
+   e('span',{className:'injury-icon'},t.i),
+   e('span',{className:'injury-label'},t.l)
+   )
+  ))
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Body Parts Affected'),
+  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+   ...BODY_PARTS.map(p=>e('button',{key:p,type:'button',className:'chip-btn'+(d.bodyParts?.includes(p)?' active':''),onClick:()=>ta('bodyParts',p)},p))
+  ),
+  e('div',{style:{marginTop:12}},
+   e('input',{className:'input-field',style:{maxWidth:300},placeholder:'Other body part...',value:d.customBodyPart||'',onChange:x=>u('customBodyPart',x.target.value)})
   )
   ),
+  e('div',{className:'form-grid',style:{marginTop:16}},
   e('div',{className:'form-group'},
-  e('label',null,'Employee Work Type'),
-  sel('workType',WORK_TYPES,'Select work type')
+   e('label',null,'Nature of Injury'),
+   e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
+   e('option',{value:''},'Select nature of injury'),
+   ...NATURE_OF_INJURY.map(n=>e('option',{key:n.v,value:n.v},n.l))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Cause of Injury'),
+   e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
+   e('option',{value:''},'Select cause of injury'),
+   ...CAUSE_OF_INJURY.map(c=>e('option',{key:c.v,value:c.v},c.l))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Weekly Wage'),
+   e('div',{style:{position:'relative'}},
+   e('span',{style:{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--tm)',fontSize:14}},'$'),
+   e('input',{type:'text',className:'input-field',style:{paddingLeft:28},value:d.weeklyWage||'',onChange:x=>u('weeklyWage',x.target.value.replace(/[^0-9.]/g,'')),placeholder:'0.00'})
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Work Type'),
+   sel('workType',WORK_TYPES,'Select work type')
   )
- ),
- d.weeklyWage&&e('div',{className:'info-tip',style:{marginTop:12}},
-  e('strong',null,'Wage Info: '),
-  'Weekly: $'+parseFloat(d.weeklyWage||0).toFixed(2)+
-  ' | Annual: $'+(parseFloat(d.weeklyWage||0)*52).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+
-  ' | Daily: $'+(parseFloat(d.weeklyWage||0)/5).toFixed(2)
+  )
  )
  );
 }
 if(step===2){
- const NATURE_OF_INJURY=[
- {v:'contusion',l:'Contusion/Bruise'},{v:'laceration',l:'Laceration/Cut'},{v:'fracture',l:'Fracture'},
- {v:'sprain',l:'Sprain'},{v:'strain',l:'Strain'},{v:'puncture',l:'Puncture'},{v:'abrasion',l:'Abrasion'},
- {v:'burn_thermal',l:'Burn - Thermal'},{v:'burn_chemical',l:'Burn - Chemical'},{v:'concussion',l:'Concussion'},
- {v:'dislocation',l:'Dislocation'},{v:'amputation',l:'Amputation'},{v:'crushing',l:'Crushing Injury'},
- {v:'inflammation',l:'Inflammation'},{v:'carpal_tunnel',l:'Carpal Tunnel'},{v:'herniated_disc',l:'Herniated Disc'},
- {v:'hearing_loss',l:'Hearing Loss'},{v:'foreign_body',l:'Foreign Body'},{v:'multiple',l:'Multiple Injuries'},{v:'other',l:'Other'}
- ];
- const CAUSE_OF_INJURY=[
- {v:'fall_same_level',l:'Fall on Same Level'},{v:'fall_from_height',l:'Fall from Height'},
- {v:'struck_by_object',l:'Struck by Object'},{v:'struck_against',l:'Struck Against Object'},
- {v:'caught_in_between',l:'Caught In/Between'},{v:'overexertion_lifting',l:'Overexertion - Lifting'},
- {v:'overexertion_pushing',l:'Overexertion - Pushing/Pulling'},{v:'repetitive_motion',l:'Repetitive Motion'},
- {v:'motor_vehicle',l:'Motor Vehicle Accident'},{v:'assault_violence',l:'Assault/Violence'},
- {v:'exposure_harmful',l:'Exposure to Harmful Substance'},{v:'exposure_temperature',l:'Temperature Extremes'},
- {v:'contact_electric',l:'Contact with Electricity'},{v:'patient_handling',l:'Patient Handling'},{v:'other',l:'Other'}
- ];
- const INJURY_TIPS={
- 'slip_trip_fall':['Preserve video footage immediately - systems auto-delete','Document floor condition, lighting, footwear worn','Check for spills, mats, cords, weather conditions','Take photos of exact location from multiple angles','Interview any witnesses separately'],
- 'struck_by':['Identify the object that struck employee','Document weight, size, and height of fall','Check for overhead hazards, stacking issues','Review material handling procedures','Inspect any equipment involved'],
- 'strain_sprain':['Document weight lifted and technique used','Check if mechanical aids were available','Review patient handling procedures if applicable','Note any pre-existing conditions mentioned','Verify training on proper lifting was provided'],
- 'cut_laceration':['Identify the tool or object causing injury','Check if guards/safety devices were in place','Review PPE requirements for task','Document first aid provided','Preserve any defective equipment'],
- 'burn':['Identify heat source or chemical involved','Document PPE worn at time of incident','Obtain SDS if chemical exposure','Note immediate first aid given','Check equipment temperature settings'],
- 'caught_in':['Identify machine/equipment involved','Check if lockout/tagout was followed','Document guard positions','Review maintenance records','Preserve equipment in current state'],
- 'vehicle':['Obtain police report if applicable','Document all vehicle damage with photos','Check driver qualification file','Review driving policies and MVR','Identify all parties involved'],
- 'assault':['Contact law enforcement if appropriate','Preserve any video evidence immediately','Document all witnesses separately','Review security protocols','Consider employee counseling resources'],
- 'exposure':['Identify substance and obtain SDS','Document duration of exposure','Check ventilation and PPE used','Note symptoms and timeline','Review hazard communication training'],
- 'repetitive':['Document job duties and duration','Review workstation ergonomics','Check for previous similar complaints','Note any job rotation practices','Review break schedules']
- };
- const tips=INJURY_TIPS[d.injuryType]||[];
- 
- return e('div',{className:'content'},
- e('div',{className:'section-header'},
-  e('h2',null,'Incident Details'),
-  e('p',{className:'section-subtitle'},'Describe what happened and the resulting injury')
- ),
- e('div',{className:'form-group full-width'},
-  e('label',null,'Description of Accident ',e('span',{className:'required'},'*')),
-  e('textarea',{className:'input-field',rows:4,value:d.accidentDescription||'',onChange:x=>u('accidentDescription',x.target.value),placeholder:'Describe who, what, when, where, and how the injury occurred. Be specific about the sequence of events...'})
- ),
- e('div',{className:'form-group full-width',style:{marginTop:12}},
-  e('label',null,'Job Duties at Time of Injury'),
-  e('textarea',{className:'input-field',rows:2,value:d.jobDutiesAtTime||'',onChange:x=>u('jobDutiesAtTime',x.target.value),placeholder:'What specific task was the employee performing when injured?'})
- ),
- e('div',{className:'form-group full-width',style:{marginTop:20}},
-  e('label',null,'Injury Type ',e('span',{className:'required'},'*')),
-  e('div',{className:'injury-grid'},...INJURY_TYPES.map(t=>
-  e('button',{key:t.v,type:'button',className:'injury-btn'+(d.injuryType===t.v?' active':''),onClick:()=>u('injuryType',t.v)},
-   e('span',{className:'injury-icon'},t.i),
-   e('span',{className:'injury-label'},t.l)
-  )
-  ))
- ),
- tips.length>0&&e('div',{style:{background:'rgba(79,143,239,0.06)',border:'1px solid rgba(79,143,239,0.2)',borderRadius:12,padding:16,marginTop:16}},
-  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:10,display:'flex',alignItems:'center',gap:6}},'Investigation Tips for ',INJURY_TYPES.find(t=>t.v===d.injuryType)?.l||''),
-  e('ul',{style:{listStyle:'none',margin:0,padding:0}},
-  ...tips.map((tip,i)=>e('li',{key:i,style:{padding:'5px 0',paddingLeft:18,position:'relative',fontSize:12,color:'var(--tm)'}},
-   e('span',{style:{position:'absolute',left:0,color:'var(--ta)'}},'→'),tip
-  ))
-  )
- ),
- e('div',{className:'form-grid',style:{marginTop:20}},
-  e('div',{className:'form-group'},
-  e('label',null,'Nature of Injury'),
-  e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
-   e('option',{value:''},'Select nature of injury'),
-   ...NATURE_OF_INJURY.map(n=>e('option',{key:n.v,value:n.v},n.l))
-  )
-  ),
-  e('div',{className:'form-group'},
-  e('label',null,'Cause of Injury'),
-  e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
-   e('option',{value:''},'Select cause of injury'),
-   ...CAUSE_OF_INJURY.map(c=>e('option',{key:c.v,value:c.v},c.l))
-  )
-  )
- ),
- e('div',{className:'form-group full-width',style:{marginTop:20}},
-  e('label',null,'Body Parts Affected'),
-  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
-  ...BODY_PARTS.map(p=>e('button',{key:p,type:'button',className:'chip-btn'+(d.bodyParts?.includes(p)?' active':''),onClick:()=>ta('bodyParts',p)},p))
-  ),
-  e('div',{style:{marginTop:12}},
-  e('input',{className:'input-field',style:{maxWidth:300},placeholder:'Other body part not listed...',value:d.customBodyPart||'',onChange:x=>u('customBodyPart',x.target.value)})
-  )
- ),
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Accident Location'),
-  e('div',{className:'checkbox-group',style:{marginBottom:16}},
-  e('input',{type:'checkbox',checked:d.accidentAtWorksite!==false,onChange:x=>u('accidentAtWorksite',x.target.checked)}),
-  e('label',null,'Accident occurred at normal work location')
-  ),
-  d.accidentAtWorksite===false&&e('div',{className:'form-grid'},
-  e('div',{className:'form-group full-width'},
-   e('label',null,'Street Address'),
-   inp('accidentStreet','Street address where accident occurred')
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'City'),
-   inp('accidentCity','City')
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'State'),
-   sel('accidentState',STATES,'Select state')
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Zip Code'),
-   inp('accidentZip','Zip code')
-  )
-  ),
-  d.accidentAtWorksite===false&&e('div',{className:'info-tip',style:{marginTop:12}},'Note: Off-site injuries may require additional documentation. Note the reason employee was at this location.')
- )
- );
-}
-if(step===3){
- const getReferralRecommendation=()=>{
- if(d.refusedTreatment===true)return {type:'refused',color:'var(--tw)',msg:'Employee refused treatment. Document refusal in writing and have employee sign refusal form if possible.'};
- if(d.severeInjury===true)return {type:'emergency',color:'var(--tr)',msg:'EMERGENCY - Send to nearest hospital/ER immediately for severe injury.'};
- if(d.employeeRequestedHospital===true)return {type:'hospital',color:'var(--tw)',msg:'Employee requested hospital. Honor request but document the preference.'};
- if(d.soughtMedicalTreatment===false&&d.refusedTreatment===false)return {type:'concentra',color:'var(--tg)',msg:'Recommend occupational clinic (Concentra or similar) for evaluation and treatment.'};
- return null;
- };
- const referral=d.soughtMedicalTreatment===false?getReferralRecommendation():null;
- 
- const REFERRAL_TYPES=[
- {v:'concentra',l:'Concentra / Occupational Clinic'},
- {v:'hospital_er',l:'Hospital / Emergency Room'},
- {v:'urgent_care',l:'Urgent Care'},
- {v:'primary_care',l:'Primary Care Physician'},
- {v:'specialist',l:'Specialist'},
- {v:'telehealth',l:'Telehealth / Nurse Line'},
- {v:'other',l:'Other'}
+ const RETURN_STATUSES=[
+ {v:'not_returned',l:'Has Not Returned to Work'},
+ {v:'full_duty',l:'Returned - Full Duty'},
+ {v:'light_duty',l:'Returned - Light Duty / Modified'},
+ {v:'part_time',l:'Returned - Part Time'},
+ {v:'unknown',l:'Unknown'}
  ];
 
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
-  e('h2',null,'Medical Treatment'),
-  e('p',{className:'section-subtitle'},'Treatment details and medical referral guidance')
+  e('h2',null,'Medical & Work Status'),
+  e('p',{className:'section-subtitle'},'Treatment details and current work status')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Has employee received or sought medical treatment?'),
+  e('label',null,'Has employee received medical treatment?'),
   tog('soughtMedicalTreatment',[
   {v:true,l:'Yes - Already Treated',c:'success'},
-  {v:false,l:'No - Needs Referral',c:'warning'}
+  {v:false,l:'No - Not Yet'}
   ])
  ),
  
- d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:20}},
-  e('div',{className:'info-tip'},'Enter details of the medical treatment received.'),
-  e('div',{className:'form-grid',style:{marginTop:16}},
+ d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:16}},
+  e('div',{className:'form-grid'},
   e('div',{className:'form-group'},
    e('label',null,'Facility Name'),
    inp('initialFacilityName','Hospital, clinic, or doctor\'s office')
@@ -999,114 +905,60 @@ if(step===3){
   e('label',null,'Treatment Notes'),
   e('textarea',{className:'input-field',rows:2,value:d.treatmentNotes||'',onChange:x=>u('treatmentNotes',x.target.value),placeholder:'Brief description of treatment received...'})
   ),
-  e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
-  e('div',{className:'form-group'},
-   e('label',null,'Were work restrictions given?'),
-   tog('workRestrictionsGiven',[
+  e('div',{className:'form-group',style:{marginTop:16}},
+  e('label',null,'Were work restrictions given?'),
+  tog('workRestrictionsGiven',[
    {v:true,l:'Yes',c:'warning'},
    {v:false,l:'No',c:'success'},
    {v:'pending',l:'Pending'}
-   ])
+  ])
   ),
   d.workRestrictionsGiven===true&&e('div',{className:'form-group',style:{marginTop:12}},
    e('label',null,'Restriction Details'),
    e('textarea',{className:'input-field',rows:2,value:d.restrictionDetails||'',onChange:x=>u('restrictionDetails',x.target.value),placeholder:'e.g., No lifting over 10 lbs, no standing more than 2 hours...'})
   )
-  )
  ),
+
+ d.soughtMedicalTreatment===false&&e('div',{className:'info-tip',style:{marginTop:16}},'Employee has not yet received treatment. Direct to appropriate medical provider.'),
  
- d.soughtMedicalTreatment===false&&e('div',{style:{marginTop:20}},
-  e('div',{style:{background:'rgba(79,143,239,0.08)',border:'1px solid rgba(79,143,239,0.2)',borderRadius:12,padding:16,marginBottom:20}},
-  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:8}},'Medical Referral Decision Guide'),
-  e('p',{style:{fontSize:12,color:'var(--tm)'}},'Answer the following questions to determine the appropriate referral.')
-  ),
-  
-  e('div',{className:'form-group',style:{marginBottom:16}},
-  e('label',null,'Did employee refuse medical treatment?'),
-  tog('refusedTreatment',[
-   {v:true,l:'Yes - Refused',c:'warning'},
-   {v:false,l:'No - Willing to Go'}
-  ])
-  ),
-  
-  d.refusedTreatment===false&&e('div',{className:'form-group',style:{marginBottom:16}},
-  e('label',null,'Is this a severe/emergency injury?'),
-  e('p',{style:{fontSize:11,color:'var(--tm)',marginBottom:8}},'Head trauma, broken bones, severe bleeding, chest pain, difficulty breathing, loss of consciousness'),
-  tog('severeInjury',[
-   {v:true,l:'Yes - Severe/Emergency',c:'danger'},
-   {v:false,l:'No - Standard Injury'}
-  ])
-  ),
-  
-  d.refusedTreatment===false&&d.severeInjury===false&&e('div',{className:'form-group',style:{marginBottom:16}},
-  e('label',null,'Did employee specifically request hospital/ER?'),
-  tog('employeeRequestedHospital',[
-   {v:true,l:'Yes - Requested Hospital',c:'warning'},
-   {v:false,l:'No - No Preference'}
-  ])
-  ),
-  
-  referral&&e('div',{style:{
-  background:referral.type==='emergency'?'rgba(239,68,68,0.1)':
-     referral.type==='refused'?'rgba(245,158,11,0.1)':
-     referral.type==='hospital'?'rgba(245,158,11,0.1)':
-     'rgba(16,185,129,0.1)',
-  border:'1px solid '+referral.color,
-  borderRadius:12,padding:16,marginTop:20,marginBottom:20
-  }},
-  e('h4',{style:{color:referral.color,fontSize:14,marginBottom:8}},
-   referral.type==='emergency'?'EMERGENCY REFERRAL':
-   referral.type==='refused'?'TREATMENT REFUSED':
-   referral.type==='hospital'?'HOSPITAL REFERRAL':
-   'OCCUPATIONAL CLINIC REFERRAL'),
-  e('p',{style:{fontSize:13,color:'var(--tt)'}},referral.msg)
-  ),
-  
-  d.refusedTreatment!==true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
-  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:16}},'Referral Details'),
-  e('div',{className:'form-grid'},
-   e('div',{className:'form-group'},
-   e('label',null,'Referral Type'),
-   e('select',{className:'input-field',value:d.referralType||'',onChange:x=>u('referralType',x.target.value)},
-    e('option',{value:''},'Select referral type'),
-    ...REFERRAL_TYPES.map(r=>e('option',{key:r.v,value:r.v},r.l))
-   )
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Referral Facility'),
-   inp('referralFacility','Facility name')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Facility Phone'),
-   inp('referralPhone','Phone number','tel')
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Facility Address'),
-   inp('referralAddress','Address')
-   )
-  )
-  ),
-  
-  d.refusedTreatment===true&&e('div',{style:{marginTop:20,paddingTop:16,borderTop:'1px solid var(--gbd)'}},
-  e('h4',{style:{color:'var(--tw)',fontSize:13,marginBottom:16}},'Document Treatment Refusal'),
-  e('div',{className:'warning-box',style:{marginBottom:16}},'Important: Have employee sign a written refusal form. Document that treatment was offered and declined.'),
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Work Status'),
   e('div',{className:'form-group'},
-   e('label',null,'Reason for Refusal'),
-   e('textarea',{className:'input-field',rows:2,value:d.refusalReason||'',onChange:x=>u('refusalReason',x.target.value),placeholder:'Why did employee refuse treatment?'})
+  e('label',null,'Is Employee Losing Time From Work?'),
+  tog('losingTime',[
+   {v:true,l:'Yes - Lost Time Claim',c:'warning'},
+   {v:false,l:'No - Medical Only',c:'success'}
+  ])
   ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Refusal Form Signed?'),
-   tog('refusalFormSigned',[
-   {v:true,l:'Yes - Signed',c:'success'},
-   {v:false,l:'No',c:'warning'},
-   {v:'pending',l:'Pending'}
+  d.losingTime===true&&e('div',{className:'warning-box',style:{marginTop:12}},'Lost Time Claim \u2014 This will likely involve indemnity benefits.'),
+  e('div',{className:'form-grid',style:{marginTop:16}},
+  e('div',{className:'form-group'},
+   e('label',null,'Date Last Worked'),
+   inp('dateLastWorked','','date')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Expected Return Date'),
+   inp('expectedReturnDate','','date')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Return Status'),
+   e('select',{className:'input-field',value:d.returnStatus||'',onChange:x=>u('returnStatus',x.target.value)},
+   e('option',{value:''},'Select status'),
+   ...RETURN_STATUSES.map(s=>e('option',{key:s.v,value:s.v},s.l))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Light Duty Available?'),
+   tog('lightDutyAvailable',[
+   {v:true,l:'Yes',c:'success'},
+   {v:false,l:'No',c:'warning'}
    ])
   )
   )
  )
  );
 }
-if(step===4){
+if(step===3){
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
   e('h2',null,'Evidence'),
@@ -1302,368 +1154,7 @@ if(step===4){
  )
  );
 }
-if(step===5){
- const calcLostDays=()=>{
- if(!d.dateLastWorked)return null;
- const lastWorked=new Date(d.dateLastWorked);
- const today=new Date();
- const diff=Math.floor((today-lastWorked)/(1000*60*60*24));
- return diff>0?diff:0;
- };
- const lostDays=d.losingTime===true?calcLostDays():null;
- 
- const RETURN_STATUSES=[
- {v:'not_returned',l:'Has Not Returned to Work'},
- {v:'full_duty',l:'Returned - Full Duty'},
- {v:'light_duty',l:'Returned - Light Duty / Modified'},
- {v:'part_time',l:'Returned - Part Time'},
- {v:'terminated',l:'Employment Terminated'},
- {v:'resigned',l:'Employee Resigned'},
- {v:'retired',l:'Employee Retired'},
- {v:'unknown',l:'Unknown'}
- ];
-
- return e('div',{className:'content'},
- e('div',{className:'section-header'},
-  e('h2',null,'Work Status'),
-  e('p',{className:'section-subtitle'},'Current work status, lost time, and return-to-work details')
- ),
- 
- e('div',{className:'form-group'},
-  e('label',null,'Is Employee Losing Time From Work?'),
-  tog('losingTime',[
-  {v:true,l:'Yes - Lost Time Claim',c:'warning'},
-  {v:false,l:'No - Medical Only',c:'success'}
-  ])
- ),
- 
- d.losingTime===true&&e('div',{className:'warning-box',style:{marginTop:12}},'Lost Time Claim — This claim will likely involve indemnity benefits. Ensure all medical documentation supports the work restrictions.'),
- 
- e('div',{className:'form-grid',style:{marginTop:20}},
-  e('div',{className:'form-group'},
-  e('label',null,'Date Last Worked'),
-  inp('dateLastWorked','','date')
-  ),
-  e('div',{className:'form-group'},
-  e('label',null,'Last Day Paid'),
-  inp('lastDayPaid','','date')
-  ),
-  e('div',{className:'form-group'},
-  e('label',null,'Date Disability Began'),
-  inp('disabilityBeganDate','','date')
-  ),
-  e('div',{className:'form-group'},
-  e('label',null,'Expected Return Date'),
-  inp('expectedReturnDate','','date')
-  )
- ),
- 
- lostDays!==null&&lostDays>0&&e('div',{style:{marginTop:12}},
-  e('div',{style:{
-  display:'inline-flex',alignItems:'center',gap:8,
-  padding:'8px 14px',borderRadius:8,fontSize:13,fontWeight:600,
-  background:lostDays<=7?'rgba(245,158,11,0.1)':lostDays<=30?'rgba(239,68,68,0.1)':'rgba(239,68,68,0.15)',
-  color:lostDays<=7?'var(--tw)':'var(--tr)',
-  border:'1px solid '+(lostDays<=7?'var(--tw)':'var(--tr)')
-  }},
-  lostDays===1?'1 Day Lost':
-  ''+lostDays+'Days Lost'+(lostDays>30?'— EXTENDED ABSENCE':'')
-  )
- ),
- 
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Payment Status'),
-  e('div',{className:'form-grid'},
-  e('div',{className:'form-group'},
-   e('label',null,'Still Being Paid?'),
-   tog('stillBeingPaid',[
-   {v:true,l:'Yes - Still on Payroll',c:'success'},
-   {v:false,l:'No - Not Being Paid'},
-   {v:'partial',l:'Partial Pay'}
-   ])
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Salary Continuation?'),
-   tog('hasSalaryContinuation',[
-   {v:true,l:'Yes',c:'success'},
-   {v:false,l:'No'}
-   ])
-  )
-  ),
-  d.hasSalaryContinuation===true&&e('div',{style:{marginTop:16}},
-  e('div',{className:'form-grid'},
-   e('div',{className:'form-group'},
-   e('label',null,'Continuation Duration'),
-   e('select',{className:'input-field',value:d.salaryContinuationDuration||'',onChange:x=>u('salaryContinuationDuration',x.target.value)},
-    e('option',{value:''},'Select duration'),
-    e('option',{value:'1_week'},'1 Week'),
-    e('option',{value:'2_weeks'},'2 Weeks'),
-    e('option',{value:'30_days'},'30 Days'),
-    e('option',{value:'60_days'},'60 Days'),
-    e('option',{value:'90_days'},'90 Days'),
-    e('option',{value:'ongoing'},'Ongoing'),
-    e('option',{value:'other'},'Other')
-   )
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Continuation End Date'),
-   inp('salaryContinuationEndDate','','date')
-   )
-  ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Salary Continuation Notes'),
-   e('textarea',{className:'input-field',rows:2,value:d.salaryContinuationNotes||'',onChange:x=>u('salaryContinuationNotes',x.target.value),placeholder:'Any details about salary continuation arrangement, percentage paid, etc.'})
-  ),
-  e('div',{className:'info-tip',style:{marginTop:12}},'Salary continuation may be recoverable from workers\' comp benefits. Document the arrangement for potential reimbursement.')
-  ),
-  e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'PTO or Sick Time Used?'),
-  tog('ptoUsed',[
-   {v:true,l:'Yes'},
-   {v:false,l:'No'},
-   {v:'unknown',l:'Unknown'}
-  ])
-  ),
-  d.ptoUsed===true&&e('div',{className:'form-group',style:{marginTop:12}},
-  e('label',null,'PTO/Sick Hours Used'),
-  inp('ptoHoursUsed','Number of hours')
-  )
- ),
- 
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Return to Work'),
-  e('div',{className:'form-grid'},
-  e('div',{className:'form-group'},
-   e('label',null,'Return Status'),
-   e('select',{className:'input-field',value:d.returnStatus||'',onChange:x=>u('returnStatus',x.target.value)},
-   e('option',{value:''},'Select status'),
-   ...RETURN_STATUSES.map(s=>e('option',{key:s.v,value:s.v},s.l))
-   )
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Light Duty Available?'),
-   tog('lightDutyAvailable',[
-   {v:true,l:'Yes - Available',c:'success'},
-   {v:false,l:'No - Not Available',c:'warning'}
-   ])
-  )
-  ),
-  d.lightDutyAvailable===true&&e('div',{style:{marginTop:16}},
-  e('div',{className:'form-group'},
-   e('label',null,'Light Duty Was Offered?'),
-   tog('lightDutyOffered',[
-   {v:true,l:'Yes - Offered',c:'success'},
-   {v:false,l:'No - Not Offered'},
-   {v:'pending',l:'Pending'}
-   ])
-  ),
-  d.lightDutyOffered===true&&e('div',{className:'form-grid',style:{marginTop:12}},
-   e('div',{className:'form-group'},
-   e('label',null,'Light Duty Accepted?'),
-   tog('lightDutyAccepted',[
-    {v:true,l:'Yes - Accepted',c:'success'},
-    {v:false,l:'No - Declined',c:'warning'}
-   ])
-   ),
-   e('div',{className:'form-group'},
-   e('label',null,'Light Duty Start Date'),
-   inp('lightDutyStartDate','','date')
-   )
-  ),
-  e('div',{className:'form-group',style:{marginTop:12}},
-   e('label',null,'Light Duty Description'),
-   e('textarea',{className:'input-field',rows:2,value:d.lightDutyDescription||'',onChange:x=>u('lightDutyDescription',x.target.value),placeholder:'What light duty tasks are available? Any restrictions accommodated?'})
-  )
-  ),
-  d.lightDutyAvailable===false&&e('div',{className:'warning-box',style:{marginTop:12}},'No light duty available may extend lost time benefits. Consider if any modified work could be accommodated.'),
-  (d.returnStatus==='full_duty'||d.returnStatus==='light_duty'||d.returnStatus==='part_time')&&e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'Actual Return Date'),
-  inp('actualReturnDate','','date')
-  )
- ),
- 
- e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Work Schedule'),
-  e('div',{className:'form-grid'},
-  e('div',{className:'form-group'},
-   e('label',null,'Normal Work Schedule'),
-   e('select',{className:'input-field',value:d.normalSchedule||'',onChange:x=>u('normalSchedule',x.target.value)},
-   e('option',{value:''},'Select schedule'),
-   e('option',{value:'mon_fri'},'Monday - Friday'),
-   e('option',{value:'varies'},'Varies / Rotating'),
-   e('option',{value:'weekends'},'Includes Weekends'),
-   e('option',{value:'nights'},'Night Shift'),
-   e('option',{value:'per_diem'},'Per Diem / On Call'),
-   e('option',{value:'other'},'Other')
-   )
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Hours Per Week'),
-   inp('hoursPerWeek','e.g., 40')
-  )
-  )
- )
- );
-}
-if(step===6){
- const ROOT_CAUSE_CATEGORIES=[
- {cat:'Training & Knowledge',items:['No Training Provided','Inadequate Training','Training Not Followed','Lack of Knowledge/Skill','New/Unfamiliar Task']},
- {cat:'Supervision',items:['Lack of Supervision','Inadequate Supervision','Supervisor Not Present']},
- {cat:'Equipment & Tools',items:['Equipment Failure','Poor Maintenance','Wrong Equipment for Task','Defective Tool','Equipment Not Available']},
- {cat:'PPE Issues',items:['No PPE Provided','PPE Not Worn','Wrong PPE for Task','Defective PPE']},
- {cat:'Human Factors',items:['Rushing / Time Pressure','Fatigue / Exhaustion','Distraction / Inattention','Complacency','Horseplay / Misconduct','Shortcut Taken','Communication Failure']},
- {cat:'Workplace Environment',items:['Poor Housekeeping','Wet / Slippery Surface','Inadequate Lighting','Cluttered Work Area','Uneven Surface','Weather Conditions','Excessive Noise','Temperature Extremes']},
- {cat:'Procedures & Policies',items:['No Procedure Exists','Procedure Not Followed','Inadequate Procedure','Outdated Procedure']},
- {cat:'Healthcare Specific',items:['Combative Patient/Resident','Patient Handling Issue','Understaffed','No Lift Equipment Available','Sharps/Needle Stick']}
- ];
-
- const CORRECTIVE_CATEGORIES=[
- {cat:'Training',items:['Training Scheduled','Training Completed','Retraining Required','New Training Developed']},
- {cat:'Procedures',items:['Reviewed Procedures with Employee','New Procedures Created','Procedures Updated','Job Hazard Analysis Completed']},
- {cat:'Discipline',items:['Verbal Warning','Written Warning','Suspension','Termination']},
- {cat:'Equipment & Environment',items:['Equipment Repaired','Equipment Replaced','PPE Provided','Engineering Control Added','Area Cleaned/Organized','Warning Signs Added','Lighting Improved']},
- {cat:'Administrative',items:['Safety Meeting Held','Incident Review Completed','Increased Supervision','Staffing Adjusted','Schedule Modified']}
- ];
-
- const rcSelected=(d.rootCauseFactors||[]);
- const caSelected=(d.correctiveActions||[]);
-
- const toggleFactor=(item)=>{
-  const curr=d.rootCauseFactors||[];
-  u('rootCauseFactors',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
- };
- const toggleAction=(item)=>{
-  const curr=d.correctiveActions||[];
-  u('correctiveActions',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
- };
-
- const countInCat=(cat,arr)=>cat.items.filter(i=>arr.includes(i)).length;
-
- return e('div',{className:'content'},
- e('div',{className:'section-header'},
-  e('h2',null,'Root Cause Analysis'),
-  e('p',{className:'section-subtitle'},'Identify what caused the incident and corrective actions taken')
- ),
- 
- e('div',{className:'form-group full-width'},
-  e('label',null,'Direct Cause of Injury'),
-  e('textarea',{className:'input-field',rows:2,value:d.directCause||'',onChange:x=>u('directCause',x.target.value),placeholder:'What was the immediate cause? (e.g., "Employee slipped on wet floor and struck head on counter")'})
- ),
- 
- e('div',{className:'form-grid',style:{marginTop:20}},
-  e('div',{className:'form-group'},
-   e('label',null,'Were procedures in place?'),
-   tog('proceduresInPlace',[{v:true,l:'Yes'},{v:false,l:'No',c:'warning'},{v:'partial',l:'Partial'},{v:'unknown',l:'Unknown'}])
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Were procedures followed?'),
-   tog('proceduresFollowed',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'},{v:'partial',l:'Partially'},{v:'na',l:'N/A'}])
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Was training provided?'),
-   tog('trainingProvided',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'},{v:'unknown',l:'Unknown'}])
-  ),
-  e('div',{className:'form-group'},
-   e('label',null,'Training Frequency'),
-   e('select',{className:'input-field',value:d.trainingFrequency||'',onChange:x=>u('trainingFrequency',x.target.value)},
-   e('option',{value:''},'Select frequency'),
-   e('option',{value:'initial_only'},'Initial Hire Only'),
-   e('option',{value:'annual'},'Annual'),
-   e('option',{value:'semi_annual'},'Semi-Annual'),
-   e('option',{value:'quarterly'},'Quarterly'),
-   e('option',{value:'monthly'},'Monthly'),
-   e('option',{value:'as_needed'},'As Needed'),
-   e('option',{value:'never'},'Never Trained'),
-   e('option',{value:'unknown'},'Unknown')
-   )
-  )
- ),
-
- (d.proceduresInPlace===false||d.trainingProvided===false)&&e('div',{className:'warning-box',style:{marginTop:12}},'Missing procedures or training is a significant contributing factor.'),
-
- e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
-   e('h3',{style:{fontSize:14,color:'var(--tw)',margin:0}},'Contributing Factors'),
-   rcSelected.length>0&&e('span',{style:{fontSize:12,color:'var(--tw)',fontWeight:600}},rcSelected.length+' selected')
-  ),
-
-  rcSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
-   ...rcSelected.map(f=>e('span',{key:f,style:{background:'rgba(245,158,11,0.1)',border:'1px solid var(--tw)',color:'var(--tw)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFactor(f)},f,' ×'))
-  ),
-
-  ...ROOT_CAUSE_CATEGORIES.map((cat,ci)=>{
-   const isOpen=openRcCat===ci;
-   const catCount=countInCat(cat,rcSelected);
-   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
-    e('div',{
-     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
-     onClick:()=>setOpenRcCat(isOpen?null:ci)
-    },
-     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
-     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
-      catCount>0&&e('span',{style:{background:'var(--tw)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
-      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
-     )
-    ),
-    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
-     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(rcSelected.includes(item)?' active warning':''),onClick:()=>toggleFactor(item),style:{fontSize:12}},item))
-    )
-   );
-  }),
-
-  e('div',{style:{marginTop:10,display:'flex',gap:8}},
-   e('input',{className:'input-field',style:{flex:1},placeholder:'Other contributing factor...',value:d.customRootCause||'',onChange:x=>u('customRootCause',x.target.value),
-   onKeyDown:x=>{if(x.key==='Enter'&&d.customRootCause?.trim()){toggleFactor(d.customRootCause.trim());u('customRootCause','')}}
-   }),
-   d.customRootCause&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px'},onClick:()=>{if(d.customRootCause.trim()){toggleFactor(d.customRootCause.trim());u('customRootCause','')}}},'+ Add')
-  )
- ),
-
- e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
-   e('h3',{style:{fontSize:14,color:'var(--tg)',margin:0}},'Corrective Actions'),
-   caSelected.length>0&&e('span',{style:{fontSize:12,color:'var(--tg)',fontWeight:600}},caSelected.length+' selected')
-  ),
-
-  caSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
-   ...caSelected.map(a=>e('span',{key:a,style:{background:'rgba(16,185,129,0.1)',border:'1px solid var(--tg)',color:'var(--tg)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleAction(a)},a,' ×'))
-  ),
-
-  ...CORRECTIVE_CATEGORIES.map((cat,ci)=>{
-   const isOpen=openCaCat===ci;
-   const catCount=countInCat(cat,caSelected);
-   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
-    e('div',{
-     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
-     onClick:()=>setOpenCaCat(isOpen?null:ci)
-    },
-     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
-     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
-      catCount>0&&e('span',{style:{background:'var(--tg)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
-      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
-     )
-    ),
-    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
-     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(caSelected.includes(item)?' active success':''),onClick:()=>toggleAction(item),style:{fontSize:12}},item))
-    )
-   );
-  }),
-
-  e('div',{style:{marginTop:10,display:'flex',gap:8}},
-   e('input',{className:'input-field',style:{flex:1},placeholder:'Other corrective action...',value:d.customCorrectiveAction||'',onChange:x=>u('customCorrectiveAction',x.target.value),
-   onKeyDown:x=>{if(x.key==='Enter'&&d.customCorrectiveAction?.trim()){toggleAction(d.customCorrectiveAction.trim());u('customCorrectiveAction','')}}
-   }),
-   d.customCorrectiveAction&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px'},onClick:()=>{if(d.customCorrectiveAction.trim()){toggleAction(d.customCorrectiveAction.trim());u('customCorrectiveAction','')}}},'+ Add')
-  ),
-
-  e('div',{className:'form-group',style:{marginTop:16}},
-  e('label',null,'Corrective Action Notes'),
-  e('textarea',{className:'input-field',rows:2,value:d.correctiveActionNotes||'',onChange:x=>u('correctiveActionNotes',x.target.value),placeholder:'Implementation details, timeline, responsible parties...'})
-  )
- )
- );
-}
-if(step===7){
+if(step===4){
  const FLAG_CATEGORIES=[
  {cat:'Reporting Red Flags',items:['Delayed Reporting (3+ days)','Monday Morning Claim','Friday Afternoon Injury','Reported After Termination Notice','Reported After Disciplinary Action']},
  {cat:'Witness & Evidence Issues',items:['No Witnesses to Incident','Conflicting Witness Accounts','Only Witness is Friend/Relative','Refuses Recorded Statement','No Physical Evidence']},
@@ -1689,7 +1180,7 @@ if(step===7){
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
   e('h2',null,'Investigation Flags'),
-  e('p',{className:'section-subtitle'},'Document concerns for investigation — indicators, not accusations')
+  e('p',{className:'section-subtitle'},'Document concerns for investigation \u2014 indicators, not accusations')
  ),
  
  e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud.'),
@@ -1715,11 +1206,11 @@ if(step===7){
     background:highRisk?'rgba(248,113,113,0.2)':'rgba(251,191,36,0.2)',
     color:highRisk?'var(--tr)':'var(--tw)',
     border:'1px solid '+(highRisk?'var(--tr)':'var(--tw)')
-   }},flagCount+' Flag'+(flagCount>1?'s':'')+' Selected'+(highRisk?' — HIGH RISK':''))
+   }},flagCount+' Flag'+(flagCount>1?'s':'')+' Selected'+(highRisk?' \u2014 HIGH RISK':''))
   ),
 
   flagSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
-   ...flagSelected.map(f=>e('span',{key:f,style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFlag(f)},f,' ×'))
+   ...flagSelected.map(f=>e('span',{key:f,style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFlag(f)},f,' \u00d7'))
   ),
 
   ...FLAG_CATEGORIES.map((cat,ci)=>{
@@ -1733,7 +1224,7 @@ if(step===7){
      e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
      e('div',{style:{display:'flex',alignItems:'center',gap:8}},
       catCount>0&&e('span',{style:{background:'var(--tr)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
-      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'▾')
+      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'\u25be')
      )
     ),
     isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
@@ -1757,7 +1248,7 @@ if(step===7){
   e('textarea',{className:'input-field',rows:3,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document investigation findings, interviews conducted, evidence reviewed...'})
   )
  ),
- 
+
  e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
   e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation'),
   e('div',{className:'form-group'},
@@ -1777,28 +1268,23 @@ if(step===7){
  ),
  
  highRisk&&e('div',{style:{marginTop:24,padding:16,background:'rgba(248,113,113,0.1)',borderRadius:12,border:'1px solid var(--tr)'}},
-  e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim — '+flagCount+' Flags'),
+  e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim \u2014 '+flagCount+' Flags'),
   e('p',{style:{fontSize:12,color:'var(--tm)'}},'Consider: recorded statements, additional documentation, early SIU involvement, surveillance.')
  )
  );
 }
-if(step===8)return e('div',null,
-renderStatementStep('witness','Witness Statement','Collect a signed witness statement','witnessData','witnessOpt','witnessLink','witnessSigned'),
-e('div',{style:{height:20}}),
-renderStatementStep('claimant','Claimant Statement','Collect the injured worker\'s signed statement','claimantData','claimantOpt','claimantLink','claimantSigned')
-);
-if(step===9){
+if(step===5){
  const validateClaim=()=>{
  const errors=[];
  if(!d.firstName)errors.push({field:'Employee First Name',step:0});
  if(!d.lastName)errors.push({field:'Employee Last Name',step:0});
  if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
  if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
- if(!d.accidentDescription)errors.push({field:'Accident Description',step:2});
- if(!d.injuryType)errors.push({field:'Injury Type',step:2});
- if(!d.submitterName)errors.push({field:'Submitter Name',step:9});
- if(!d.submitterEmail)errors.push({field:'Submitter Email',step:9});
- if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:9});
+ if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
+ if(!d.injuryType)errors.push({field:'Injury Type',step:1});
+ if(!d.submitterName)errors.push({field:'Submitter Name',step:5});
+ if(!d.submitterEmail)errors.push({field:'Submitter Email',step:5});
+ if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:5});
  return errors;
  };
  const validationErrors=validateClaim();
@@ -1808,10 +1294,8 @@ if(step===9){
  let filled=0,total=0;
  const required=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];
  required.forEach(f=>{total+=2;if(d[f])filled+=2});
- const important=['phone','occupation','dateOfHire','weeklyWage','workType','dateReported','bodyParts','soughtMedicalTreatment','witness1Name','losingTime','directCause'];
+ const important=['phone','occupation','dateOfHire','weeklyWage','workType','dateReported','bodyParts','soughtMedicalTreatment','witness1Name','losingTime'];
  important.forEach(f=>{total+=1;if(d[f]&&(Array.isArray(d[f])?d[f].length>0:true))filled+=1});
- if(d.witnessSigned){filled+=2;total+=2}
- if(d.claimantSigned){filled+=2;total+=2}
  return Math.min(100,Math.round((filled/total)*100));
  };
  const completionScore=calcCompletion();
@@ -1851,10 +1335,6 @@ if(step===9){
    e('span',{style:{fontSize:18}},canSubmit?'':'!'),
    e('span',{style:{fontSize:14,fontWeight:600,color:canSubmit?'var(--tg)':'var(--tw)'}},
    canSubmit?'Ready to Submit':validationErrors.length+'Required Field'+(validationErrors.length>1?'s':'')+'Missing')
-  ),
-  inlineStmts.length>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:8}},
-   e('span',{style:{fontSize:18}},''),
-   e('span',{style:{fontSize:13,color:'var(--tg)'}},inlineStmts.length+' e-signed document'+(inlineStmts.length>1?'s':'')+' attached')
   ),
   totalFiles>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8}},
    e('span',{style:{fontSize:18}},''),
@@ -1956,29 +1436,12 @@ if(step===9){
    e('div',null,e('span',{style:{color:'var(--tm)'}},'Supervisor: '),e('span',{style:{color:'var(--tt)'}},d.supervisorName||'—'))
   )
   ),
-  (d.rootCauseSymptoms?.length>0||d.correctiveActions?.length>0)&&e('div',{style:{marginBottom:20}},
-  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'ROOT CAUSE ANALYSIS'),
-  d.directCause&&e('div',{style:{fontSize:13,marginBottom:8}},
-   e('span',{style:{color:'var(--tm)'}},'Direct Cause: '),
-   e('span',{style:{color:'var(--tt)'}},d.directCause)
-  ),
-  d.rootCauseSymptoms?.length>0&&e('div',{style:{fontSize:13,marginBottom:8}},
-   e('span',{style:{color:'var(--tm)'}},'Contributing Factors: '),
-   e('span',{style:{color:'var(--tw)'}},d.rootCauseSymptoms.length+' identified')
-  ),
-  d.correctiveActions?.length>0&&e('div',{style:{fontSize:13}},
-   e('span',{style:{color:'var(--tm)'}},'Corrective Actions: '),
-   e('span',{style:{color:'var(--tg)'}},d.correctiveActions.length+' planned')
-  )
-  ),
   (d.fraudIndicators?.length>0||d.validityConcerns||d.thirdPartyInvolved)&&e('div',{style:{marginBottom:0}},
   e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'FLAGS & SPECIAL HANDLING'),
   e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
    e('div',null,e('span',{style:{color:'var(--tm)'}},'Validity Concerns: '),e('span',{style:{color:d.validityConcerns?'var(--tr)':'var(--tt)'}},d.validityConcerns?'Yes':'No')),
    e('div',null,e('span',{style:{color:'var(--tm)'}},'Red Flags: '),e('span',{style:{color:d.fraudIndicators?.length>0?'var(--tr)':'var(--tt)'}},d.fraudIndicators?.length||0)),
-   e('div',null,e('span',{style:{color:'var(--tm)'}},'Third Party: '),e('span',{style:{color:d.thirdPartyInvolved?'var(--tg)':'var(--tt)'}},d.thirdPartyInvolved===true?'Yes - Subrogation Potential':d.thirdPartyInvolved==='maybe'?'Possibly':'No')),
-   d.recommendDeny&&e('div',null,e('span',{style:{color:'var(--tr)',fontWeight:600}},'Recommend Denial')),
-   d.recommendSIU&&e('div',null,e('span',{style:{color:'var(--tr)',fontWeight:600}},'Recommend SIU'))
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Third Party: '),e('span',{style:{color:d.thirdPartyInvolved?'var(--tg)':'var(--tt)'}},d.thirdPartyInvolved===true?'Yes - Subrogation Potential':d.thirdPartyInvolved==='maybe'?'Possibly':'No'))
   )
   )
  ),
@@ -2009,20 +1472,6 @@ if(step===9){
  ),
  
  e('div',{style:{marginTop:20,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
-  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'E-Signature Status'),
-  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}},
-  e('div',{style:{padding:12,background:d.witnessSigned?'rgba(16,185,129,0.08)':'var(--panel)',borderRadius:8,border:'1px solid '+(d.witnessSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
-   e('p',{style:{fontSize:12,color:d.witnessSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.witnessSigned?'Signed':'○ Pending'),
-   e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Witness Statement')
-  ),
-  e('div',{style:{padding:12,background:d.claimantSigned?'rgba(16,185,129,0.08)':'var(--panel)',borderRadius:8,border:'1px solid '+(d.claimantSigned?'var(--tg)':'var(--tb)'),textAlign:'center'}},
-   e('p',{style:{fontSize:12,color:d.claimantSigned?'var(--tg)':'var(--tm)',fontWeight:600}},d.claimantSigned?'Signed':'○ Pending'),
-   e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:2}},'Claimant Statement')
-  )
-  )
- ),
- 
- e('div',{style:{marginTop:20,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
   e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'Additional Documents'),
   e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Upload any additional documents not already attached (medical records, police reports, etc.)'),
   e('input',{
@@ -2046,6 +1495,7 @@ if(step===9){
   e('p',{style:{fontSize:11,color:'var(--tm)'}},'Previously attached from Evidence section:'),
   d.scenePhotoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.scenePhotoFiles.length+' scene photo(s)'),
   d.injuryPhotoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.injuryPhotoFiles.length+' injury photo(s)'),
+  d.videoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.videoFiles.length+' video(s)'),
   d.evidenceDocFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.evidenceDocFiles.length+' evidence document(s)')
   )
  ),
@@ -2107,7 +1557,7 @@ if(step===9){
 return null;
 };
 
-return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<9&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
+return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<5&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
 </script>
