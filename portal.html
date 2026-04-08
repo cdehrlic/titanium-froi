@@ -193,7 +193,7 @@ const[d,setD]=S({
  thirdPartyCompany:'',
  thirdPartyInsurance:'',
  subrogationType:null,
- thirdPartyInvolved:null,thirdPartyDetails:'',witnessOpt:null,witnessData:{},witnessLink:null,witnessSigned:false,claimantOpt:null,claimantData:{},claimantLink:null,claimantSigned:false,hipaaOpt:null,hipaaData:{},hipaaLink:null,hipaaSigned:false,submitterName:'',submitterEmail:'',
+ thirdPartyInvolved:null,thirdPartyDetails:'',witnessOpt:null,witnessData:{},witnessLink:null,witnessSigned:false,claimantOpt:null,claimantData:{},claimantLink:null,claimantSigned:false,hipaaOpt:null,hipaaData:{},hipaaLink:null,hipaaSigned:false,submitterName:'',submitterEmail:'',ccEmails:'',
  submitterTitle:'',
  submitterPhone:''});
 const[uploadedFiles,setUploadedFiles]=S([]);const[inlineStmts,setInlineStmts]=S([]);const[score,setScore]=S(0);const[lastSaved,setLastSaved]=S(null);const[recording,setRecording]=S(null);const[audioBlobs,setAudioBlobs]=S({});const[showPreview,setShowPreview]=S(false);const[theme,setTheme]=S(()=>{try{return localStorage.getItem('wcr_theme')||'dark'}catch(e){return 'dark'}});const[hipaaAccepted,setHipaaAccepted]=S(false);const[sessionExpired,setSessionExpired]=S(false);
@@ -366,7 +366,7 @@ e('p',null,'Sessions automatically expire after 15 minutes of inactivity. No PHI
 e('button',{className:'nav-btn primary',style:{width:'100%',padding:'16px',fontSize:15},onClick:()=>setHipaaAccepted(true)},'I Acknowledge — Proceed to Portal')
 ));
 
-if(result)return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))))),e('div',{className:'success-container'},e('div',{className:'success-icon'},''),e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Claim Submitted'),e('p',{style:{color:'var(--tm)'}},'Reference Number:'),e('div',{className:'ref-number'},result.referenceNumber),e('p',{style:{color:'var(--tm)',margin:'20px 0'}},'Confirmation sent to '+d.submitterEmail),inlineStmts.length>0&&e('p',{style:{color:'var(--tg)',fontSize:13}},' '+inlineStmts.length+' e-signed document(s) attached'),e('button',{className:'nav-btn primary',style:{marginTop:20},onClick:()=>location.reload()},'Submit Another Claim')));
+if(result)return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/Titanium logo.webp',alt:'Titanium Defense Group'}))))),e('div',{className:'success-container'},e('div',{className:'success-icon'},''),e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Claim Submitted'),e('p',{style:{color:'var(--tm)'}},'Reference Number:'),e('div',{className:'ref-number'},result.referenceNumber),e('p',{style:{color:'var(--tm)',margin:'20px 0'}},'Confirmation sent to '+d.submitterEmail),d.ccEmails&&d.ccEmails.trim()&&e('p',{style:{color:'var(--tm)',fontSize:13}},'CC: '+d.ccEmails),inlineStmts.length>0&&e('p',{style:{color:'var(--tg)',fontSize:13}},' '+inlineStmts.length+' e-signed document(s) attached'),e('button',{className:'nav-btn primary',style:{marginTop:20},onClick:()=>location.reload()},'Submit Another Claim')));
 
 const inp=(f,p,t='text')=>e('input',{type:t,className:'input-field',value:d[f]||'',onChange:x=>u(f,x.target.value),placeholder:p});
 const sel=(f,opts,p)=>e('select',{className:'input-field',value:d[f]||'',onChange:x=>u(f,x.target.value)},e('option',{value:''},p),...opts.map(o=>e('option',{key:o,value:o},o)));
@@ -1511,6 +1511,11 @@ if(step===5){
   e('div',{className:'form-group'},
    e('label',null,'Your Email ',e('span',{className:'required'},'*')),
    inp('submitterEmail','your.email@company.com','email')
+  ),
+  e('div',{className:'form-group',style:{gridColumn:'1 / -1'}},
+   e('label',null,'CC Additional Recipients'),
+   inp('ccEmails','Additional email addresses, separated by commas','email'),
+   e('small',{style:{color:'var(--tm)',fontSize:11,marginTop:4,display:'block'}},'These recipients will receive a copy of the FROI notification')
   ),
   e('div',{className:'form-group'},
    e('label',null,'Your Title'),
