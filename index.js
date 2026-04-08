@@ -963,6 +963,9 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     const files = req.files || [];
     const referenceNumber = 'FROI-' + Date.now().toString().slice(-8);
     
+    // Parse CC emails
+    const ccEmails = formData.ccEmails ? formData.ccEmails.split(',').map(e => e.trim()).filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) : [];
+    
     // Parse any inline statement PDFs
     const inlineStatements = req.body.inlineStatements ? JSON.parse(req.body.inlineStatements) : [];
     
@@ -1074,11 +1077,12 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
       await transporter.sendMail({
         from: CONFIG.SMTP.auth.user,
         to: CONFIG.CLAIMS_EMAIL,
+        cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
         subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
         html: emailHtml,
         attachments
       });
-      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL} with ${attachments.length} attachments (including ${audioFileCount} audio files)`);
+      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL}${ccEmails.length > 0 ? ' (CC: ' + ccEmails.join(', ') + ')' : ''} with ${attachments.length} attachments (including ${audioFileCount} audio files)`);
     } catch (err) {
       console.error('❌ Email error:', err.message);
     }
@@ -1089,6 +1093,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
         await transporter.sendMail({
           from: CONFIG.SMTP.auth.user,
           to: formData.submitterEmail,
+          cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
           subject: `Claim Confirmation - ${referenceNumber} - ${entityName}`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
@@ -1113,7 +1118,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
               </div>
             </div>`
         });
-        console.log(`✅ Confirmation sent to ${formData.submitterEmail}`);
+        console.log(`✅ Confirmation sent to ${formData.submitterEmail}${ccEmails.length > 0 ? ' (CC: ' + ccEmails.join(', ') + ')' : ''}`);
       } catch (err) {
         console.error('❌ Confirmation email error:', err.message);
       }
