@@ -646,7 +646,11 @@ function generateClaimPDF(formData, referenceNumber) {
     addSection('EMPLOYEE PERSONAL INFORMATION');
     addFieldRow([{ label: 'Name', value: (formData.firstName || '') + ' ' + (formData.lastName || '') }, { label: 'DOB', value: formData.dateOfBirth }]);
     addFieldRow([{ label: 'Phone', value: formData.phone }, { label: 'Date of Hire', value: formData.dateOfHire }]);
-    addFieldRow([{ label: 'SSN', value: formData.ssn ? 'XXX-XX-' + formData.ssn.slice(-4) : 'N/A' }, { label: 'Occupation', value: formData.occupation }]);
+    addFieldRow([{ label: 'SSN', value: formData.ssn || 'N/A' }, { label: 'Occupation', value: formData.occupation }]);
+    if (formData.mailingAddress || formData.city || formData.state || formData.zipCode) {
+      const addressParts = [formData.mailingAddress, formData.city, formData.state, formData.zipCode].filter(Boolean);
+      addField('Address', addressParts.join(', '));
+    }
 
     // CLAIM INFORMATION
     addSection('CLAIM INFORMATION');
@@ -669,12 +673,18 @@ function generateClaimPDF(formData, referenceNumber) {
     addField('Treatment Received', formData.soughtMedicalTreatment === true ? 'Yes' : formData.soughtMedicalTreatment === false ? 'No' : 'N/A');
     if (formData.soughtMedicalTreatment === true) {
       addField('Facility', formData.initialFacilityName);
+      if (formData.treatingPhysician) addField('Treating Physician', formData.treatingPhysician);
+      if (formData.treatmentDate) addField('Treatment Date', formData.treatmentDate);
     }
 
     // WORK STATUS
     addSection('WORK STATUS');
     addFieldRow([{ label: 'Losing Time', value: formData.losingTime === true ? 'YES ⚠️' : 'No' }, { label: 'Date Last Worked', value: formData.dateLastWorked }]);
     addField('Return Status', formData.returnStatus);
+    if (formData.expectedReturnDate) addField('Expected Return Date', formData.expectedReturnDate);
+    if (formData.supervisorName || formData.supervisorPhone) {
+      addFieldRow([{ label: 'Supervisor', value: formData.supervisorName }, { label: 'Supervisor Phone', value: formData.supervisorPhone }]);
+    }
 
     // ROOT CAUSE
     if (formData.directCause) {
@@ -692,6 +702,12 @@ function generateClaimPDF(formData, referenceNumber) {
     // SUBMITTED BY
     addSection('SUBMITTED BY');
     addFieldRow([{ label: 'Name', value: formData.submitterName }, { label: 'Email', value: formData.submitterEmail }]);
+    if (formData.submitterTitle || formData.submitterPhone) {
+      addFieldRow([{ label: 'Title', value: formData.submitterTitle }, { label: 'Phone', value: formData.submitterPhone }]);
+    }
+    if (formData.ccEmails && formData.ccEmails.trim()) {
+      addField('CC', formData.ccEmails.trim());
+    }
 
     doc.fontSize(8).fillColor(COLORS.muted).text(entityName + ' | Workers Compensation Claim | www.wcreporting.com', 50, 750, { align: 'center', width: 512 });
 
