@@ -715,7 +715,7 @@ if(step===0)return e('div',{className:'content'},
   inp('dateOfHire','','date')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'SSN'),
+  e('label',null,'SSN ',e('span',{className:'required'},'*')),
   e('div',{style:{position:'relative'}},e('input',{type:'password',className:'input-field',value:d.ssn||'',onChange:x=>{const v=x.target.value.replace(/[^0-9-]/g,'');if(v.length<=11)u('ssn',v)},placeholder:'XXX-XX-XXXX',autoComplete:'off'}),d.ssn&&d.ssn.length>=4&&e('span',{style:{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',fontSize:12,color:'var(--tm)'}},'Last 4: '+d.ssn.replace(/[^0-9]/g,'').slice(-4)))
  ),
  e('div',{className:'form-group full-width'},
@@ -1289,6 +1289,8 @@ if(step===5){
  if(!d.phone)errors.push({field:'Phone',step:0});
  if(!d.dateOfHire)errors.push({field:'Date of Hire',step:0});
  if(!d.occupation)errors.push({field:'Occupation',step:0});
+ if(!d.ssn)errors.push({field:'SSN',step:0});
+ else if(d.ssn.replace(/[^0-9]/g,'').length<9)errors.push({field:'Complete SSN (9 digits)',step:0});
  // Step 1 — Incident
  if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
  if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
