@@ -642,67 +642,248 @@ function generateClaimPDF(formData, referenceNumber) {
       doc.y = startY + 14;
     }
 
-    // EMPLOYEE INFORMATION
+    // ── Helpers for complete, clean reporting ──────────────────────────────────
+    // Present? (skip null/undefined/blank strings/empty arrays)
+    const has = v => v !== null && v !== undefined
+      && !(typeof v === 'string' && v.trim() === '')
+      && !(Array.isArray(v) && v.length === 0);
+    // Boolean → Yes/No (null/undefined = unanswered → skipped)
+    const yesNo = v => v === true ? 'Yes' : v === false ? 'No' : null;
+    // Map an array of coded values to friendly labels using a label map
+    const mapCodes = (arr, MAP) => Array.isArray(arr)
+      ? arr.map(c => (MAP && MAP[c]) || c).join(', ')
+      : '';
+    // Add a field only when it has a value
+    function addFieldIf(label, value) { if (has(value)) addField(label, value); }
+    // Page-break-aware wrapped paragraph for long free-text fields
+    function addLongText(label, text) {
+      if (!has(text)) return;
+      if (doc.y > 680) { doc.addPage(); doc.y = 50; }
+      doc.fontSize(9).font('Helvetica-Bold').fillColor(COLORS.muted).text(label + ':', 60, doc.y);
+      doc.moveDown(0.2);
+      doc.fontSize(9).font('Helvetica').fillColor(COLORS.text).text(text, 60, doc.y, { width: 490 });
+      doc.moveDown(0.5);
+    }
+
+    // ── 1. EMPLOYEE PERSONAL INFORMATION ───────────────────────────────────────
     addSection('EMPLOYEE PERSONAL INFORMATION');
     addFieldRow([{ label: 'Name', value: (formData.firstName || '') + ' ' + (formData.lastName || '') }, { label: 'DOB', value: formData.dateOfBirth }]);
     addFieldRow([{ label: 'Phone', value: formData.phone }, { label: 'Date of Hire', value: formData.dateOfHire }]);
     addFieldRow([{ label: 'SSN', value: formData.ssn || 'N/A' }, { label: 'Occupation', value: formData.occupation }]);
-    if (formData.mailingAddress || formData.city || formData.state || formData.zipCode) {
+    if (has(formData.mailingAddress) || has(formData.city) || has(formData.state) || has(formData.zipCode)) {
       const addressParts = [formData.mailingAddress, formData.city, formData.state, formData.zipCode].filter(Boolean);
       addField('Address', addressParts.join(', '));
     }
+    addFieldIf('Weekly Wage', formData.weeklyWage);
+    addFieldIf('Employment Type', formData.workType);
+    if (has(formData.normalSchedule) || has(formData.hoursPerWeek)) {
+      addFieldRow([{ label: 'Normal Schedule', value: formData.normalSchedule }, { label: 'Hours/Week', value: formData.hoursPerWeek }]);
+    }
 
-    // CLAIM INFORMATION
+    // ── 2. CLAIM INFORMATION ───────────────────────────────────────────────────
     addSection('CLAIM INFORMATION');
     addField('Entity', entityName);
     addFieldRow([{ label: 'Date of Injury', value: formData.dateOfInjury }, { label: 'Time', value: formData.timeOfInjury }]);
-    addFieldRow([{ label: 'Date Reported', value: formData.dateReported }, { label: 'Reported Immediately', value: formData.reportedImmediately === true ? 'Yes' : formData.reportedImmediately === false ? 'NO ⚠️' : 'N/A' }]);
+    addFieldRow([{ label: 'Date Reported', value: formData.dateReported }, { label: 'Reported Immediately', value: formData.reportedImmediately === true ? 'Yes' : formData.reportedImmediately === false ? 'NO (delayed)' : 'N/A' }]);
 
-    // INCIDENT DETAILS
+    // ── 3. INCIDENT DETAILS ────────────────────────────────────────────────────
     addSection('INCIDENT DETAILS');
     addField('Injury Type', INJURY_TYPE_LABELS[formData.injuryType] || formData.injuryType);
-    addField('Body Parts', Array.isArray(formData.bodyParts) ? formData.bodyParts.join(', ') : formData.bodyParts);
-    doc.moveDown(0.3);
-    doc.fontSize(9).font('Helvetica-Bold').fillColor(COLORS.muted).text('Description:', 60, doc.y);
-    doc.moveDown(0.2);
-    doc.fontSize(9).font('Helvetica').fillColor(COLORS.text).text(formData.accidentDescription || 'N/A', 60, doc.y, { width: 490 });
-    doc.moveDown(0.5);
+    addFieldIf('Nature of Injury', formData.natureOfInjury);
+    addFieldIf('Cause of Injury', formData.causeOfInjury);
+    const bodyPartsList = [
+      ...(Array.isArray(formData.bodyParts) ? formData.bodyParts : (formData.bodyParts ? [formData.bodyParts] : [])),
+      formData.customBodyPart
+    ].filter(Boolean);
+    addField('Body Parts', bodyPartsList.join(', '));
+    // Accident location
+    if (formData.accidentAtWorksite === false) {
+      const loc = [formData.accidentStreet, formData.accidentCity, formData.accidentState, formData.accidentZip].filter(Boolean).join(', ');
+      addField('Accident Location', loc ? loc + ' (off worksite)' : 'Off worksite');
+    } else if (formData.accidentAtWorksite === true) {
+      addField('Accident Location', 'At worksite');
+    }
+    addLongText('Job Duties at Time of Injury', formData.jobDutiesAtTime);
+    addLongText('Description', formData.accidentDescription);
 
-    // MEDICAL TREATMENT
+    // ── 4. MEDICAL TREATMENT ───────────────────────────────────────────────────
     addSection('MEDICAL TREATMENT');
     addField('Treatment Received', formData.soughtMedicalTreatment === true ? 'Yes' : formData.soughtMedicalTreatment === false ? 'No' : 'N/A');
-    if (formData.soughtMedicalTreatment === true) {
-      addField('Facility', formData.initialFacilityName);
-      if (formData.treatingPhysician) addField('Treating Physician', formData.treatingPhysician);
-      if (formData.treatmentDate) addField('Treatment Date', formData.treatmentDate);
+    addFieldIf('Facility', formData.initialFacilityName);
+    addFieldIf('Treating Physician', formData.treatingPhysician);
+    addFieldIf('Treatment Date', formData.treatmentDate);
+    addFieldIf('Treatment Type', formData.treatmentType);
+    addLongText('Treatment Notes', formData.treatmentNotes);
+    addFieldIf('Severe Injury', yesNo(formData.severeInjury));
+    addFieldIf('Employee Requested Hospital', yesNo(formData.employeeRequestedHospital));
+    addFieldIf('Work Restrictions Given', yesNo(formData.workRestrictionsGiven));
+    addLongText('Restriction Details', formData.restrictionDetails);
+    addFieldIf('Refused Treatment', yesNo(formData.refusedTreatment));
+    addFieldIf('Refusal Reason', formData.refusalReason);
+    addFieldIf('Refusal Form Signed', yesNo(formData.refusalFormSigned));
+    // Referral
+    if (has(formData.referralType) || has(formData.referralFacility) || has(formData.referralPhone) || has(formData.referralAddress) || has(formData.referralNotes)) {
+      addFieldIf('Referral Type', formData.referralType);
+      addFieldIf('Referral Facility', formData.referralFacility);
+      addFieldIf('Referral Phone', formData.referralPhone);
+      addFieldIf('Referral Address', formData.referralAddress);
+      addLongText('Referral Notes', formData.referralNotes);
     }
 
-    // WORK STATUS
-    addSection('WORK STATUS');
-    addFieldRow([{ label: 'Losing Time', value: formData.losingTime === true ? 'YES ⚠️' : 'No' }, { label: 'Date Last Worked', value: formData.dateLastWorked }]);
-    addField('Return Status', formData.returnStatus);
-    if (formData.expectedReturnDate) addField('Expected Return Date', formData.expectedReturnDate);
-    if (formData.supervisorName || formData.supervisorPhone) {
-      addFieldRow([{ label: 'Supervisor', value: formData.supervisorName }, { label: 'Supervisor Phone', value: formData.supervisorPhone }]);
+    // ── 5. WORK STATUS, WAGE & DISABILITY ──────────────────────────────────────
+    addSection('WORK STATUS, WAGE & DISABILITY');
+    addFieldRow([{ label: 'Losing Time', value: formData.losingTime === true ? 'YES (lost-time claim)' : formData.losingTime === false ? 'No' : 'N/A' }, { label: 'Date Last Worked', value: formData.dateLastWorked || 'N/A' }]);
+    addFieldIf('Last Day Paid', formData.lastDayPaid);
+    addFieldIf('Disability Began', formData.disabilityBeganDate);
+    addFieldIf('Return Status', formData.returnStatus);
+    addFieldIf('Expected Return Date', formData.expectedReturnDate);
+    addFieldIf('Actual Return Date', formData.actualReturnDate);
+    addFieldIf('Still Being Paid', yesNo(formData.stillBeingPaid));
+    // Salary continuation
+    if (formData.hasSalaryContinuation !== null && formData.hasSalaryContinuation !== undefined) {
+      addFieldIf('Salary Continuation', yesNo(formData.hasSalaryContinuation));
+      addFieldIf('Continuation Duration', formData.salaryContinuationDuration);
+      addFieldIf('Continuation End Date', formData.salaryContinuationEndDate);
+      addLongText('Continuation Notes', formData.salaryContinuationNotes);
+    }
+    // PTO
+    if (formData.ptoUsed !== null && formData.ptoUsed !== undefined) {
+      addFieldIf('PTO Used', yesNo(formData.ptoUsed));
+      addFieldIf('PTO Hours Used', formData.ptoHoursUsed);
+    }
+    // Light duty
+    if (has(formData.lightDutyAvailable) || has(formData.lightDutyOffered) || has(formData.lightDutyAccepted) || has(formData.lightDutyStartDate) || has(formData.lightDutyDescription)) {
+      addFieldIf('Light Duty Available', yesNo(formData.lightDutyAvailable));
+      addFieldIf('Light Duty Offered', yesNo(formData.lightDutyOffered));
+      addFieldIf('Light Duty Accepted', yesNo(formData.lightDutyAccepted));
+      addFieldIf('Light Duty Start Date', formData.lightDutyStartDate);
+      addLongText('Light Duty Description', formData.lightDutyDescription);
     }
 
-    // ROOT CAUSE
-    if (formData.directCause) {
+    // ── 6. WITNESSES ───────────────────────────────────────────────────────────
+    const hasW1 = has(formData.witness1Name) || has(formData.witness1Phone) || has(formData.witness1Email) || has(formData.witness1Statement);
+    const hasW2 = has(formData.witness2Name) || has(formData.witness2Phone) || has(formData.witness2Email) || has(formData.witness2Statement);
+    const extraWitnesses = Array.isArray(formData.witnesses) ? formData.witnesses.filter(w => w && (w.name || w.phone || w.statement)) : [];
+    if (hasW1 || hasW2 || extraWitnesses.length) {
+      addSection('WITNESSES');
+      if (hasW1) {
+        addFieldIf('Witness 1 Name', formData.witness1Name);
+        addFieldIf('Witness 1 Phone', formData.witness1Phone);
+        addFieldIf('Witness 1 Email', formData.witness1Email);
+        addFieldIf('Witness 1 Relationship', formData.witness1Relationship);
+        addLongText('Witness 1 Statement', formData.witness1Statement);
+      }
+      if (hasW2) {
+        addFieldIf('Witness 2 Name', formData.witness2Name);
+        addFieldIf('Witness 2 Phone', formData.witness2Phone);
+        addFieldIf('Witness 2 Email', formData.witness2Email);
+        addFieldIf('Witness 2 Relationship', formData.witness2Relationship);
+        addLongText('Witness 2 Statement', formData.witness2Statement);
+      }
+      extraWitnesses.forEach((w, i) => {
+        addFieldIf('Witness ' + (i + 3) + ' Name', w.name);
+        addFieldIf('Witness ' + (i + 3) + ' Phone', w.phone);
+        addFieldIf('Witness ' + (i + 3) + ' Relationship', w.relationship);
+        addLongText('Witness ' + (i + 3) + ' Statement', w.statement);
+      });
+    }
+
+    // ── 7. SUPERVISOR ──────────────────────────────────────────────────────────
+    if (has(formData.supervisorName) || has(formData.supervisorPhone) || has(formData.supervisorComments)) {
+      addSection('SUPERVISOR');
+      if (has(formData.supervisorName) || has(formData.supervisorPhone)) {
+        addFieldRow([{ label: 'Supervisor', value: formData.supervisorName }, { label: 'Supervisor Phone', value: formData.supervisorPhone }]);
+      }
+      addLongText('Supervisor Comments', formData.supervisorComments);
+    }
+
+    // ── 8. EVIDENCE & DOCUMENTATION ────────────────────────────────────────────
+    const cnt = a => Array.isArray(a) ? a.length : 0;
+    const evidenceFlags = ['hasScenePhotos', 'hasInjuryPhotos', 'hasVideo', 'hasWitnessStatement', 'hasEmployeeStatement'];
+    const hasEvidence = evidenceFlags.some(f => formData[f] !== null && formData[f] !== undefined)
+      || cnt(formData.scenePhotoFiles) || cnt(formData.injuryPhotoFiles) || cnt(formData.videoFiles) || cnt(formData.evidenceDocFiles)
+      || has(formData.videoLocation) || has(formData.videoNotes);
+    if (hasEvidence) {
+      addSection('EVIDENCE & DOCUMENTATION');
+      addFieldIf('Scene Photos', yesNo(formData.hasScenePhotos));
+      if (cnt(formData.scenePhotoFiles)) addField('Scene Photo Files', String(cnt(formData.scenePhotoFiles)));
+      addFieldIf('Injury Photos', yesNo(formData.hasInjuryPhotos));
+      if (cnt(formData.injuryPhotoFiles)) addField('Injury Photo Files', String(cnt(formData.injuryPhotoFiles)));
+      addFieldIf('Video Available', yesNo(formData.hasVideo));
+      addFieldIf('Video Location', formData.videoLocation);
+      addFieldIf('Video System Type', formData.videoSystemType);
+      addFieldIf('Video Preserved', yesNo(formData.videoPreserved));
+      addLongText('Video Notes', formData.videoNotes);
+      if (cnt(formData.videoFiles)) addField('Video Files', String(cnt(formData.videoFiles)));
+      addFieldIf('Witness Statement Collected', yesNo(formData.hasWitnessStatement));
+      addFieldIf('Employee Statement Collected', yesNo(formData.hasEmployeeStatement));
+      if (cnt(formData.evidenceDocFiles)) addField('Additional Documents', String(cnt(formData.evidenceDocFiles)));
+    }
+
+    // ── 9. ROOT CAUSE ANALYSIS ─────────────────────────────────────────────────
+    const rcFactors = mapCodes(formData.rootCauseSymptoms, ROOT_CAUSE_LABELS);
+    const hasRootCause = has(formData.directCause) || has(rcFactors) || has(formData.customRootCause)
+      || [formData.proceduresInPlace, formData.proceduresFollowed, formData.trainingProvided].some(v => v !== null && v !== undefined)
+      || has(formData.trainingType) || has(formData.trainingFrequency) || has(formData.lastTrainingDate);
+    if (hasRootCause) {
       addSection('ROOT CAUSE ANALYSIS', '#334155');
-      addField('Direct Cause', formData.directCause);
+      addFieldIf('Direct Cause', formData.directCause);
+      addFieldIf('Contributing Factors', rcFactors);
+      addFieldIf('Additional Cause Notes', formData.customRootCause);
+      addFieldIf('Procedures in Place', yesNo(formData.proceduresInPlace));
+      addFieldIf('Procedures Followed', yesNo(formData.proceduresFollowed));
+      addFieldIf('Training Provided', yesNo(formData.trainingProvided));
+      addFieldIf('Training Type', formData.trainingType);
+      addFieldIf('Training Frequency', formData.trainingFrequency);
+      addFieldIf('Last Training Date', formData.lastTrainingDate);
     }
 
-    // INVESTIGATION FLAGS
-    if (formData.validityConcerns === true || formData.thirdPartyInvolved === true) {
-      addSection('⚠️ INVESTIGATION FLAGS', COLORS.danger);
-      if (formData.validityConcerns) addField('Validity Concerns', 'YES');
-      if (formData.thirdPartyInvolved) addField('Third Party (Subrogation)', 'YES - Investigate');
+    // ── 10. CORRECTIVE ACTIONS ─────────────────────────────────────────────────
+    const caActions = mapCodes(formData.correctiveActions, CORRECTIVE_LABELS);
+    if (has(caActions) || has(formData.customCorrectiveAction) || has(formData.correctiveActionNotes)) {
+      addSection('CORRECTIVE ACTIONS', '#334155');
+      addFieldIf('Actions Taken', caActions);
+      addFieldIf('Additional Action', formData.customCorrectiveAction);
+      addLongText('Corrective Action Notes', formData.correctiveActionNotes);
     }
 
-    // SUBMITTED BY
+    // ── 11. INVESTIGATION FLAGS / FRAUD INDICATORS ─────────────────────────────
+    const fraudFlags = mapCodes(formData.fraudIndicators, FRAUD_LABELS);
+    const hasInvestigation = formData.validityConcerns === true || has(fraudFlags) || has(formData.concernDetails)
+      || has(formData.customRedFlag) || has(formData.investigationNotes)
+      || formData.recommendDeny === true || formData.recommendSIU === true;
+    if (hasInvestigation) {
+      addSection('INVESTIGATION FLAGS / FRAUD INDICATORS', COLORS.danger);
+      addFieldIf('Validity Concerns', yesNo(formData.validityConcerns));
+      addLongText('Concern Details', formData.concernDetails);
+      addFieldIf('Fraud Indicators', fraudFlags);
+      addFieldIf('Additional Red Flag', formData.customRedFlag);
+      addLongText('Investigation Notes', formData.investigationNotes);
+      addFieldIf('Recommend Deny', yesNo(formData.recommendDeny));
+      addFieldIf('Deny Reason', formData.denyReason);
+      addFieldIf('Recommend SIU Referral', yesNo(formData.recommendSIU));
+      addFieldIf('SIU Reason', formData.siuReason);
+    }
+
+    // ── 12. THIRD PARTY / SUBROGATION ──────────────────────────────────────────
+    const hasThirdParty = formData.thirdPartyInvolved === true
+      || has(formData.thirdPartyName) || has(formData.thirdPartyCompany) || has(formData.thirdPartyPhone)
+      || has(formData.thirdPartyInsurance) || has(formData.subrogationType) || has(formData.thirdPartyDetails);
+    if (hasThirdParty) {
+      addSection('THIRD PARTY / SUBROGATION', COLORS.success);
+      addFieldIf('Third Party Involved', yesNo(formData.thirdPartyInvolved));
+      addFieldIf('Third Party Name', formData.thirdPartyName);
+      addFieldIf('Third Party Company', formData.thirdPartyCompany);
+      addFieldIf('Third Party Phone', formData.thirdPartyPhone);
+      addFieldIf('Third Party Insurance', formData.thirdPartyInsurance);
+      addFieldIf('Subrogation Type', formData.subrogationType);
+      addLongText('Third Party Details', formData.thirdPartyDetails);
+    }
+
+    // ── 13. SUBMITTED BY ───────────────────────────────────────────────────────
     addSection('SUBMITTED BY');
     addFieldRow([{ label: 'Name', value: formData.submitterName }, { label: 'Email', value: formData.submitterEmail }]);
-    if (formData.submitterTitle || formData.submitterPhone) {
+    if (has(formData.submitterTitle) || has(formData.submitterPhone)) {
       addFieldRow([{ label: 'Title', value: formData.submitterTitle }, { label: 'Phone', value: formData.submitterPhone }]);
     }
     if (formData.ccEmails && formData.ccEmails.trim()) {
