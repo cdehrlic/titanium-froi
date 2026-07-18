@@ -696,12 +696,15 @@ function generateClaimPDF(formData, referenceNumber) {
       formData.customBodyPart
     ].filter(Boolean);
     addField('Body Parts', bodyPartsList.join(', '));
-    // Accident location
+    // Worksite & accident location
+    const wsParts = [formData.worksiteStreet, formData.worksiteCity, formData.worksiteState, formData.worksiteZip].filter(Boolean).join(', ');
+    const worksiteLoc = [formData.worksiteName, wsParts].filter(Boolean).join(' — ');
+    addFieldIf('Worksite Location', worksiteLoc);
     if (formData.accidentAtWorksite === false) {
       const loc = [formData.accidentStreet, formData.accidentCity, formData.accidentState, formData.accidentZip].filter(Boolean).join(', ');
-      addField('Accident Location', loc ? loc + ' (off worksite)' : 'Off worksite');
+      addField('Accident Location', loc ? loc + ' (off-site)' : 'Off-site (address not provided)');
     } else if (formData.accidentAtWorksite === true) {
-      addField('Accident Location', 'At worksite');
+      addField('Accident Location', worksiteLoc ? 'Same as worksite — ' + worksiteLoc : 'At worksite');
     }
     addLongText('Job Duties at Time of Injury', formData.jobDutiesAtTime);
     addLongText('Description', formData.accidentDescription);

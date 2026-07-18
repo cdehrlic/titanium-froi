@@ -115,6 +115,11 @@ const[d,setD]=S({
  accidentCity:'',
  accidentState:'',
  accidentZip:'',
+ worksiteName:'',
+ worksiteStreet:'',
+ worksiteCity:'',
+ worksiteState:'',
+ worksiteZip:'',
  soughtMedicalTreatment:null,
  treatingPhysician:'',
  treatmentDate:'',
@@ -825,10 +830,32 @@ if(step===1){
   )
   ),
   e('div',{className:'form-group full-width',style:{marginTop:16}},
-  e('label',null,'Where Did the Accident Occur? ',e('span',{className:'required'},'*')),
+  e('label',null,'Worksite / Facility Name'),
+  inp('worksiteName','e.g., Sigma Link Rehab - Newark Facility')
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:8}},
+  e('label',null,'Worksite Street Address ',e('span',{className:'required'},'*')),
+  inp('worksiteStreet','Street address where the employee works')
+  ),
+  e('div',{className:'form-grid',style:{marginTop:8}},
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite City ',e('span',{className:'required'},'*')),
+   inp('worksiteCity','City')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite State ',e('span',{className:'required'},'*')),
+   sel('worksiteState',STATES,'Select state')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite Zip ',e('span',{className:'required'},'*')),
+   inp('worksiteZip','Zip code')
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Did the Accident Occur at This Worksite? ',e('span',{className:'required'},'*')),
   tog('accidentAtWorksite',[
-   {v:true,l:'At Worksite',c:'success'},
-   {v:false,l:'Off-Site / Other Location',c:'warning'}
+   {v:true,l:'Yes - Same as Worksite',c:'success'},
+   {v:false,l:'No - Different Location',c:'warning'}
   ])
   ),
   d.accidentAtWorksite===false&&e('div',{style:{marginTop:12}},
@@ -838,15 +865,15 @@ if(step===1){
   ),
   e('div',{className:'form-grid',style:{marginTop:12}},
    e('div',{className:'form-group'},
-   e('label',null,'City ',e('span',{className:'required'},'*')),
+   e('label',null,'Accident City ',e('span',{className:'required'},'*')),
    inp('accidentCity','City')
    ),
    e('div',{className:'form-group'},
-   e('label',null,'State ',e('span',{className:'required'},'*')),
+   e('label',null,'Accident State ',e('span',{className:'required'},'*')),
    sel('accidentState',STATES,'Select state')
    ),
    e('div',{className:'form-group'},
-   e('label',null,'Zip Code ',e('span',{className:'required'},'*')),
+   e('label',null,'Accident Zip ',e('span',{className:'required'},'*')),
    inp('accidentZip','Zip code')
    )
   )
@@ -1327,6 +1354,10 @@ if(step===5){
  if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
  if(!d.injuryType)errors.push({field:'Injury Type',step:1});
  if(!d.bodyParts||d.bodyParts.length===0)errors.push({field:'Body Parts Affected',step:1});
+ if(!d.worksiteStreet)errors.push({field:'Worksite Street Address',step:1});
+ if(!d.worksiteCity)errors.push({field:'Worksite City',step:1});
+ if(!d.worksiteState)errors.push({field:'Worksite State',step:1});
+ if(!d.worksiteZip)errors.push({field:'Worksite Zip Code',step:1});
  if(d.accidentAtWorksite===false){
   if(!d.accidentStreet)errors.push({field:'Accident Street Address',step:1});
   if(!d.accidentCity)errors.push({field:'Accident City',step:1});
