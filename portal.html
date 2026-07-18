@@ -824,6 +824,33 @@ if(step===1){
    e('input',{className:'input-field',style:{maxWidth:300},placeholder:'Other body part...',value:d.customBodyPart||'',onChange:x=>u('customBodyPart',x.target.value)})
   )
   ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Where Did the Accident Occur? ',e('span',{className:'required'},'*')),
+  tog('accidentAtWorksite',[
+   {v:true,l:'At Worksite',c:'success'},
+   {v:false,l:'Off-Site / Other Location',c:'warning'}
+  ])
+  ),
+  d.accidentAtWorksite===false&&e('div',{style:{marginTop:12}},
+  e('div',{className:'form-group full-width'},
+   e('label',null,'Accident Street Address ',e('span',{className:'required'},'*')),
+   inp('accidentStreet','Street address where the accident occurred')
+  ),
+  e('div',{className:'form-grid',style:{marginTop:12}},
+   e('div',{className:'form-group'},
+   e('label',null,'City ',e('span',{className:'required'},'*')),
+   inp('accidentCity','City')
+   ),
+   e('div',{className:'form-group'},
+   e('label',null,'State ',e('span',{className:'required'},'*')),
+   sel('accidentState',STATES,'Select state')
+   ),
+   e('div',{className:'form-group'},
+   e('label',null,'Zip Code ',e('span',{className:'required'},'*')),
+   inp('accidentZip','Zip code')
+   )
+  )
+  ),
   e('div',{className:'form-grid',style:{marginTop:16}},
   e('div',{className:'form-group'},
    e('label',null,'Nature of Injury ',e('span',{className:'required'},'*')),
@@ -1300,6 +1327,12 @@ if(step===5){
  if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
  if(!d.injuryType)errors.push({field:'Injury Type',step:1});
  if(!d.bodyParts||d.bodyParts.length===0)errors.push({field:'Body Parts Affected',step:1});
+ if(d.accidentAtWorksite===false){
+  if(!d.accidentStreet)errors.push({field:'Accident Street Address',step:1});
+  if(!d.accidentCity)errors.push({field:'Accident City',step:1});
+  if(!d.accidentState)errors.push({field:'Accident State',step:1});
+  if(!d.accidentZip)errors.push({field:'Accident Zip Code',step:1});
+ }
  if(!d.natureOfInjury)errors.push({field:'Nature of Injury',step:1});
  if(!d.causeOfInjury)errors.push({field:'Cause of Injury',step:1});
  if(!d.weeklyWage)errors.push({field:'Weekly Wage',step:1});
