@@ -45,8 +45,10 @@ const CONFIG = {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Serve static files from current directory
-app.use(express.static(__dirname));
+// Serve static files from current directory.
+// index:false so "/" falls through to our explicit home.html route (below)
+// instead of express.static auto-serving index.html.
+app.use(express.static(__dirname, { index: false }));
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024, files: 25 } });
@@ -1509,11 +1511,100 @@ app.post('/api/followup', upload.any(), async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SERVE HTML FILES
+// CONTACT / LEAD CAPTURE
 // ═══════════════════════════════════════════════════════════════════════════════
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, error: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
 });
+
+app.post('/api/contact', contactLimiter, async (req, res) => {
+  try {
+    const { name, company, email, phone, employees, message } = req.body || {};
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, error: 'Name, email, and message are required.' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+    const ip = getClientIP(req);
+    const esc = s => String(s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+
+    // Respond immediately; deliver emails in the background so a slow/misconfigured
+    // mail server never blocks the visitor's form submission.
+    res.json({ success: true });
+
+    // Notify CompShield
+    transporter.sendMail({
+        from: CONFIG.SMTP.auth.user,
+        to: CONFIG.CLAIMS_EMAIL,
+        replyTo: email,
+        subject: `[New Lead] ${name}${company ? ' — ' + company : ''}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+            <div style="background:#111827;padding:22px;text-align:center;">
+              <h2 style="color:#fff;margin:0;">CompShield — New Website Inquiry</h2>
+              <p style="color:#7ab5f5;margin:6px 0 0;font-size:13px;">a Titanium Defense Group company</p>
+            </div>
+            <div style="padding:24px;background:#f8fafc;">
+              <table style="width:100%;font-size:14px;border-collapse:collapse;">
+                <tr><td style="padding:6px 0;color:#64748b;width:120px;">Name:</td><td style="font-weight:bold;">${esc(name)}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b;">Company:</td><td>${esc(company) || 'N/A'}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b;">Email:</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+                <tr><td style="padding:6px 0;color:#64748b;">Phone:</td><td>${esc(phone) || 'N/A'}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b;">Employees:</td><td>${esc(employees) || 'N/A'}</td></tr>
+              </table>
+              <div style="margin-top:16px;padding:16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">
+                <p style="margin:0 0 6px;color:#64748b;font-size:12px;text-transform:uppercase;">Message</p>
+                <p style="margin:0;white-space:pre-wrap;">${esc(message)}</p>
+              </div>
+              <p style="margin-top:14px;color:#94a3b8;font-size:12px;">Submitted ${new Date().toLocaleString()} · IP ${esc(ip)}</p>
+            </div>
+          </div>`
+    })
+      .then(() => console.log(`✅ Lead received from ${email}`))
+      .catch(err => console.error('Lead email error:', err.message));
+
+    // Auto-acknowledge the prospect (also background)
+    transporter.sendMail({
+      from: CONFIG.SMTP.auth.user,
+      to: email,
+      subject: 'Thanks for contacting CompShield',
+      html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+            <div style="background:#111827;padding:24px;text-align:center;">
+              <h1 style="color:#fff;margin:0;font-size:22px;">CompShield</h1>
+              <p style="color:#7ab5f5;margin:6px 0 0;font-size:12px;">Workers' Compensation Claims Defense &amp; Cost Control</p>
+            </div>
+            <div style="padding:28px;background:#f8fafc;">
+              <p>Hi ${esc(name.split(' ')[0])},</p>
+              <p>Thanks for reaching out to CompShield. We received your message and a specialist will follow up shortly to schedule your free claim review.</p>
+              <p>In the meantime, if you need to report a claim, you can use our secure WC Reporting portal at <a href="${CONFIG.BASE_URL}/report">${CONFIG.BASE_URL.replace(/^https?:\/\//,'')}/report</a>.</p>
+              <p style="margin-top:20px;color:#64748b;">— The CompShield Team<br><span style="font-size:12px;">a Titanium Defense Group company</span></p>
+            </div>
+          </div>`
+    }).catch(err => console.error('Ack email error:', err.message));
+  } catch (error) {
+    console.error('Contact error:', error);
+    if (!res.headersSent) res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SERVE HTML FILES  (marketing site + portal)
+// ═══════════════════════════════════════════════════════════════════════════════
+const sendPage = file => (req, res) => res.sendFile(path.join(__dirname, file));
+
+app.get('/', sendPage('home.html'));
+app.get('/services', sendPage('services.html'));
+app.get('/process', sendPage('process.html'));
+app.get('/about', sendPage('about.html'));
+app.get('/contact', sendPage('contact.html'));
+app.get('/report', sendPage('index.html'));   // industry selector → portal
+app.get('/portal', sendPage('portal.html'));   // WC Reporting claim form
 
 app.get('/statement/:token', (req, res) => {
   res.sendFile(path.join(__dirname, 'statement.html'));
