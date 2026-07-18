@@ -687,31 +687,31 @@ if(step===0)return e('div',{className:'content'},
   inp('lastName','Last name')
  ),
  e('div',{className:'form-group full-width'},
-  e('label',null,'Mailing Address'),
+  e('label',null,'Mailing Address ',e('span',{className:'required'},'*')),
   inp('mailingAddress','Street address')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'City'),
+  e('label',null,'City ',e('span',{className:'required'},'*')),
   inp('city','City')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'State'),
+  e('label',null,'State ',e('span',{className:'required'},'*')),
   sel('state',STATES,'Select state')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Zip Code'),
+  e('label',null,'Zip Code ',e('span',{className:'required'},'*')),
   inp('zipCode','Zip code')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Phone'),
+  e('label',null,'Phone ',e('span',{className:'required'},'*')),
   inp('phone','(555) 555-5555','tel')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Date of Birth'),
+  e('label',null,'Date of Birth ',e('span',{className:'required'},'*')),
   inp('dateOfBirth','','date')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Date of Hire'),
+  e('label',null,'Date of Hire ',e('span',{className:'required'},'*')),
   inp('dateOfHire','','date')
  ),
  e('div',{className:'form-group'},
@@ -719,7 +719,7 @@ if(step===0)return e('div',{className:'content'},
   e('div',{style:{position:'relative'}},e('input',{type:'password',className:'input-field',value:d.ssn||'',onChange:x=>{const v=x.target.value.replace(/[^0-9-]/g,'');if(v.length<=11)u('ssn',v)},placeholder:'XXX-XX-XXXX',autoComplete:'off'}),d.ssn&&d.ssn.length>=4&&e('span',{style:{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',fontSize:12,color:'var(--tm)'}},'Last 4: '+d.ssn.replace(/[^0-9]/g,'').slice(-4)))
  ),
  e('div',{className:'form-group full-width'},
-  e('label',null,'Occupation / Job Title'),
+  e('label',null,'Occupation / Job Title ',e('span',{className:'required'},'*')),
   inp('occupation','Job title or position')
  )
  ),
@@ -779,15 +779,15 @@ if(step===1){
   inp('dateOfInjury','','date')
   ),
   e('div',{className:'form-group'},
-  e('label',null,'Time of Injury'),
+  e('label',null,'Time of Injury ',e('span',{className:'required'},'*')),
   inp('timeOfInjury','','time')
   ),
   e('div',{className:'form-group'},
-  e('label',null,'Date Reported'),
+  e('label',null,'Date Reported ',e('span',{className:'required'},'*')),
   inp('dateReported','','date')
   ),
   e('div',{className:'form-group'},
-  e('label',null,'Reported Immediately?'),
+  e('label',null,'Reported Immediately? ',e('span',{className:'required'},'*')),
   tog('reportedImmediately',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}])
   )
  ),
@@ -816,7 +816,7 @@ if(step===1){
   ))
   ),
   e('div',{className:'form-group full-width',style:{marginTop:16}},
-  e('label',null,'Body Parts Affected'),
+  e('label',null,'Body Parts Affected ',e('span',{className:'required'},'*')),
   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
    ...BODY_PARTS.map(p=>e('button',{key:p,type:'button',className:'chip-btn'+(d.bodyParts?.includes(p)?' active':''),onClick:()=>ta('bodyParts',p)},p))
   ),
@@ -826,28 +826,28 @@ if(step===1){
   ),
   e('div',{className:'form-grid',style:{marginTop:16}},
   e('div',{className:'form-group'},
-   e('label',null,'Nature of Injury'),
+   e('label',null,'Nature of Injury ',e('span',{className:'required'},'*')),
    e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
    e('option',{value:''},'Select nature of injury'),
    ...NATURE_OF_INJURY.map(n=>e('option',{key:n.v,value:n.v},n.l))
    )
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Cause of Injury'),
+   e('label',null,'Cause of Injury ',e('span',{className:'required'},'*')),
    e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
    e('option',{value:''},'Select cause of injury'),
    ...CAUSE_OF_INJURY.map(c=>e('option',{key:c.v,value:c.v},c.l))
    )
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Weekly Wage'),
+   e('label',null,'Weekly Wage ',e('span',{className:'required'},'*')),
    e('div',{style:{position:'relative'}},
    e('span',{style:{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--tm)',fontSize:14}},'$'),
    e('input',{type:'text',className:'input-field',style:{paddingLeft:28},value:d.weeklyWage||'',onChange:x=>u('weeklyWage',x.target.value.replace(/[^0-9.]/g,'')),placeholder:'0.00'})
    )
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Work Type'),
+   e('label',null,'Work Type ',e('span',{className:'required'},'*')),
    sel('workType',WORK_TYPES,'Select work type')
   )
   )
@@ -869,7 +869,7 @@ if(step===2){
   e('p',{className:'section-subtitle'},'Treatment details and current work status')
  ),
  e('div',{className:'form-group'},
-  e('label',null,'Has employee received medical treatment?'),
+  e('label',null,'Has employee received medical treatment? ',e('span',{className:'required'},'*')),
   tog('soughtMedicalTreatment',[
   {v:true,l:'Yes - Already Treated',c:'success'},
   {v:false,l:'No - Not Yet'}
@@ -879,7 +879,7 @@ if(step===2){
  d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:16}},
   e('div',{className:'form-grid'},
   e('div',{className:'form-group'},
-   e('label',null,'Facility Name'),
+   e('label',null,'Facility Name ',e('span',{className:'required'},'*')),
    inp('initialFacilityName','Hospital, clinic, or doctor\'s office')
   ),
   e('div',{className:'form-group'},
@@ -925,7 +925,7 @@ if(step===2){
  e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
   e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Work Status'),
   e('div',{className:'form-group'},
-  e('label',null,'Is Employee Losing Time From Work?'),
+  e('label',null,'Is Employee Losing Time From Work? ',e('span',{className:'required'},'*')),
   tog('losingTime',[
    {v:true,l:'Yes - Lost Time Claim',c:'warning'},
    {v:false,l:'No - Medical Only',c:'success'}
@@ -934,7 +934,7 @@ if(step===2){
   d.losingTime===true&&e('div',{className:'warning-box',style:{marginTop:12}},'Lost Time Claim \u2014 This will likely involve indemnity benefits.'),
   e('div',{className:'form-grid',style:{marginTop:16}},
   e('div',{className:'form-group'},
-   e('label',null,'Date Last Worked'),
+   e('label',null,'Date Last Worked ',e('span',{className:'required'},'*')),
    inp('dateLastWorked','','date')
   ),
   e('div',{className:'form-group'},
@@ -942,7 +942,7 @@ if(step===2){
    inp('expectedReturnDate','','date')
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Return Status'),
+   e('label',null,'Return Status ',e('span',{className:'required'},'*')),
    e('select',{className:'input-field',value:d.returnStatus||'',onChange:x=>u('returnStatus',x.target.value)},
    e('option',{value:''},'Select status'),
    ...RETURN_STATUSES.map(s=>e('option',{key:s.v,value:s.v},s.l))
@@ -1085,11 +1085,11 @@ if(step===3){
   e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Supervisor Input'),
   e('div',{className:'form-grid'},
   e('div',{className:'form-group'},
-   e('label',null,'Supervisor Name'),
+   e('label',null,'Supervisor Name ',e('span',{className:'required'},'*')),
    inp('supervisorName','Supervisor\'s name')
   ),
   e('div',{className:'form-group'},
-   e('label',null,'Supervisor Phone'),
+   e('label',null,'Supervisor Phone ',e('span',{className:'required'},'*')),
    inp('supervisorPhone','Phone number','tel')
   )
   ),
@@ -1276,13 +1276,42 @@ if(step===4){
 }
 if(step===5){
  const validateClaim=()=>{
+ const ans=v=>v===true||v===false; // yes/no toggle has been answered
  const errors=[];
+ // Step 0 — Employee
  if(!d.firstName)errors.push({field:'Employee First Name',step:0});
  if(!d.lastName)errors.push({field:'Employee Last Name',step:0});
+ if(!d.dateOfBirth)errors.push({field:'Date of Birth',step:0});
+ if(!d.mailingAddress)errors.push({field:'Mailing Address',step:0});
+ if(!d.city)errors.push({field:'City',step:0});
+ if(!d.state)errors.push({field:'State',step:0});
+ if(!d.zipCode)errors.push({field:'Zip Code',step:0});
+ if(!d.phone)errors.push({field:'Phone',step:0});
+ if(!d.dateOfHire)errors.push({field:'Date of Hire',step:0});
+ if(!d.occupation)errors.push({field:'Occupation',step:0});
+ // Step 1 — Incident
  if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
  if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
+ if(!d.timeOfInjury)errors.push({field:'Time of Injury',step:1});
+ if(!d.dateReported)errors.push({field:'Date Reported',step:1});
+ if(!ans(d.reportedImmediately))errors.push({field:'Reported Immediately?',step:1});
  if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
  if(!d.injuryType)errors.push({field:'Injury Type',step:1});
+ if(!d.bodyParts||d.bodyParts.length===0)errors.push({field:'Body Parts Affected',step:1});
+ if(!d.natureOfInjury)errors.push({field:'Nature of Injury',step:1});
+ if(!d.causeOfInjury)errors.push({field:'Cause of Injury',step:1});
+ if(!d.weeklyWage)errors.push({field:'Weekly Wage',step:1});
+ if(!d.workType)errors.push({field:'Work Type',step:1});
+ // Step 2 — Medical & Work Status
+ if(!ans(d.soughtMedicalTreatment))errors.push({field:'Medical Treatment Received?',step:2});
+ if(d.soughtMedicalTreatment===true&&!d.initialFacilityName)errors.push({field:'Treatment Facility Name',step:2});
+ if(!ans(d.losingTime))errors.push({field:'Losing Time From Work?',step:2});
+ if(d.losingTime===true&&!d.dateLastWorked)errors.push({field:'Date Last Worked',step:2});
+ if(!d.returnStatus)errors.push({field:'Return Status',step:2});
+ // Step 3 — Evidence (Supervisor)
+ if(!d.supervisorName)errors.push({field:'Supervisor Name',step:3});
+ if(!d.supervisorPhone)errors.push({field:'Supervisor Phone',step:3});
+ // Step 5 — Submit
  if(!d.submitterName)errors.push({field:'Submitter Name',step:5});
  if(!d.submitterEmail)errors.push({field:'Submitter Email',step:5});
  if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:5});
