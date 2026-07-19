@@ -1607,6 +1607,8 @@ app.get('/process', sendPage('process.html'));
 app.get('/about', sendPage('about.html'));
 app.get('/contact', sendPage('contact.html'));
 app.get('/resources', sendPage('resources.html'));
+app.get('/resources/claim-files', sendPage('claim-files.html'));
+app.get('/resources/claim-files/the-midnight-injury', sendPage('post-midnight-injury.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
