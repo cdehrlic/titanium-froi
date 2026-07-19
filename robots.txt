@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.wcreporting.com/sitemap.xml
+Sitemap: https://www.comp-shield.com/sitemap.xml

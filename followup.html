@@ -121,7 +121,7 @@ const handleSubmit=async()=>{
 };
 
 if(submitted)return e('div',{className:'page'},
- e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'Titanium Defense Group'}))))),
+ e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/titanium-logo.webp',alt:'Titanium Defense Group'}))))),
  e('div',{className:'main'},e('div',{className:'success-container'},
   e('div',{className:'success-icon'},'✓'),
   e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Follow-Up Submitted'),
@@ -132,7 +132,7 @@ if(submitted)return e('div',{className:'page'},
 );
 
 if(!refNum)return e('div',{className:'page'},
- e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'Titanium Defense Group'}))))),
+ e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/titanium-logo.webp',alt:'Titanium Defense Group'}))))),
  e('div',{className:'main'},e('div',{className:'content',style:{textAlign:'center',padding:48}},
   e('h2',{style:{color:'var(--tr)',marginBottom:16}},'Invalid Link'),
   e('p',{style:{color:'var(--tm)'}},'This follow-up link is missing a claim reference number. Please use the link provided in your confirmation email.')
@@ -390,7 +390,7 @@ const renderStatement=(type,data,setData,signed,setSigned)=>{
 return e('div',{className:'page'},
  e('header',{className:'header'},
   e('div',{className:'header-content'},
-   e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'Titanium Defense Group'}))),
+   e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/titanium-logo.webp',alt:'Titanium Defense Group'}))),
    e('div',{style:{display:'flex',alignItems:'center',gap:16}},
     e('div',{className:'ref-badge'},'Claim: '+refNum),
     entity&&e('div',{style:{fontSize:13,color:'var(--tm)'}},entity)

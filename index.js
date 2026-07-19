@@ -29,6 +29,7 @@ const submitLimiter = rateLimit({
 
 const CONFIG = {
   CLAIMS_EMAIL: process.env.CLAIMS_EMAIL || 'Chad@Titaniumdg.com',
+  CONTACT_EMAIL: process.env.CONTACT_EMAIL || 'info@comp-shield.com',
   SMTP: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: process.env.SMTP_PORT || 587,
@@ -44,6 +45,32 @@ const CONFIG = {
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// ---- Host-based domain split ----------------------------------------------
+// comp-shield.com  = full marketing site  (claim portal redirects to wcreporting.com)
+// wcreporting.com  = claim reporting portal only (marketing redirects to comp-shield.com)
+// Any other host (e.g. Railway's *.up.railway.app) is served normally.
+const PORTAL_PATHS = ['/report', '/portal', '/followup'];
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').split(':')[0].replace(/^www\./, '').toLowerCase();
+  const p = req.path;
+  const isPortal = PORTAL_PATHS.some(x => p === x || p.startsWith(x + '/'))
+    || p === '/index.html' || p === '/portal.html' || p === '/followup.html';
+  const isApi = p.startsWith('/api/');
+  const isAsset = /\.(css|js|mjs|svg|png|jpe?g|webp|gif|ico|pdf|xml|txt|json|woff2?|ttf|map|webmanifest)$/i.test(p);
+
+  if (host === 'wcreporting.com') {
+    if (p === '/') return res.redirect(302, '/report');
+    if (!isPortal && !isApi && !isAsset) {
+      return res.redirect(301, 'https://www.comp-shield.com' + req.originalUrl);
+    }
+  } else if (host === 'comp-shield.com') {
+    if (isPortal) {
+      return res.redirect(301, 'https://www.wcreporting.com' + req.originalUrl);
+    }
+  }
+  next();
+});
 
 // Serve static files from current directory.
 // index:false so "/" falls through to our explicit home.html route (below)
@@ -1543,14 +1570,14 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     // Notify CompShield
     transporter.sendMail({
         from: CONFIG.SMTP.auth.user,
-        to: CONFIG.CLAIMS_EMAIL,
+        to: CONFIG.CONTACT_EMAIL,
         replyTo: email,
         subject: `[New Lead] ${name}${company ? ' — ' + company : ''}`,
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
             <div style="background:#111827;padding:22px;text-align:center;">
               <h2 style="color:#fff;margin:0;">CompShield — New Website Inquiry</h2>
-              <p style="color:#7ab5f5;margin:6px 0 0;font-size:13px;">a Titanium Defense Group company</p>
+              <p style="color:#7ab5f5;margin:6px 0 0;font-size:13px;">Workers' Comp Claims Defense</p>
             </div>
             <div style="padding:24px;background:#f8fafc;">
               <table style="width:100%;font-size:14px;border-collapse:collapse;">
@@ -1586,7 +1613,7 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
               <p>Hi ${esc(name.split(' ')[0])},</p>
               <p>Thanks for reaching out to CompShield. We received your message and a specialist will follow up shortly to schedule your free claim review.</p>
               <p>In the meantime, if you need to report a claim, you can use our secure WC Reporting portal at <a href="${CONFIG.BASE_URL}/report">${CONFIG.BASE_URL.replace(/^https?:\/\//,'')}/report</a>.</p>
-              <p style="margin-top:20px;color:#64748b;">— The CompShield Team<br><span style="font-size:12px;">a Titanium Defense Group company</span></p>
+              <p style="margin-top:20px;color:#64748b;">— The CompShield Team<br><span style="font-size:12px;">Workers' Comp Claims Defense</span></p>
             </div>
           </div>`
     }).catch(err => console.error('Ack email error:', err.message));
