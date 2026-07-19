@@ -1615,6 +1615,7 @@ app.get('/resources/claim-files/four-days-before-the-fall', sendPage('post-four-
 app.get('/resources/claim-files/the-job-offer-that-capped-the-claim', sendPage('post-light-duty.html'));
 app.get('/resources/claim-files/the-answer-was-in-the-bloodwork', sendPage('post-bloodwork.html'));
 app.get('/resources/claim-files/the-1099-that-wasnt', sendPage('post-1099.html'));
+app.get('/resources/claim-files/the-first-hour-after-the-fall', sendPage('post-first-hour.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
