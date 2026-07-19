@@ -1613,6 +1613,7 @@ app.get('/resources/claim-files/the-ladder-was-still-standing', sendPage('post-l
 app.get('/resources/claim-files/the-accepted-claim-that-almost-got-away', sendPage('post-accepted-claim.html'));
 app.get('/resources/claim-files/four-days-before-the-fall', sendPage('post-four-days.html'));
 app.get('/resources/claim-files/the-job-offer-that-capped-the-claim', sendPage('post-light-duty.html'));
+app.get('/resources/claim-files/the-answer-was-in-the-bloodwork', sendPage('post-bloodwork.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
