@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<title>Cost of a Workers' Comp Claim Calculator — CompShield</title>
+<meta name="description" content="A workers' comp claim costs far more than the check. See the true direct + indirect cost — and the sales you'd need to cover it. Based on OSHA's $afety Pays model.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+      <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/process">How It Works</a>
+      <a href="/resources">Resources</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <div class="nav-cta">
+        <a href="/report" class="btn btn-ghost">Report a Claim</a>
+        <a href="/contact" class="btn btn-primary">Free Claim Review</a>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()"><span data-theme-icon>☀</span><span data-theme-label>Light</span></button>
+      </div>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero" style="padding:64px 0 24px">
+  <div class="container">
+    <span class="badge"><span class="badge-dot"></span> Free Tool</span>
+    <h1>What a claim <span class="grad">really costs you</span>.</h1>
+    <p class="hero-sub">The check the carrier writes is only the direct cost. Indirect costs — lost productivity, overtime, retraining, investigation — often dwarf it. See the true number.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:12px">
+  <div class="container">
+    <div class="calc">
+      <div class="calc-inputs">
+        <h3>Your numbers</h3>
+        <p class="hint">Enter the direct cost (medical + indemnity), or pick a typical claim.</p>
+        <div class="field">
+          <label>Direct Cost of the Claim</label>
+          <div class="preset-row">
+            <button type="button" class="preset" data-d="2000">Minor ($2k)</button>
+            <button type="button" class="preset" data-d="20000">Lost-time ($20k)</button>
+            <button type="button" class="preset" data-d="75000">Serious ($75k)</button>
+            <button type="button" class="preset" data-d="150000">Severe ($150k)</button>
+          </div>
+          <div class="input-prefix"><span>$</span><input type="number" id="direct" value="20000" min="0" step="500"></div>
+        </div>
+        <div class="field">
+          <label>Your Profit Margin <span class="unit">(net %)</span></label>
+          <div class="range-row"><input type="range" id="margin" min="1" max="20" step="0.5" value="3"><span class="range-val" id="marginVal">3%</span></div>
+        </div>
+      </div>
+      <div class="calc-out">
+        <h3>The true cost</h3>
+        <div class="result-hero">
+          <div class="result-label">Total cost of this claim</div>
+          <div class="result-num danger" id="total">$52,000</div>
+        </div>
+        <div class="result-row"><span class="rk">Direct cost</span><span class="rv" id="dOut">$20,000</span></div>
+        <div class="result-row"><span class="rk">Indirect cost <span id="ratio" style="color:var(--tm);font-weight:400">(×1.6)</span></span><span class="rv" id="indirect">$32,000</span></div>
+        <div class="result-row"><span class="rk">Sales needed to cover it</span><span class="rv" id="sales" style="color:var(--tw)">$1,733,333</span></div>
+        <div class="disclaimer">Indirect-cost ratios follow <strong>OSHA's $afety Pays</strong> model, which scales the ratio down as the direct cost rises (small claims carry the highest hidden multiplier). "Sales to cover" = total cost ÷ profit margin — the revenue you'd need just to break even.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:34px">
+      <a href="/contact" class="btn btn-primary btn-lg">Stop overpaying on claims →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Why It's So High</span><h2>The costs no one puts on the claim file.</h2></div>
+    <div class="grid grid-3">
+      <div class="card reveal a-amber"><div class="card-icon">⏳</div><h3>Lost productivity</h3><p>The injured worker's output, plus the ramp-up time of whoever covers — or the overtime you pay to backfill the shift.</p></div>
+      <div class="card reveal a-blue"><div class="card-icon">🔁</div><h3>Hiring &amp; retraining</h3><p>Recruiting, onboarding, and training a replacement — and the productivity dip while they get up to speed.</p></div>
+      <div class="card reveal a-red"><div class="card-icon">📋</div><h3>Admin &amp; disruption</h3><p>Investigation time, paperwork, supervisor hours, schedule disruption, and the hit to morale and your experience mod.</p></div>
+    </div>
+    <div style="max-width:760px;margin:36px auto 0">
+      <p class="lead" style="text-align:center">Every claim you prevent, contest, or close faster saves the full stack — not just the check. That's the math CompShield works in your favor.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>See it on your real claims.</h2>
+      <p>A free claim review shows where your true costs are highest — and how much a disciplined claims-defense partner puts back on your bottom line.</p>
+      <div class="hero-cta">
+        <a href="/contact" class="btn btn-primary btn-lg">Get a Free Claim Review</a>
+        <a href="/resources" class="btn btn-ghost btn-lg">More Free Tools</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+          <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+        </a>
+        <p>Workers' compensation claims defense &amp; cost control — protecting employers from the true cost of claims.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/services">Services</a>
+        <a href="/process">How It Works</a>
+        <a href="/resources">Resources</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Free Tools</h5>
+        <a href="/resources/experience-mod-calculator">Experience Mod Calculator</a>
+        <a href="/resources/cost-of-a-claim">Cost of a Claim</a>
+        <a href="/resources/savings-estimator">Savings Estimator</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:Chad@Titaniumdg.com">Chad@Titaniumdg.com</a>
+        <span class="placeholder">[Add phone number]</span>
+        <div class="socials">
+          <a href="https://www.linkedin.com/in/chad-ehrlich-/" target="_blank" rel="noopener" title="Chad Ehrlich on LinkedIn">in</a>
+          <a href="#" title="X / Twitter (add link)">X</a>
+          <a href="#" title="Facebook (add link)">f</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> CompShield, a Titanium Defense Group company. All rights reserved.</p>
+      <span class="footer-hipaa">🔒 HIPAA compliant · Data encrypted in transit &amp; at rest</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script>
+(function(){
+  function money(n){return '$'+Math.round(n).toLocaleString();}
+  var D=document.getElementById('direct'),Mg=document.getElementById('margin');
+  function ratioFor(d){ if(d<5000)return 4.5; if(d<50000)return 1.6; if(d<100000)return 1.2; return 1.1; }
+  function calc(){
+    var d=+D.value||0, m=+Mg.value||1;
+    document.getElementById('marginVal').textContent=m+'%';
+    var r=ratioFor(d), ind=d*r, total=d+ind, sales=total/(m/100);
+    document.getElementById('dOut').textContent=money(d);
+    document.getElementById('ratio').textContent='(×'+r+')';
+    document.getElementById('indirect').textContent=money(ind);
+    document.getElementById('total').textContent=money(total);
+    document.getElementById('sales').textContent=money(sales);
+  }
+  document.querySelectorAll('.preset').forEach(function(b){b.addEventListener('click',function(){D.value=b.getAttribute('data-d');calc();});});
+  [D,Mg].forEach(function(el){el.addEventListener('input',calc);});
+  calc();
+})();
+</script>
+<script src="/site.js"></script>
+</body>
+</html>

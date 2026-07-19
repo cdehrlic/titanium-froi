@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<title>Experience Mod Calculator — CompShield</title>
+<meta name="description" content="See what your workers' comp experience mod is costing you in premium — and how much you'd save by reducing it. Free educational estimator from CompShield.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+      <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/process">How It Works</a>
+      <a href="/resources">Resources</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <div class="nav-cta">
+        <a href="/report" class="btn btn-ghost">Report a Claim</a>
+        <a href="/contact" class="btn btn-primary">Free Claim Review</a>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()"><span data-theme-icon>☀</span><span data-theme-label>Light</span></button>
+      </div>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero" style="padding:64px 0 24px">
+  <div class="container">
+    <span class="badge"><span class="badge-dot"></span> Free Tool</span>
+    <h1>Experience Mod <span class="grad">Impact Calculator</span></h1>
+    <p class="hero-sub">Your experience modification rate multiplies your premium. See what a mod above 1.0 is really costing you — and what you'd recover by bringing it down.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:12px">
+  <div class="container">
+    <div class="calc">
+      <div class="calc-inputs">
+        <h3>Your numbers</h3>
+        <p class="hint">Estimates are fine. Adjust the target mod to see your savings.</p>
+        <div class="field">
+          <label>Annual Manual Premium <span class="unit">(before mod)</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="premium" value="100000" min="0" step="1000"></div>
+        </div>
+        <div class="field">
+          <label>Current Experience Mod</label>
+          <input type="number" id="mod" value="1.25" min="0" max="3" step="0.01">
+        </div>
+        <div class="field">
+          <label>Target Mod</label>
+          <div class="range-row"><input type="range" id="target" min="0.5" max="1.5" step="0.01" value="1.00"><span class="range-val" id="targetVal">1.00</span></div>
+        </div>
+      </div>
+      <div class="calc-out">
+        <h3>What your mod means</h3>
+        <div class="result-hero">
+          <div class="result-label">Estimated annual savings at your target mod</div>
+          <div class="result-num" id="savings">$25,000</div>
+          <span class="badge-pill debit" id="modBadge">Debit</span>
+        </div>
+        <div class="result-row"><span class="rk">Premium at 1.00 mod</span><span class="rv" id="basePrem">$100,000</span></div>
+        <div class="result-row"><span class="rk">Your modified premium</span><span class="rv" id="curPrem">$125,000</span></div>
+        <div class="result-row"><span class="rk">Extra cost of your mod</span><span class="rv" id="extraCost">$25,000</span></div>
+        <div class="result-row"><span class="rk">Premium at target mod</span><span class="rv" id="targetPrem">$100,000</span></div>
+        <div class="disclaimer"><strong>Educational estimate only.</strong> Your official experience mod is calculated by NCCI or your state rating bureau using primary/excess loss splits, ballast, and weighting values that aren't publicly available. Use this to understand impact and direction — not as an official mod.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:34px">
+      <a href="/contact" class="btn btn-primary btn-lg">Get help lowering your mod →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">The Guide</span><h2>How your experience mod actually works.</h2></div>
+    <div class="grid grid-3">
+      <div class="card reveal a-blue"><div class="card-icon">📊</div><h3>It's a multiplier</h3><p>Your mod multiplies your manual premium. A 1.25 mod means you pay 25% <em>more</em> than a comparable business with a 1.0; a 0.85 mod means you pay 15% <em>less</em>. It follows you for years.</p></div>
+      <div class="card reveal a-amber"><div class="card-icon">📈</div><h3>Losses drive it</h3><p>Your mod compares your actual losses to the expected losses for your class codes and payroll. Frequent small claims hurt more than you'd think — the formula weights claim <em>frequency</em> heavily.</p></div>
+      <div class="card reveal a-green"><div class="card-icon">📉</div><h3>You can lower it</h3><p>Fast reporting, aggressive claim investigation, return-to-work, and disputing bad claims all reduce the losses that feed your mod — which lowers your premium for years to come.</p></div>
+    </div>
+    <div style="max-width:760px;margin:36px auto 0">
+      <p class="lead" style="text-align:center">A single lost-time claim can raise your mod for three years. That's exactly the leak CompShield is built to close — we manage reporting, contest questionable claims, and drive return-to-work so your loss history (and your mod) trend down.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Want your real number?</h2>
+      <p>Book a free claim review and we'll look at your actual loss runs and mod worksheet — and show you exactly where it can come down.</p>
+      <div class="hero-cta">
+        <a href="/contact" class="btn btn-primary btn-lg">Get a Free Claim Review</a>
+        <a href="/resources" class="btn btn-ghost btn-lg">More Free Tools</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+          <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+        </a>
+        <p>Workers' compensation claims defense &amp; cost control — protecting employers from the true cost of claims.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/services">Services</a>
+        <a href="/process">How It Works</a>
+        <a href="/resources">Resources</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Free Tools</h5>
+        <a href="/resources/experience-mod-calculator">Experience Mod Calculator</a>
+        <a href="/resources/cost-of-a-claim">Cost of a Claim</a>
+        <a href="/resources/savings-estimator">Savings Estimator</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:Chad@Titaniumdg.com">Chad@Titaniumdg.com</a>
+        <span class="placeholder">[Add phone number]</span>
+        <div class="socials">
+          <a href="https://www.linkedin.com/in/chad-ehrlich-/" target="_blank" rel="noopener" title="Chad Ehrlich on LinkedIn">in</a>
+          <a href="#" title="X / Twitter (add link)">X</a>
+          <a href="#" title="Facebook (add link)">f</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> CompShield, a Titanium Defense Group company. All rights reserved.</p>
+      <span class="footer-hipaa">🔒 HIPAA compliant · Data encrypted in transit &amp; at rest</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script>
+(function(){
+  function money(n){var neg=n<0;n=Math.round(Math.abs(n));return (neg?'−$':'$')+n.toLocaleString();}
+  var P=document.getElementById('premium'),M=document.getElementById('mod'),T=document.getElementById('target');
+  function calc(){
+    var p=+P.value||0,m=+M.value||0,t=+T.value||0;
+    document.getElementById('targetVal').textContent=t.toFixed(2);
+    document.getElementById('basePrem').textContent=money(p);
+    document.getElementById('curPrem').textContent=money(p*m);
+    document.getElementById('extraCost').textContent=money(p*(m-1));
+    document.getElementById('targetPrem').textContent=money(p*t);
+    var save=p*(m-t);
+    var s=document.getElementById('savings');
+    s.textContent=money(save);
+    s.className='result-num'+(save>0?'':' warn');
+    var b=document.getElementById('modBadge');
+    if(m>1){b.className='badge-pill debit';b.textContent='Debit — '+Math.round((m-1)*100)+'% above base';}
+    else if(m<1){b.className='badge-pill credit';b.textContent='Credit — '+Math.round((1-m)*100)+'% below base';}
+    else{b.className='badge-pill credit';b.textContent='Neutral — 1.00 mod';}
+  }
+  [P,M,T].forEach(function(el){el.addEventListener('input',calc);});
+  calc();
+})();
+</script>
+<script src="/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<title>Free Workers' Comp Resources &amp; Calculators — CompShield</title>
+<meta name="description" content="Free tools and guides for employers: experience mod calculator, cost-of-a-claim calculator, savings estimator, and a workers' comp cost-leak checklist.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+      <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/process">How It Works</a>
+      <a href="/resources">Resources</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <div class="nav-cta">
+        <a href="/report" class="btn btn-ghost">Report a Claim</a>
+        <a href="/contact" class="btn btn-primary">Free Claim Review</a>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()"><span data-theme-icon>☀</span><span data-theme-label>Light</span></button>
+      </div>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero" style="padding:72px 0 32px">
+  <div class="container">
+    <span class="badge"><span class="badge-dot"></span> Free for Employers</span>
+    <h1>Workers' comp <span class="grad">resources &amp; tools</span>.</h1>
+    <p class="hero-sub">Free calculators and guides to help you see what claims are really costing you — and how to fight back. No sign-up to use the tools.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:16px">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Free Calculators</span><h2>Put a number on it.</h2></div>
+    <div class="grid grid-3">
+      <a href="/resources/experience-mod-calculator" class="card hover reveal a-blue" style="text-decoration:none;display:block">
+        <div class="card-icon">📊</div>
+        <h3>Experience Mod Calculator</h3>
+        <p>See what your experience mod is costing you in premium — and what reducing it saves.</p>
+        <span class="card-link">Open calculator →</span>
+      </a>
+      <a href="/resources/cost-of-a-claim" class="card hover reveal a-red" style="text-decoration:none;display:block">
+        <div class="card-icon">💸</div>
+        <h3>Cost of a Claim</h3>
+        <p>The true direct + indirect cost of a claim, and the sales you'd need to cover it.</p>
+        <span class="card-link">Open calculator →</span>
+      </a>
+      <a href="/resources/savings-estimator" class="card hover reveal a-green" style="text-decoration:none;display:block">
+        <div class="card-icon">💰</div>
+        <h3>Savings Estimator</h3>
+        <p>Estimate what better claims management could save your business each year.</p>
+        <span class="card-link">Open calculator →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="split" style="align-items:center">
+      <div class="split-copy">
+        <span class="eyebrow">Free Download</span>
+        <h2>The Workers' Comp Cost-Leak Checklist</h2>
+        <p>A one-page checklist of the most common places employers lose money on workers' comp — late reporting, unchallenged claims, reserve creep, missed subrogation, no return-to-work — and what to do about each.</p>
+        <ul class="card" style="border:none;background:transparent;padding:0;margin-top:6px">
+          <li>15+ cost leaks to check for</li>
+          <li>The fix for each, in plain English</li>
+          <li>Built by claims-defense pros</li>
+        </ul>
+      </div>
+      <div class="split-media">
+        <form id="gateForm" novalidate>
+          <div id="gateMsg" class="form-msg"></div>
+          <div class="gate-form">
+            <h3 style="margin-bottom:6px">Get the checklist</h3>
+            <p class="hint" style="font-size:13px;color:var(--tm);margin-bottom:16px">Tell us where to send it — and we'll email you a copy too.</p>
+            <div class="field"><label>Name</label><input type="text" name="name" placeholder="Your name" autocomplete="name"></div>
+            <div class="field"><label>Work Email</label><input type="email" name="email" placeholder="you@company.com" autocomplete="email"></div>
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Send Me the Checklist</button>
+            <p style="font-size:12px;color:var(--tm);text-align:center;margin-top:10px">🔒 No spam. Unsubscribe anytime.</p>
+          </div>
+          <div id="gateReveal" class="gate-reveal" style="text-align:center">
+            <div class="card-icon a-green" style="margin:0 auto 14px;background:rgba(52,211,153,0.12)">✓</div>
+            <h3 style="margin-bottom:8px">You're all set!</h3>
+            <p style="margin-bottom:18px">Your checklist is ready — and we've emailed you a copy.</p>
+            <a href="/cost-leak-checklist.pdf" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-block">Download the Checklist (PDF)</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Guides</span><h2>Know the game before you play it.</h2></div>
+    <div class="grid grid-3">
+      <div class="card reveal a-blue"><div class="card-icon">🛡️</div><h3>How to fight a WC claim</h3><p>Report fast, document everything, gather statements while memories are fresh, and screen for red flags. The claims you contest early are the ones you win.</p></div>
+      <div class="card reveal a-amber"><div class="card-icon">📉</div><h3>Lower your experience mod</h3><p>Frequency hurts more than severity. Cut small repeat claims, return people to work, and dispute what doesn't belong — your mod follows your losses down.</p></div>
+      <div class="card reveal a-green"><div class="card-icon">🔄</div><h3>Build a return-to-work program</h3><p>Light-duty roles get people back sooner and slash indemnity — the most expensive part of any claim. It's the highest-ROI move most employers skip.</p></div>
+    </div>
+    <p style="text-align:center;color:var(--tm);margin-top:26px">Want these as a deeper playbook? <a href="/contact" style="color:var(--ta);text-decoration:none;font-weight:600">Ask us →</a></p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Tools are a start. Results take a partner.</h2>
+      <p>Get a free claim review and we'll turn these estimates into a real plan to cut your workers' comp cost.</p>
+      <div class="hero-cta">
+        <a href="/contact" class="btn btn-primary btn-lg">Get a Free Claim Review</a>
+        <a href="/services" class="btn btn-ghost btn-lg">See What We Do</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+          <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">A Titanium Defense Group Company</span></span>
+        </a>
+        <p>Workers' compensation claims defense &amp; cost control — protecting employers from the true cost of claims.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/services">Services</a>
+        <a href="/process">How It Works</a>
+        <a href="/resources">Resources</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Free Tools</h5>
+        <a href="/resources/experience-mod-calculator">Experience Mod Calculator</a>
+        <a href="/resources/cost-of-a-claim">Cost of a Claim</a>
+        <a href="/resources/savings-estimator">Savings Estimator</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:Chad@Titaniumdg.com">Chad@Titaniumdg.com</a>
+        <span class="placeholder">[Add phone number]</span>
+        <div class="socials">
+          <a href="https://www.linkedin.com/in/chad-ehrlich-/" target="_blank" rel="noopener" title="Chad Ehrlich on LinkedIn">in</a>
+          <a href="#" title="X / Twitter (add link)">X</a>
+          <a href="#" title="Facebook (add link)">f</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> CompShield, a Titanium Defense Group company. All rights reserved.</p>
+      <span class="footer-hipaa">🔒 HIPAA compliant · Data encrypted in transit &amp; at rest</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script>
+(function(){
+  var form=document.getElementById('gateForm');
+  if(!form)return;
+  var msg=document.getElementById('gateMsg');
+  var reveal=document.getElementById('gateReveal');
+  var formEls=form.querySelector('.gate-form');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var data={}; new FormData(form).forEach(function(v,k){data[k]=v;});
+    if(!data.name||!data.email){msg.className='form-msg err';msg.textContent='Please enter your name and work email.';return;}
+    var btn=form.querySelector('button[type="submit"]');btn.disabled=true;var o=btn.textContent;btn.textContent='Sending…';
+    fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name:data.name,email:data.email,company:'',message:'Resource request: Workers\' Comp Cost-Leak Checklist (from /resources)'
+    })}).then(function(r){return r.json();}).then(function(j){
+      if(j.success){ formEls.style.display='none'; reveal.classList.add('show'); }
+      else { msg.className='form-msg err'; msg.textContent=j.error||'Something went wrong — email us and we\'ll send it over.'; btn.disabled=false; btn.textContent=o; }
+    }).catch(function(){ msg.className='form-msg err'; msg.textContent='Network error. Email Chad@Titaniumdg.com and we\'ll send it.'; btn.disabled=false; btn.textContent=o; });
+  });
+})();
+</script>
+<script src="/site.js"></script>
+</body>
+</html>
