@@ -1652,6 +1652,7 @@ app.get('/resources/claim-files/when-the-carrier-knew-before-you-did', sendPage(
 app.get('/resources/claim-files/it-happened-at-work', sendPage('post-compensability.html'));
 app.get('/resources/claim-files/which-injury-are-you-paying-for', sendPage('post-apportionment.html'));
 app.get('/audit', sendPage('audit.html'));
+app.get('/privacy', sendPage('privacy.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
