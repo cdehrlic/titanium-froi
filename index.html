@@ -204,6 +204,14 @@ body.light .card-general .card-icon{background:rgba(5,150,105,0.08);border-color
   background:rgba(79,143,239,0.1);color:var(--ta);
   border:1px solid rgba(79,143,239,0.2);
 }
+.card-construction .card-tag{
+  background:rgba(245,158,11,0.1);color:var(--tw);
+  border:1px solid rgba(245,158,11,0.2);
+}
+.card-general .card-tag{
+  background:rgba(52,211,153,0.1);color:var(--tg);
+  border:1px solid rgba(52,211,153,0.2);
+}
 .footer{
   padding:24px 40px;text-align:center;
   border-top:1px solid var(--gbd);
@@ -266,29 +274,29 @@ body.light .card-general .card-icon{background:rgba(5,150,105,0.08);border-color
     <div class="hero-label">Select Your Industry</div>
     
     <div class="cards">
-      <a href="/portal" class="card card-healthcare">
+      <a href="/portal?industry=healthcare" class="card card-healthcare">
         <span class="card-tag">Active</span>
         <div class="card-icon">&#127973;</div>
         <h3>Health Care</h3>
         <p>Hospitals, nursing facilities, home care, staffing agencies, rehabilitation centers</p>
         <div class="card-arrow">Begin Claim <span>&#8594;</span></div>
       </a>
-      
-      <div class="card card-construction card-disabled">
-        <span class="card-tag">Coming Soon</span>
+
+      <a href="/portal?industry=construction" class="card card-construction">
+        <span class="card-tag">Active</span>
         <div class="card-icon">&#127959;&#65039;</div>
         <h3>Construction</h3>
         <p>General contractors, specialty trades, heavy construction, residential and commercial projects</p>
         <div class="card-arrow">Begin Claim <span>&#8594;</span></div>
-      </div>
-      
-      <div class="card card-general card-disabled">
-        <span class="card-tag">Coming Soon</span>
+      </a>
+
+      <a href="/portal?industry=general" class="card card-general">
+        <span class="card-tag">Active</span>
         <div class="card-icon">&#127970;</div>
         <h3>General Industry</h3>
         <p>Manufacturing, warehousing, retail, office environments, food service, transportation</p>
         <div class="card-arrow">Begin Claim <span>&#8594;</span></div>
-      </div>
+      </a>
     </div>
   </main>
 

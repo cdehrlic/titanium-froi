@@ -88,9 +88,38 @@ const CORRECTIVE=[{v:'reviewed_procedures',l:'Reviewed Procedures'},{v:'training
 const FRAUD=[{v:'delayed_report',l:'Delayed Reporting'},{v:'monday_claim',l:'Monday Claim'},{v:'no_witnesses',l:'No Witnesses'},{v:'vague_description',l:'Vague Description'},{v:'recent_discipline',l:'Recent Discipline'},{v:'new_employee',l:'New Employee'},{v:'history_claims',l:'History of Claims'},{v:'attorney_immediate',l:'Attorney Immediately'},{v:'preexisting',l:'Pre-existing'}];
 const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
 
+// ── Industry-aware config (?industry=healthcare|construction|general) ──────────
+const IND_KEY=(()=>{try{const q=(new URLSearchParams(location.search).get('industry')||'').toLowerCase();return ['healthcare','construction','general'].includes(q)?q:'healthcare'}catch(e){return 'healthcare'}})();
+const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
+const INDUSTRIES={
+ healthcare:{
+  label:'Healthcare',
+  entities:HEALTHCARE_ENTITIES,
+  injuryTypes:INJURY_TYPES,
+  natureOfInjury:['Contusion/Bruise','Laceration/Cut','Fracture','Sprain','Strain','Puncture','Abrasion','Burn - Thermal','Burn - Chemical','Concussion','Dislocation','Amputation','Crushing Injury','Inflammation','Carpal Tunnel','Herniated Disc','Hearing Loss','Foreign Body','Multiple Injuries','Other'],
+  causeOfInjury:['Fall on Same Level','Fall from Height','Struck by Object','Struck Against Object','Caught In/Between','Overexertion - Lifting','Overexertion - Pushing/Pulling','Repetitive Motion','Motor Vehicle Accident','Assault/Violence','Exposure to Harmful Substance','Temperature Extremes','Contact with Electricity','Patient Handling','Other']
+ },
+ construction:{
+  label:'Construction',
+  entities:[],
+  injuryTypes:[{v:'fall_height',l:'Fall from Height',i:'🪜'},{v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'🤕'},{v:'struck_by',l:'Struck By Object',i:'💥'},{v:'caught_in',l:'Caught In/Between',i:'🛠️'},{v:'electrocution',l:'Electrocution',i:'⚡'},{v:'cut_laceration',l:'Cut/Laceration',i:'🩹'},{v:'strain_sprain',l:'Strain/Sprain',i:'💪'},{v:'burn',l:'Burn',i:'🔥'},{v:'exposure',l:'Exposure',i:'🧪'},{v:'vehicle',l:'Vehicle/Equipment',i:'🚧'},{v:'other',l:'Other',i:'📋'}],
+  natureOfInjury:['Fracture','Laceration/Cut','Amputation','Crushing Injury','Sprain','Strain','Burn - Thermal','Burn - Chemical','Concussion / TBI','Eye Injury','Electric Shock','Puncture','Dislocation','Hearing Loss','Multiple Injuries','Other'],
+  causeOfInjury:['Fall from Height (ladder/roof/scaffold)','Fall on Same Level','Struck by Equipment/Vehicle','Struck by Falling Object','Caught In/Between Machinery','Trench / Excavation Collapse','Scaffold Collapse','Power Tool Injury','Contact with Electricity','Overexertion / Lifting','Welding / Hot Work','Exposure to Harmful Substance','Motor Vehicle Accident','Other']
+ },
+ general:{
+  label:'General Industry',
+  entities:[],
+  injuryTypes:[{v:'strain_sprain',l:'Strain/Overexertion',i:'💪'},{v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'🤕'},{v:'struck_by',l:'Struck By',i:'💥'},{v:'caught_in',l:'Caught In/Machinery',i:'⚙️'},{v:'cut_laceration',l:'Cut/Laceration',i:'🩹'},{v:'repetitive',l:'Repetitive Motion',i:'🔄'},{v:'burn',l:'Burn',i:'🔥'},{v:'vehicle',l:'Forklift/Vehicle',i:'🚚'},{v:'exposure',l:'Chemical Exposure',i:'🧪'},{v:'assault',l:'Assault',i:'🚨'},{v:'other',l:'Other',i:'📋'}],
+  natureOfInjury:['Strain','Sprain','Laceration/Cut','Contusion/Bruise','Fracture','Carpal Tunnel','Hernia','Burn - Thermal','Burn - Chemical','Respiratory / Chemical','Amputation','Crushing Injury','Foreign Body','Hearing Loss','Multiple Injuries','Other'],
+  causeOfInjury:['Overexertion - Lifting','Repetitive Motion','Machine / Equipment','Forklift / Powered Industrial Truck','Slip on Wet/Uneven Surface','Struck by Object','Caught In/Between Machinery','Chemical Exposure','Temperature Extremes','Motor Vehicle Accident','Other']
+ }
+};
+const IND=INDUSTRIES[IND_KEY];
+
 function App(){
 const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
 const[d,setD]=S({
+ industry:IND_KEY,
  firstName:'',
  lastName:'',
  mailingAddress:'',
@@ -748,25 +777,10 @@ if(step===1){
  const injuryInFuture=d.dateOfInjury&&new Date(d.dateOfInjury)>new Date();
  const reportBeforeInjury=d.dateOfInjury&&d.dateReported&&new Date(d.dateReported)<new Date(d.dateOfInjury);
 
- const ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
+ const ENTITIES=IND.entities;
  const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
- const NATURE_OF_INJURY=[
- {v:'contusion',l:'Contusion/Bruise'},{v:'laceration',l:'Laceration/Cut'},{v:'fracture',l:'Fracture'},
- {v:'sprain',l:'Sprain'},{v:'strain',l:'Strain'},{v:'puncture',l:'Puncture'},{v:'abrasion',l:'Abrasion'},
- {v:'burn_thermal',l:'Burn - Thermal'},{v:'burn_chemical',l:'Burn - Chemical'},{v:'concussion',l:'Concussion'},
- {v:'dislocation',l:'Dislocation'},{v:'amputation',l:'Amputation'},{v:'crushing',l:'Crushing Injury'},
- {v:'inflammation',l:'Inflammation'},{v:'carpal_tunnel',l:'Carpal Tunnel'},{v:'herniated_disc',l:'Herniated Disc'},
- {v:'hearing_loss',l:'Hearing Loss'},{v:'foreign_body',l:'Foreign Body'},{v:'multiple',l:'Multiple Injuries'},{v:'other',l:'Other'}
- ];
- const CAUSE_OF_INJURY=[
- {v:'fall_same_level',l:'Fall on Same Level'},{v:'fall_from_height',l:'Fall from Height'},
- {v:'struck_by_object',l:'Struck by Object'},{v:'struck_against',l:'Struck Against Object'},
- {v:'caught_in_between',l:'Caught In/Between'},{v:'overexertion_lifting',l:'Overexertion - Lifting'},
- {v:'overexertion_pushing',l:'Overexertion - Pushing/Pulling'},{v:'repetitive_motion',l:'Repetitive Motion'},
- {v:'motor_vehicle',l:'Motor Vehicle Accident'},{v:'assault_violence',l:'Assault/Violence'},
- {v:'exposure_harmful',l:'Exposure to Harmful Substance'},{v:'exposure_temperature',l:'Temperature Extremes'},
- {v:'contact_electric',l:'Contact with Electricity'},{v:'patient_handling',l:'Patient Handling'},{v:'other',l:'Other'}
- ];
+ const NATURE_OF_INJURY=IND.natureOfInjury;
+ const CAUSE_OF_INJURY=IND.causeOfInjury;
 
  return e('div',{className:'content'},
  e('div',{className:'section-header'},
@@ -813,7 +827,7 @@ if(step===1){
   ),
   e('div',{className:'form-group full-width',style:{marginTop:16}},
   e('label',null,'Injury Type ',e('span',{className:'required'},'*')),
-  e('div',{className:'injury-grid'},...INJURY_TYPES.map(t=>
+  e('div',{className:'injury-grid'},...IND.injuryTypes.map(t=>
    e('button',{key:t.v,type:'button',className:'injury-btn'+(d.injuryType===t.v?' active':''),onClick:()=>u('injuryType',t.v)},
    e('span',{className:'injury-icon'},t.i),
    e('span',{className:'injury-label'},t.l)
@@ -883,14 +897,14 @@ if(step===1){
    e('label',null,'Nature of Injury ',e('span',{className:'required'},'*')),
    e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
    e('option',{value:''},'Select nature of injury'),
-   ...NATURE_OF_INJURY.map(n=>e('option',{key:n.v,value:n.v},n.l))
+   ...NATURE_OF_INJURY.map(n=>e('option',{key:n,value:n},n))
    )
   ),
   e('div',{className:'form-group'},
    e('label',null,'Cause of Injury ',e('span',{className:'required'},'*')),
    e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
    e('option',{value:''},'Select cause of injury'),
-   ...CAUSE_OF_INJURY.map(c=>e('option',{key:c.v,value:c.v},c.l))
+   ...CAUSE_OF_INJURY.map(c=>e('option',{key:c,value:c},c))
    )
   ),
   e('div',{className:'form-group'},
@@ -1658,7 +1672,7 @@ if(step===5){
 return null;
 };
 
-return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'CompShield'}))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<5&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
+return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'CompShield'})),e('div',{className:'brand-text'},e('h1',null,'WC Reporting'),e('p',null,IND.label+' · CompShield'))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<5&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
 </script>

@@ -20,6 +20,17 @@ const refNum=params.get('ref')||'';
 const claimantName=decodeURIComponent(params.get('name')||'');
 const claimantDOB=params.get('dob')||'';
 const entity=decodeURIComponent(params.get('entity')||'');
+const industry=['healthcare','construction','general'].includes((params.get('industry')||'').toLowerCase())?(params.get('industry')||'').toLowerCase():'healthcare';
+const IND_RC={
+ healthcare:{cat:'Healthcare Specific',items:['Patient Aggression','Needle Stick','Improper Body Mechanics','Staffing Shortage','Inadequate Lift Equipment']},
+ construction:{cat:'Construction Specific',items:['No Fall Protection','Fall Protection Not Used','Improper Scaffolding','Unshored/Unprotected Trench','Lockout/Tagout Not Used','Overhead Hazard','Improper Rigging','Ladder Misuse']},
+ general:{cat:'General Industry Specific',items:['No Machine Guarding','Lockout/Tagout Failure','Forklift Not Certified','Improper Lifting Technique','Ergonomic Hazard','Chemical Handling Error','Blocked Emergency Exit']}
+};
+const IND_CA={
+ healthcare:{cat:'Healthcare Actions',items:['Lift Equipment Provided','Safe Patient Handling Training','Sharps Protocol Updated','Staffing Adjustment']},
+ construction:{cat:'Construction Actions',items:['Fall Protection Plan','Scaffold Inspection','Trench Shoring Installed','Rigging Inspection','Ladder Safety Training']},
+ general:{cat:'General Industry Actions',items:['Machine Guard Installed','LOTO Program Updated','Forklift Certification','Ergonomic Assessment','Chemical Handling Training']}
+};
 
 function App(){
 const[tab,setTab]=S(0);
@@ -138,14 +149,15 @@ const renderRootCause=()=>{
  {cat:'Human Factors',items:['Fatigue','Rushing/Time Pressure','Complacency','Distraction','Horseplay','Shortcut Taken','Failure to Follow Procedure']},
  {cat:'Workplace Environment',items:['Poor Housekeeping','Inadequate Lighting','Wet/Slippery Surface','Extreme Temperature','Noise','Cramped Space','Hazardous Material','Blocked Pathway']},
  {cat:'Procedures & Policies',items:['No Written Procedure','Outdated Procedure','Procedure Not Followed','Inadequate Hazard Assessment']},
- {cat:'Healthcare Specific',items:['Patient Aggression','Needle Stick','Improper Body Mechanics','Staffing Shortage','Inadequate Lift Equipment']}
+ IND_RC[industry]
  ];
  const CA_CATEGORIES=[
  {cat:'Training',items:['Training Scheduled','Retraining Required','Certification Needed','Safety Meeting Planned']},
  {cat:'Procedures',items:['New Procedure Created','Procedure Updated','JSA/JHA Required','Hazard Assessment Needed']},
  {cat:'Discipline',items:['Verbal Warning','Written Warning','Suspension','Termination']},
  {cat:'Equipment & Environment',items:['Equipment Repaired','Equipment Replaced','Guard Installed','PPE Purchased','Lighting Improved','Housekeeping Corrected','Signage Added']},
- {cat:'Administrative',items:['Staffing Adjustment','Schedule Modified','Engineering Control Added','Policy Change','Incident Report Filed']}
+ {cat:'Administrative',items:['Staffing Adjustment','Schedule Modified','Engineering Control Added','Policy Change','Incident Report Filed']},
+ IND_CA[industry]
  ];
  const countInCat=(cat,arr)=>cat.items.filter(i=>arr.includes(i)).length;
 

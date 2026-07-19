@@ -94,6 +94,8 @@ const ENTITIES = [
 // ═══════════════════════════════════════════════════════════════════════════════
 const INJURY_TYPE_LABELS = {
   'slip_trip_fall': 'Slip, Trip, or Fall',
+  'fall_height': 'Fall from Height',
+  'electrocution': 'Electrocution',
   'struck_by': 'Struck By Object',
   'strain_sprain': 'Strain / Sprain / Overexertion',
   'cut_laceration': 'Cut / Laceration / Puncture',
@@ -242,7 +244,8 @@ function buildFollowUpLink(referenceNumber, formData) {
   const name = encodeURIComponent((formData.firstName || '') + ' ' + (formData.lastName || ''));
   const dob = formData.dateOfBirth || '';
   const entity = encodeURIComponent(getEntityName(formData));
-  return `${CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}`;
+  const industry = encodeURIComponent(formData.industry || 'healthcare');
+  return `${CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}&industry=${industry}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
