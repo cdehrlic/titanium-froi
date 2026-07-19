@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
 <title>Free Workers' Comp Resources &amp; Calculators — CompShield</title>
-<meta name="description" content="Free tools and guides for employers: experience mod calculator, cost-of-a-claim calculator, savings estimator, and a workers' comp cost-leak checklist.">
+<meta name="description" content="Free workers' comp resources for employers: downloadable incident report, witness statement, supervisor investigation, fraud red-flag and return-to-work templates, plus an experience mod calculator, cost-of-a-claim calculator, and savings estimator.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="canonical" href="https://www.wcreporting.com/resources">
 <meta property="og:type" content="website">
@@ -100,6 +100,71 @@
         </form>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="section" id="templates">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Free Templates &amp; Checklists</span><h2>The forms every employer needs on hand.</h2><p>Print-ready, professionally built templates for reporting, investigating, and defending workplace injuries. Enter your email once to unlock the whole set.</p></div>
+
+    <div id="libGate" class="lib-gate reveal">
+      <div class="lib-gate-copy">
+        <strong>Unlock all 6 templates — free</strong>
+        <span>One email unlocks every download below, and we'll send you the full set.</span>
+      </div>
+      <form id="libForm" class="lib-gate-form" novalidate>
+        <input type="text" name="name" placeholder="Name" autocomplete="name" aria-label="Your name">
+        <input type="email" name="email" placeholder="Work email" autocomplete="email" aria-label="Work email">
+        <button type="submit" class="btn btn-primary">Unlock the set</button>
+      </form>
+    </div>
+    <div id="libMsg" class="form-msg" style="max-width:640px;margin:10px auto 0"></div>
+
+    <div class="grid grid-3 lib-grid" id="libGrid" style="margin-top:26px">
+      <div class="card tmpl a-blue reveal">
+        <div class="card-icon">📝</div>
+        <h3>Employee Incident Report</h3>
+        <p>Capture the who, what, where, and how of any injury — the foundation of every defensible claim.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/employee-incident-report.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+      <div class="card tmpl a-blue reveal">
+        <div class="card-icon">🖊️</div>
+        <h3>Witness Statement Form</h3>
+        <p>Lock down what witnesses saw while it's fresh. Signed statements win contested claims.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/witness-statement-form.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+      <div class="card tmpl a-amber reveal">
+        <div class="card-icon">🔍</div>
+        <h3>Supervisor's Investigation Report</h3>
+        <p>A structured root-cause investigation with a built-in red-flag and verification checklist.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/supervisor-investigation-report.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+      <div class="card tmpl a-green reveal">
+        <div class="card-icon">⏱️</div>
+        <h3>First 24 Hours Checklist</h3>
+        <p>Exactly what to do the day an injury is reported — the window that shapes the whole claim.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/first-24-hours-injury-checklist.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+      <div class="card tmpl a-red reveal">
+        <div class="card-icon">🚩</div>
+        <h3>Fraud Red-Flag Checklist</h3>
+        <p>Score a questionable claim against the flags investigators look for — and know your next move.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/fraud-red-flag-checklist.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+      <div class="card tmpl a-green reveal">
+        <div class="card-icon">🔄</div>
+        <h3>Return-to-Work Offer Letter</h3>
+        <p>A ready-to-send modified-duty offer that gets people back sooner and cuts indemnity cost.</p>
+        <a class="btn btn-ghost btn-block tmpl-dl" href="/return-to-work-offer-letter.pdf" target="_blank" rel="noopener">Download PDF ↓</a>
+        <span class="tmpl-lock">🔒 Enter email to unlock</span>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--tm);margin-top:22px;font-size:13px">Print-ready PDFs. Practical employer tools, not legal advice — adapt to your jurisdiction.</p>
   </div>
 </section>
 
@@ -216,6 +281,30 @@
       if(j.success){ formEls.style.display='none'; reveal.classList.add('show'); }
       else { msg.className='form-msg err'; msg.textContent=j.error||'Something went wrong — email us and we\'ll send it over.'; btn.disabled=false; btn.textContent=o; }
     }).catch(function(){ msg.className='form-msg err'; msg.textContent='Network error. Email Chad@Titaniumdg.com and we\'ll send it.'; btn.disabled=false; btn.textContent=o; });
+  });
+})();
+(function(){
+  var form=document.getElementById('libForm');
+  if(!form)return;
+  var msg=document.getElementById('libMsg');
+  var grid=document.getElementById('libGrid');
+  var gate=document.getElementById('libGate');
+  function unlock(){ grid.classList.add('unlocked'); }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var data={}; new FormData(form).forEach(function(v,k){data[k]=v;});
+    if(!data.name||!data.email){msg.className='form-msg err';msg.textContent='Please enter your name and work email.';return;}
+    var btn=form.querySelector('button[type="submit"]');btn.disabled=true;var o=btn.textContent;btn.textContent='Unlocking…';
+    fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name:data.name,email:data.email,company:'',message:'Resource request: Employer Template Library (Incident Report, Witness Statement, Supervisor Investigation, First-24-Hours, Fraud Red-Flags, Return-to-Work) from /resources'
+    })}).then(function(r){return r.json();}).then(function(j){
+      if(j.success){
+        unlock();
+        gate.classList.add('lib-gate-done');
+        gate.innerHTML='<div class="lib-gate-copy"><strong>✓ Unlocked — check your email</strong><span>All six templates are ready to download below. We\'ve also emailed you the set.</span></div>';
+        msg.textContent='';
+      } else { msg.className='form-msg err'; msg.textContent=j.error||'Something went wrong — email us and we\'ll send them over.'; btn.disabled=false; btn.textContent=o; }
+    }).catch(function(){ msg.className='form-msg err'; msg.textContent='Network error. Email Chad@Titaniumdg.com and we\'ll send them.'; btn.disabled=false; btn.textContent=o; });
   });
 })();
 </script>
