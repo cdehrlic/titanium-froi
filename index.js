@@ -1653,6 +1653,7 @@ app.get('/resources/claim-files/it-happened-at-work', sendPage('post-compensabil
 app.get('/resources/claim-files/which-injury-are-you-paying-for', sendPage('post-apportionment.html'));
 app.get('/audit', sendPage('audit.html'));
 app.get('/privacy', sendPage('privacy.html'));
+app.get('/share-your-story', sendPage('share-your-story.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
