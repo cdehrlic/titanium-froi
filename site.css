@@ -394,3 +394,17 @@ body.js .reveal.in{opacity:1;transform:none}
 .related-files h2{font-size:22px;margin-bottom:22px;text-align:center}
 .related-files .post-card h3{font-size:16px;margin:8px 0 12px}
 .related-files .post-card{display:flex;flex-direction:column}
+
+/* ---- Audit page ---- */
+.audit-list{list-style:none;padding:0;margin:14px 0 0}
+.audit-list li{position:relative;padding:5px 0 5px 26px;font-size:14px;color:var(--tm);line-height:1.55}
+.audit-list li::before{content:'✓';position:absolute;left:2px;top:5px;color:var(--tg);font-weight:700}
+.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:860px;margin:0 auto}
+.price-card{background:var(--card,rgba(31,41,55,0.5));border:1px solid var(--tb);border-radius:18px;padding:34px 30px;display:flex;flex-direction:column}
+.price-card .btn{margin-top:auto}
+.price-card .audit-list{margin-bottom:22px}
+.price-featured{border-color:var(--ta);box-shadow:0 8px 32px rgba(79,143,239,0.12)}
+.price-tier{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ta)}
+.price-amount{font-family:'Outfit',sans-serif;font-size:44px;font-weight:800;margin:8px 0 4px;letter-spacing:-0.02em}
+.price-for{font-size:14px;color:var(--tm)}
+@media(max-width:760px){.price-grid{grid-template-columns:1fr}}

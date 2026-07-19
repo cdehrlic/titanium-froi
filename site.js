@@ -66,7 +66,7 @@
               msg.className = 'form-msg err'; msg.textContent = j.error || 'Something went wrong. Please email us directly.';
             }
           })
-          .catch(function () { msg.className = 'form-msg err'; msg.textContent = 'Network error. Please email us directly at Chad@Titaniumdg.com.'; })
+          .catch(function () { msg.className = 'form-msg err'; msg.textContent = 'Network error. Please email us directly at info@comp-shield.com.'; })
           .finally(function () { btn.disabled = false; btn.textContent = orig; msg.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
       });
     }
