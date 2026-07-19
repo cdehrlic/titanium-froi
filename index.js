@@ -1621,6 +1621,7 @@ app.get('/resources/claim-files/when-the-old-job-is-gone', sendPage('post-vocreh
 app.get('/resources/claim-files/the-benefit-you-have-to-keep-earning', sendPage('post-attachment.html'));
 app.get('/resources/claim-files/the-money-hiding-in-the-medical-bills', sendPage('post-medical-mgmt.html'));
 app.get('/resources/claim-files/what-a-finger-is-worth', sendPage('post-slu.html'));
+app.get('/resources/claim-files/when-the-carrier-knew-before-you-did', sendPage('post-notice.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
