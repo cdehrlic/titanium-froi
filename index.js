@@ -1617,6 +1617,7 @@ app.get('/resources/claim-files/the-answer-was-in-the-bloodwork', sendPage('post
 app.get('/resources/claim-files/the-1099-that-wasnt', sendPage('post-1099.html'));
 app.get('/resources/claim-files/the-first-hour-after-the-fall', sendPage('post-first-hour.html'));
 app.get('/resources/claim-files/the-second-case-hiding-in-the-claim', sendPage('post-subrogation.html'));
+app.get('/resources/claim-files/when-the-old-job-is-gone', sendPage('post-vocrehab.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
