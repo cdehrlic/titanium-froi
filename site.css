@@ -388,3 +388,9 @@ body.js .reveal.in{opacity:1;transform:none}
   .lib-gate-form{flex-direction:column}
   .lib-gate-form input{width:100%}
 }
+
+/* ---- Related Claim Files (internal linking) ---- */
+.related-files{max-width:1000px;margin:52px auto 0;padding-top:36px;border-top:1px solid var(--tb)}
+.related-files h2{font-size:22px;margin-bottom:22px;text-align:center}
+.related-files .post-card h3{font-size:16px;margin:8px 0 12px}
+.related-files .post-card{display:flex;flex-direction:column}
