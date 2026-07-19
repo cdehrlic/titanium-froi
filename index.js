@@ -1612,6 +1612,8 @@ app.get('/resources/claim-files/the-midnight-injury', sendPage('post-midnight-in
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
+app.get('/resources/lower-experience-mod', sendPage('guide-experience-mod.html'));
+app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.html'));
 app.get('/report', sendPage('index.html'));   // industry selector → portal
 app.get('/portal', sendPage('portal.html'));   // WC Reporting claim form
 
