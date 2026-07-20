@@ -939,7 +939,7 @@ function generateClaimPDF(formData, referenceNumber) {
 // ═══════════════════════════════════════════════════════════════════════════════
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.4' }));
 app.get('/health', (req, res) => res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() }));
-app.get('/api/entities', (req, res) => res.json(ENTITIES));
+app.get('/api/entities', (req, res) => res.json(isCSHost(req) ? [] : ENTITIES));
 
 // Generate secure link for statement/release
 app.post('/api/generate-link', async (req, res) => {

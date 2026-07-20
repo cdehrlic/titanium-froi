@@ -90,7 +90,7 @@ const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','
 
 // ── Industry-aware config (?industry=healthcare|construction|general) ──────────
 const IND_KEY=(()=>{try{const q=(new URLSearchParams(location.search).get('industry')||'').toLowerCase();return ['healthcare','construction','general'].includes(q)?q:'healthcare'}catch(e){return 'healthcare'}})();
-const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
+const HEALTHCARE_ENTITIES=[];
 const INDUSTRIES={
  healthcare:{
   label:'Healthcare',
@@ -788,8 +788,8 @@ if(step===1){
   e('p',{className:'section-subtitle'},'What happened, when, and where')
  ),
  e('div',{className:'form-group full-width'},
-  e('label',null,'Entity ',e('span',{className:'required'},'*')),
-  sel('entity',[...ENTITIES,'Other - Enter Manually'],'Select Entity'),
+  e('label',null,ENTITIES.length?'Entity ':'Employer / Company Name ',e('span',{className:'required'},'*')),
+  ENTITIES.length?sel('entity',[...ENTITIES,'Other - Enter Manually'],'Select Entity'):e('input',{className:'input-field',value:d.entity||'',onChange:x=>u('entity',x.target.value),placeholder:'Enter your company or agency name'}),
   d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
  ),
  e('div',{className:'form-grid',style:{marginTop:16}},
@@ -845,7 +845,7 @@ if(step===1){
   ),
   e('div',{className:'form-group full-width',style:{marginTop:16}},
   e('label',null,'Worksite / Facility Name'),
-  inp('worksiteName','e.g., Sigma Link Rehab - Newark Facility')
+  inp('worksiteName','e.g., Riverside Care Center - Newark Facility')
   ),
   e('div',{className:'form-group full-width',style:{marginTop:8}},
   e('label',null,'Worksite Street Address ',e('span',{className:'required'},'*')),
