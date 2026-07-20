@@ -47,10 +47,12 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ---- Host-based domain split ----------------------------------------------
-// comp-shield.com  = full marketing site  (claim portal redirects to wcreporting.com)
-// wcreporting.com  = claim reporting portal only (marketing redirects to comp-shield.com)
+// comp-shield.com  = full marketing site + CompShield-branded claim portal (cs-*.html)
+// wcreporting.com  = Titanium-branded claim reporting portal only
 // Any other host (e.g. Railway's *.up.railway.app) is served normally.
-const PORTAL_PATHS = ['/report', '/portal', '/followup'];
+const PORTAL_PATHS = ['/report', '/portal', '/followup', '/statement'];
+const isCSHost = req => ((req.headers.host || '').split(':')[0].replace(/^www\./, '').toLowerCase()) === 'comp-shield.com';
+const siteBase = req => isCSHost(req) ? 'https://www.comp-shield.com' : CONFIG.BASE_URL;
 app.use((req, res, next) => {
   const host = (req.headers.host || '').split(':')[0].replace(/^www\./, '').toLowerCase();
   const p = req.path;
@@ -65,9 +67,11 @@ app.use((req, res, next) => {
       return res.redirect(301, 'https://www.comp-shield.com' + req.originalUrl);
     }
   } else if (host === 'comp-shield.com') {
-    if (isPortal) {
-      return res.redirect(301, 'https://www.wcreporting.com' + req.originalUrl);
-    }
+    // Serve CompShield-branded portal files for direct .html hits
+    // (route-level handlers below cover /report, /portal, /statement/:token)
+    if (p === '/index.html') return res.sendFile(path.join(__dirname, 'cs-report.html'));
+    if (p === '/portal.html') return res.sendFile(path.join(__dirname, 'cs-portal.html'));
+    if (p === '/followup.html') return res.sendFile(path.join(__dirname, 'cs-followup.html'));
   }
   next();
 });
@@ -267,12 +271,12 @@ function getEntityName(formData) {
 }
 
 // Helper to build follow-up link
-function buildFollowUpLink(referenceNumber, formData) {
+function buildFollowUpLink(referenceNumber, formData, base) {
   const name = encodeURIComponent((formData.firstName || '') + ' ' + (formData.lastName || ''));
   const dob = formData.dateOfBirth || '';
   const entity = encodeURIComponent(getEntityName(formData));
   const industry = encodeURIComponent(formData.industry || 'healthcare');
-  return `${CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}&industry=${industry}`;
+  return `${base || CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}&industry=${industry}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -960,7 +964,7 @@ app.post('/api/generate-link', async (req, res) => {
       createdAt: new Date().toISOString()
     });
 
-    const link = `${CONFIG.BASE_URL}/statement/${token}`;
+    const link = `${siteBase(req)}/statement/${token}`;
 
     // Send email if provided
     if (email) {
@@ -1204,7 +1208,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     const entityName = getEntityName(formData);
 
     // Build follow-up link for root cause & statements
-    const followUpLink = buildFollowUpLink(referenceNumber, formData);
+    const followUpLink = buildFollowUpLink(referenceNumber, formData, siteBase(req));
     
     console.log(`📋 Processing claim ${referenceNumber} for ${entityName}`);
 
@@ -1659,11 +1663,11 @@ app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
 app.get('/resources/lower-experience-mod', sendPage('guide-experience-mod.html'));
 app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.html'));
-app.get('/report', sendPage('index.html'));   // industry selector → portal
-app.get('/portal', sendPage('portal.html'));   // WC Reporting claim form
+app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
+app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
 
 app.get('/statement/:token', (req, res) => {
-  res.sendFile(path.join(__dirname, 'statement.html'));
+  res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-statement.html' : 'statement.html'));
 });
 
 // Start server

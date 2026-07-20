@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim Reporting | CompShield | Workers' Compensation Claim Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}:root{--td:#111827;--tn:#1f2937;--ts:#374151;--tl:#4b5563;--ta:#4f8fef;--ta2:#7ab5f5;--tg:#34d399;--tw:#f59e0b;--tr:#ef4444;--tt:#f3f4f6;--tm:#94a3b8;--tb:rgba(156,163,175,0.15);--gb:rgba(31,41,55,0.7);--gbd:rgba(75,85,99,0.4);--panel:rgba(17,24,39,0.5);--panel2:rgba(17,24,39,0.6);--panel3:rgba(17,24,39,0.8)}body{font-family:'Inter',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(79,143,239,0.04) 0%,transparent 50%);pointer-events:none;z-index:0}.portal{position:relative;z-index:1}.header{background:var(--tn);border-bottom:1px solid var(--gbd);padding:16px 28px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}.header-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}.brand{display:flex;align-items:center;gap:14px}.brand-logo{height:44px}.brand-logo img{height:100%;width:auto}.brand-text h1{font-family:'Outfit',sans-serif;font-size:20px;color:white}.brand-text p{font-size:11px;color:var(--tm)}.completion-badge{display:flex;align-items:center;gap:14px;background:var(--gb);padding:10px 18px;border-radius:12px;border:1px solid var(--gbd);min-width:260px}.completion-bar{width:100px;height:8px;background:var(--panel3);border-radius:4px;overflow:hidden}.completion-fill{height:100%;background:var(--tg);border-radius:4px;transition:width 0.5s}.completion-text{font-size:13px;font-weight:700;color:var(--tg)}.body{display:flex;max-width:1400px;margin:0 auto;padding:24px;gap:24px}.sidebar{width:260px;flex-shrink:0}.steps{background:var(--gb);border-radius:16px;border:1px solid var(--gbd);padding:14px}.step{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:10px;cursor:pointer;transition:all 0.2s;margin-bottom:4px;border:1px solid transparent}.step:hover{background:rgba(79,143,239,0.04)}.step.active{background:rgba(79,143,239,0.1);border-color:rgba(79,143,239,0.25)}.step-num{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:var(--td);border-radius:8px}.step.active .step-num{background:var(--ta);color:white}.step span{font-size:14px;color:var(--tm)}.step.active span{color:var(--ta2);font-weight:600;font-size:14px}.main{flex:1;min-width:0}.content{background:var(--gb);border-radius:14px;border:1px solid var(--gbd);padding:32px}.section-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--gbd)}.section-header h2{font-family:'Outfit',sans-serif;font-size:22px;color:white;margin-bottom:6px;letter-spacing:-0.01em}.section-subtitle{font-size:14px;color:var(--tm)}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.form-group{display:flex;flex-direction:column;gap:8px}.form-group.full-width{grid-column:1/-1}.form-group label{font-size:12.5px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:2px}.required{color:var(--tr)}.input-field{background:var(--panel3);border:1px solid var(--tb);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tt);font-family:'Inter',sans-serif;width:100%;transition:all 0.2s}.input-field:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(79,143,239,0.12)}.toggle-group{display:flex;gap:8px;flex-wrap:wrap}.toggle-btn{padding:10px 18px;border-radius:10px;border:1px solid var(--tb);background:var(--panel2);color:var(--tm);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}.toggle-btn:hover{border-color:var(--tl)}.toggle-btn.active{background:rgba(79,143,239,0.12);border-color:var(--ta);color:var(--ta2)}.toggle-btn.active.success{background:rgba(16,185,129,0.12);border-color:var(--tg);color:var(--tg)}.toggle-btn.active.warning{background:rgba(245,158,11,0.12);border-color:var(--tw);color:var(--tw)}.toggle-btn.active.danger{background:rgba(239,68,68,0.1);border-color:var(--tr);color:var(--tr)}.injury-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}.injury-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:12px;border:1px solid var(--tb);background:var(--panel);cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}.injury-btn:hover{border-color:var(--tl)}.injury-btn.active{background:rgba(79,143,239,0.1);border-color:var(--ta)}.injury-icon{font-size:24px}.injury-label{font-size:10px;color:var(--tm);text-align:center}.injury-btn.active .injury-label{color:var(--ta2)}.chip-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--tb);background:var(--panel);color:var(--tm);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}.chip-btn:hover{border-color:var(--tl)}.chip-btn.active{background:rgba(79,143,239,0.1);border-color:var(--ta);color:var(--ta2)}.chip-btn.active.warning{border-color:var(--tw);color:var(--tw)}.chip-btn.active.success{border-color:var(--tg);color:var(--tg)}.chip-btn.active.danger{border-color:var(--tr);color:var(--tr)}.info-tip{padding:14px 16px;background:rgba(79,143,239,0.06);border-radius:12px;border-left:3px solid var(--ta);margin:12px 0;font-size:13px}.warning-box{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px;font-size:14px;color:var(--tw);margin-bottom:18px}.witness-card{background:var(--panel);border:1px solid var(--tb);border-radius:12px;padding:16px;margin-top:14px}.witness-header{font-size:13px;font-weight:700;color:var(--ta);margin-bottom:12px;text-transform:uppercase}.option-card{background:var(--panel);border:1px solid var(--gbd);border-radius:12px;padding:18px;margin:10px 0;cursor:pointer;transition:all 0.2s}.option-card:hover{border-color:var(--ta)}.option-card.selected{border-color:var(--ta);background:rgba(79,143,239,0.06)}.option-card h4{color:var(--ta);font-size:14px;margin-bottom:4px}.option-card p{color:var(--tm);font-size:12px}.sig-section{background:var(--panel);border-radius:12px;padding:20px;margin-top:20px;border:1px solid var(--gbd)}.sig-section h3{color:var(--ta);font-size:14px;margin-bottom:16px}.sig-canvas-wrap{background:white;border-radius:8px;margin:12px 0;overflow:hidden}.sig-canvas{width:100%;height:120px;cursor:crosshair;touch-action:none;display:block}.checkbox-group{display:flex;align-items:flex-start;gap:10px;margin:12px 0}.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--ta);flex-shrink:0}.checkbox-group label{font-size:13px;color:var(--tt);line-height:1.4}.legal-text{font-size:11px;color:var(--tm);line-height:1.5;padding:12px;background:var(--panel);border-radius:8px;margin:12px 0}.audio-rec{background:var(--panel);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--gbd)}.audio-rec h4{color:var(--ta);font-size:13px;margin-bottom:8px}.rec-btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;font-size:20px;background:var(--tr);display:flex;align-items:center;justify-content:center}.rec-btn.recording{animation:pulse 1s infinite}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}.link-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid var(--tg);color:var(--tg);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600}.nav{display:flex;justify-content:space-between;margin-top:28px;padding-top:24px;border-top:1px solid var(--gbd)}.nav-btn{padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:all 0.2s}.nav-btn.secondary{background:transparent;border:1px solid var(--tb);color:var(--tm)}.nav-btn.secondary:hover{border-color:var(--tl);color:var(--tt)}.nav-btn.primary{background:linear-gradient(135deg,var(--ta) 0%,#3574d4 100%);color:white;box-shadow:0 2px 8px rgba(79,143,239,0.25)}.nav-btn.primary:hover{box-shadow:0 4px 20px rgba(79,143,239,0.35);transform:translateY(-1px)}.nav-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0}.summary-section{background:var(--panel2);border-radius:12px;padding:18px;border:1px solid var(--gbd)}.summary-section h4{font-size:11px;color:var(--ta);margin-bottom:10px;text-transform:uppercase}.summary-section p{font-size:14px;color:var(--tt);margin-bottom:4px}.success-container{max-width:520px;margin:80px auto;text-align:center;padding:48px;background:var(--gb);border-radius:16px;border:1px solid var(--gbd)}.success-icon{width:80px;height:80px;background:rgba(16,185,129,0.12);border:2px solid var(--tg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:28px}.ref-number{font-size:32px;font-family:'Outfit',monospace;color:white;font-weight:700;margin:20px 0}.employee-summary{background:rgba(79,143,239,0.06);border:1px solid rgba(79,143,239,0.15);border-radius:12px;padding:16px;margin-top:20px}.employee-summary h4{color:var(--ta);font-size:12px;margin-bottom:8px;text-transform:uppercase}.employee-summary p{color:var(--tt);font-size:14px;margin:4px 0}.employee-summary span{color:var(--tm);font-size:12px}@media(max-width:900px){.body{flex-direction:column}.sidebar{width:100%;position:static}.steps{display:flex;overflow-x:auto;gap:8px;padding:10px}.step{flex-shrink:0;margin-bottom:0}.form-grid,.summary-grid{grid-template-columns:1fr}}
+.theme-toggle{display:flex;align-items:center;gap:8px;background:var(--gb);border:1px solid var(--gbd);border-radius:10px;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--tm);transition:all 0.2s}.theme-toggle:hover{border-color:var(--ta);color:var(--tt)}.theme-toggle-icon{font-size:16px;line-height:1}
+body.light{--td:#f8fafc;--tn:#ffffff;--ts:#e2e8f0;--tl:#94a3b8;--ta:#3574d4;--ta2:#2d62b8;--tg:#059669;--tw:#d97706;--tr:#dc2626;--tt:#1e293b;--tm:#64748b;--tb:rgba(148,163,184,0.25);--gb:rgba(255,255,255,0.85);--gbd:rgba(203,213,225,0.6);--panel:rgba(241,245,249,0.8);--panel2:rgba(226,232,240,0.7);--panel3:white}
+body.light{background:#f1f5f9;color:var(--tt)}
+body.light::before{background:radial-gradient(ellipse at top,rgba(53,116,212,0.03) 0%,transparent 50%)}
+body.light .header{background:rgba(255,255,255,0.92);border-bottom-color:var(--gbd);backdrop-filter:blur(12px)}
+body.light .brand-text h1{color:var(--tt)}
+body.light .section-header h2{color:var(--tt)}
+body.light .input-field{background:white;border-color:var(--tb);color:var(--tt)}
+body.light .input-field:focus{border-color:var(--ta);box-shadow:0 0 0 3px rgba(53,116,212,0.1)}
+body.light .toggle-btn{background:rgba(241,245,249,0.8);border-color:var(--tb);color:var(--tm)}
+body.light .toggle-btn.active{background:rgba(53,116,212,0.08);border-color:var(--ta);color:var(--ta)}
+body.light .toggle-btn.active.success{background:rgba(5,150,105,0.08);border-color:var(--tg);color:var(--tg)}
+body.light .toggle-btn.active.warning{background:rgba(217,119,6,0.08);border-color:var(--tw);color:var(--tw)}
+body.light .toggle-btn.active.danger{background:rgba(220,38,38,0.06);border-color:var(--tr);color:var(--tr)}
+body.light .chip-btn{background:rgba(241,245,249,0.8);border-color:var(--tb);color:var(--tm)}
+body.light .chip-btn.active{background:rgba(53,116,212,0.08);border-color:var(--ta);color:var(--ta)}
+body.light .chip-btn.active.warning{color:var(--tw);border-color:var(--tw)}
+body.light .chip-btn.active.success{color:var(--tg);border-color:var(--tg)}
+body.light .chip-btn.active.danger{color:var(--tr);border-color:var(--tr)}
+body.light .injury-btn{background:rgba(241,245,249,0.6);border-color:var(--tb)}
+body.light .injury-btn.active{background:rgba(53,116,212,0.08);border-color:var(--ta)}
+body.light .nav-btn.secondary{background:white;border-color:var(--tb);color:var(--tm)}
+body.light .nav-btn.secondary:hover{border-color:var(--ta);color:var(--tt)}
+body.light .nav-btn.primary{background:var(--ta);color:white}
+body.light .option-card{background:white;border-color:var(--gbd)}
+body.light .option-card.selected{background:rgba(53,116,212,0.04);border-color:var(--ta)}
+body.light .witness-card{background:white;border-color:var(--tb)}
+body.light .sig-section{background:white;border-color:var(--gbd)}
+body.light .audio-rec{background:white;border-color:var(--gbd)}
+body.light .info-tip{background:rgba(53,116,212,0.04)}
+body.light .warning-box{background:rgba(217,119,6,0.06);border-color:rgba(217,119,6,0.2)}
+body.light .summary-section{background:white;border-color:var(--gbd)}
+body.light .success-container{background:white;border-color:var(--gbd)}
+body.light .ref-number{color:var(--tt)}
+body.light .employee-summary{background:rgba(53,116,212,0.04);border-color:rgba(53,116,212,0.12)}
+body.light .completion-bar{background:rgba(226,232,240,0.8)}
+body.light .rec-btn{background:var(--tr)}
+
+.content{animation:fadeSlideIn 0.3s ease}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.sidebar{position:sticky;top:80px;align-self:flex-start}
+.content,.summary-section,.witness-card,.option-card,.sig-section,.audio-rec{box-shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04)}
+body.light .content,body.light .summary-section,body.light .witness-card,body.light .option-card,body.light .sig-section,body.light .audio-rec{box-shadow:0 1px 4px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.03)}
+.step.active{background:linear-gradient(135deg,rgba(79,143,239,0.14) 0%,rgba(79,143,239,0.06) 100%);border-color:rgba(79,143,239,0.3)}
+body.light .step.active{background:linear-gradient(135deg,rgba(53,116,212,0.1) 0%,rgba(53,116,212,0.04) 100%);border-color:rgba(53,116,212,0.25)}
+.input-field{transition:all 0.2s ease;border:1.5px solid var(--tb)}
+.input-field:focus{border-color:var(--ta);box-shadow:0 0 0 3px rgba(79,143,239,0.12),0 1px 2px rgba(0,0,0,0.04)}
+body.light .input-field:focus{box-shadow:0 0 0 3px rgba(53,116,212,0.1),0 1px 2px rgba(0,0,0,0.03)}
+.nav-btn{transition:all 0.2s ease}
+.nav-btn.primary{position:relative;overflow:hidden}
+.nav-btn.primary:active{transform:scale(0.97)}
+.nav-btn.secondary:active{transform:scale(0.97)}
+.toggle-btn{transition:all 0.15s ease}
+.toggle-btn:active{transform:scale(0.96)}
+.chip-btn{transition:all 0.15s ease}
+.chip-btn:active{transform:scale(0.96)}
+.injury-btn{transition:all 0.15s ease}
+.injury-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.injury-btn:active{transform:translateY(0)}
+.step{transition:all 0.15s ease}
+.step:active{transform:scale(0.98)}
+.progress-bar{display:flex;gap:3px;flex:1}
+.progress-seg{height:4px;flex:1;border-radius:2px;background:var(--tb);transition:all 0.3s ease}
+.progress-seg.done{background:var(--tg)}
+.progress-seg.current{background:var(--ta)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const e=React.createElement,{useState:S,useEffect:E,useRef:R}=React;
+const INJURY_TYPES=[{v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'🤕'},{v:'struck_by',l:'Struck By',i:'💥'},{v:'strain_sprain',l:'Strain/Sprain',i:'💪'},{v:'cut_laceration',l:'Cut/Laceration',i:'🩹'},{v:'burn',l:'Burn',i:'🔥'},{v:'caught_in',l:'Caught In',i:'🛠️'},{v:'vehicle',l:'Vehicle',i:'🚗'},{v:'assault',l:'Assault',i:'🚨'},{v:'exposure',l:'Exposure',i:'🧪'},{v:'repetitive',l:'Repetitive',i:'🔄'},{v:'other',l:'Other',i:'📋'}];
+const BODY_PARTS=['Head','Face','Neck','Shoulder-L','Shoulder-R','Upper Back','Lower Back','Hip-L','Hip-R','Wrist-L','Wrist-R','Hand-L','Hand-R','Knee-L','Knee-R','Ankle-L','Ankle-R','Multiple'];
+const ROOT_CAUSES=[{v:'no_training',l:'No Training'},{v:'inadequate_training',l:'Inadequate Training'},{v:'training_not_followed',l:'Training Not Followed'},{v:'no_supervision',l:'Lack of Supervision'},{v:'equipment_failure',l:'Equipment Failure'},{v:'no_ppe',l:'No PPE'},{v:'ppe_not_worn',l:'PPE Not Worn'},{v:'rushing',l:'Rushing'},{v:'fatigue',l:'Fatigue'},{v:'poor_housekeeping',l:'Poor Housekeeping'},{v:'wet_floor',l:'Wet Floor'},{v:'combative_patient',l:'Combative Patient'}];
+const CORRECTIVE=[{v:'reviewed_procedures',l:'Reviewed Procedures'},{v:'training_scheduled',l:'Training Scheduled'},{v:'training_completed',l:'Training Completed'},{v:'discipline_verbal',l:'Verbal Warning'},{v:'discipline_written',l:'Written Warning'},{v:'equipment_repaired',l:'Equipment Repaired'},{v:'ppe_provided',l:'PPE Provided'},{v:'area_cleaned',l:'Area Cleaned'},{v:'safety_meeting',l:'Safety Meeting'}];
+const FRAUD=[{v:'delayed_report',l:'Delayed Reporting'},{v:'monday_claim',l:'Monday Claim'},{v:'no_witnesses',l:'No Witnesses'},{v:'vague_description',l:'Vague Description'},{v:'recent_discipline',l:'Recent Discipline'},{v:'new_employee',l:'New Employee'},{v:'history_claims',l:'History of Claims'},{v:'attorney_immediate',l:'Attorney Immediately'},{v:'preexisting',l:'Pre-existing'}];
+const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+
+// ── Industry-aware config (?industry=healthcare|construction|general) ──────────
+const IND_KEY=(()=>{try{const q=(new URLSearchParams(location.search).get('industry')||'').toLowerCase();return ['healthcare','construction','general'].includes(q)?q:'healthcare'}catch(e){return 'healthcare'}})();
+const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
+const INDUSTRIES={
+ healthcare:{
+  label:'Healthcare',
+  entities:HEALTHCARE_ENTITIES,
+  injuryTypes:INJURY_TYPES,
+  natureOfInjury:['Contusion/Bruise','Laceration/Cut','Fracture','Sprain','Strain','Puncture','Abrasion','Burn - Thermal','Burn - Chemical','Concussion','Dislocation','Amputation','Crushing Injury','Inflammation','Carpal Tunnel','Herniated Disc','Hearing Loss','Foreign Body','Multiple Injuries','Other'],
+  causeOfInjury:['Fall on Same Level','Fall from Height','Struck by Object','Struck Against Object','Caught In/Between','Overexertion - Lifting','Overexertion - Pushing/Pulling','Repetitive Motion','Motor Vehicle Accident','Assault/Violence','Exposure to Harmful Substance','Temperature Extremes','Contact with Electricity','Patient Handling','Other']
+ },
+ construction:{
+  label:'Construction',
+  entities:[],
+  injuryTypes:[{v:'fall_height',l:'Fall from Height',i:'🪜'},{v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'🤕'},{v:'struck_by',l:'Struck By Object',i:'💥'},{v:'caught_in',l:'Caught In/Between',i:'🛠️'},{v:'electrocution',l:'Electrocution',i:'⚡'},{v:'cut_laceration',l:'Cut/Laceration',i:'🩹'},{v:'strain_sprain',l:'Strain/Sprain',i:'💪'},{v:'burn',l:'Burn',i:'🔥'},{v:'exposure',l:'Exposure',i:'🧪'},{v:'vehicle',l:'Vehicle/Equipment',i:'🚧'},{v:'other',l:'Other',i:'📋'}],
+  natureOfInjury:['Fracture','Laceration/Cut','Amputation','Crushing Injury','Sprain','Strain','Burn - Thermal','Burn - Chemical','Concussion / TBI','Eye Injury','Electric Shock','Puncture','Dislocation','Hearing Loss','Multiple Injuries','Other'],
+  causeOfInjury:['Fall from Height (ladder/roof/scaffold)','Fall on Same Level','Struck by Equipment/Vehicle','Struck by Falling Object','Caught In/Between Machinery','Trench / Excavation Collapse','Scaffold Collapse','Power Tool Injury','Contact with Electricity','Overexertion / Lifting','Welding / Hot Work','Exposure to Harmful Substance','Motor Vehicle Accident','Other']
+ },
+ general:{
+  label:'General Industry',
+  entities:[],
+  injuryTypes:[{v:'strain_sprain',l:'Strain/Overexertion',i:'💪'},{v:'slip_trip_fall',l:'Slip/Trip/Fall',i:'🤕'},{v:'struck_by',l:'Struck By',i:'💥'},{v:'caught_in',l:'Caught In/Machinery',i:'⚙️'},{v:'cut_laceration',l:'Cut/Laceration',i:'🩹'},{v:'repetitive',l:'Repetitive Motion',i:'🔄'},{v:'burn',l:'Burn',i:'🔥'},{v:'vehicle',l:'Forklift/Vehicle',i:'🚚'},{v:'exposure',l:'Chemical Exposure',i:'🧪'},{v:'assault',l:'Assault',i:'🚨'},{v:'other',l:'Other',i:'📋'}],
+  natureOfInjury:['Strain','Sprain','Laceration/Cut','Contusion/Bruise','Fracture','Carpal Tunnel','Hernia','Burn - Thermal','Burn - Chemical','Respiratory / Chemical','Amputation','Crushing Injury','Foreign Body','Hearing Loss','Multiple Injuries','Other'],
+  causeOfInjury:['Overexertion - Lifting','Repetitive Motion','Machine / Equipment','Forklift / Powered Industrial Truck','Slip on Wet/Uneven Surface','Struck by Object','Caught In/Between Machinery','Chemical Exposure','Temperature Extremes','Motor Vehicle Accident','Other']
+ }
+};
+const IND=INDUSTRIES[IND_KEY];
+
+function App(){
+const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
+const[d,setD]=S({
+ industry:IND_KEY,
+ firstName:'',
+ lastName:'',
+ mailingAddress:'',
+ city:'',
+ state:'',
+ zipCode:'',
+ phone:'',
+ dateOfBirth:'',
+ dateOfHire:'',
+ ssn:'',
+ occupation:'',
+ entity:'',customEntity:'',dateOfInjury:'',timeOfInjury:'',dateReported:'',reportedImmediately:null,
+ weeklyWage:'',
+ workType:'',
+ accidentDescription:'',injuryType:'',bodyParts:[],
+ jobDutiesAtTime:'',
+ natureOfInjury:'',
+ causeOfInjury:'',
+ customBodyPart:'',
+ accidentAtWorksite:true,
+ accidentStreet:'',
+ accidentCity:'',
+ accidentState:'',
+ accidentZip:'',
+ worksiteName:'',
+ worksiteStreet:'',
+ worksiteCity:'',
+ worksiteState:'',
+ worksiteZip:'',
+ soughtMedicalTreatment:null,
+ treatingPhysician:'',
+ treatmentDate:'',
+ treatmentType:'',
+ treatmentNotes:'',
+ workRestrictionsGiven:null,
+ restrictionDetails:'',
+ refusedTreatment:null,
+ severeInjury:null,
+ employeeRequestedHospital:null,
+ referralType:'',
+ referralFacility:'',
+ referralPhone:'',
+ referralAddress:'',
+ referralNotes:'',
+ refusalReason:'',
+ refusalFormSigned:null,
+ initialFacilityName:'',
+ videoLocation:'',
+ videoSystemType:'',
+ videoPreserved:null,
+ videoNotes:'',
+ witness1Email:'',
+ witness1Relationship:'',
+ witness1Statement:'',
+ witness2Email:'',
+ witness2Relationship:'',
+ witness2Statement:'',
+ supervisorName:'',
+ supervisorPhone:'',
+ supervisorComments:'',
+ hasScenePhotos:null,
+ hasInjuryPhotos:null,
+ scenePhotoFiles:[],
+ injuryPhotoFiles:[],
+ videoFiles:[],
+ evidenceDocFiles:[],
+ witness1Name:'',witness1Phone:'',witness2Name:'',witness2Phone:'',hasVideo:null,hasWitnessStatement:null,hasEmployeeStatement:null,losingTime:null,dateLastWorked:'',returnStatus:'',lightDutyAvailable:null,
+ witnesses:[],
+ lastDayPaid:'',
+ disabilityBeganDate:'',
+ expectedReturnDate:'',
+ stillBeingPaid:null,
+ hasSalaryContinuation:null,
+ salaryContinuationDuration:'',
+ salaryContinuationEndDate:'',
+ salaryContinuationNotes:'',
+ ptoUsed:null,
+ ptoHoursUsed:'',
+ lightDutyOffered:null,
+ lightDutyAccepted:null,
+ lightDutyStartDate:'',
+ lightDutyDescription:'',
+ actualReturnDate:'',
+ normalSchedule:'',
+ hoursPerWeek:'',
+ directCause:'',rootCauseSymptoms:[],correctiveActions:[],
+ proceduresInPlace:null,
+ proceduresFollowed:null,
+ trainingProvided:null,
+ trainingFrequency:'',
+ lastTrainingDate:'',
+ trainingType:'',
+ customRootCause:'',
+ customCorrectiveAction:'',
+ correctiveActionNotes:'',
+ validityConcerns:null,concernDetails:'',fraudIndicators:[],
+ customRedFlag:'',
+ investigationNotes:'',
+ recommendDeny:null,
+ recommendSIU:null,
+ denyReason:'',
+ siuReason:'',
+ thirdPartyName:'',
+ thirdPartyPhone:'',
+ thirdPartyCompany:'',
+ thirdPartyInsurance:'',
+ subrogationType:null,
+ thirdPartyInvolved:null,thirdPartyDetails:'',witnessOpt:null,witnessData:{},witnessLink:null,witnessSigned:false,claimantOpt:null,claimantData:{},claimantLink:null,claimantSigned:false,hipaaOpt:null,hipaaData:{},hipaaLink:null,hipaaSigned:false,submitterName:'',submitterEmail:'',ccEmails:'',
+ submitterTitle:'',
+ submitterPhone:''});
+const[uploadedFiles,setUploadedFiles]=S([]);const[inlineStmts,setInlineStmts]=S([]);const[score,setScore]=S(0);const[lastSaved,setLastSaved]=S(null);const[recording,setRecording]=S(null);const[audioBlobs,setAudioBlobs]=S({});const[showPreview,setShowPreview]=S(false);const[theme,setTheme]=S(()=>{try{return localStorage.getItem('wcr_theme')||'dark'}catch(e){return 'dark'}});const[hipaaAccepted,setHipaaAccepted]=S(false);const[sessionExpired,setSessionExpired]=S(false);
+const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);const mediaRecorderRef=R(null);const audioChunksRef=R([]);
+
+E(()=>{fetch('/api/entities').then(r=>r.json()).then(setEntities).catch(()=>{})},[]);
+E(()=>{if(theme==='light'){document.body.classList.add('light')}else{document.body.classList.remove('light')};try{localStorage.setItem('wcr_theme',theme)}catch(e){}},[theme]);
+const toggleTheme=()=>setTheme(t=>t==='dark'?'light':'dark');
+
+E(()=>{
+let timer;
+const TIMEOUT=15*60*1000;
+const resetTimer=()=>{clearTimeout(timer);timer=setTimeout(()=>{if(!result&&hipaaAccepted){setSessionExpired(true)}},TIMEOUT)};
+const events=['mousedown','keydown','scroll','touchstart','mousemove'];
+events.forEach(ev=>document.addEventListener(ev,resetTimer));
+resetTimer();
+return()=>{clearTimeout(timer);events.forEach(ev=>document.removeEventListener(ev,resetTimer))};
+},[result,hipaaAccepted]);
+E(()=>{const req=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];let s=0;req.forEach(f=>{if(d[f])s+=10});setScore(Math.min(100,Math.round(s)))},[d]);
+
+
+E(()=>{
+if((step===8)&&sigCanvasRef.current){
+const c=sigCanvasRef.current;
+const rect=c.getBoundingClientRect();
+c.width=rect.width||400;
+c.height=120;
+const ctx=c.getContext('2d');
+ctx.strokeStyle='#1a1f26';
+ctx.lineWidth=2;
+ctx.lineCap='round';
+sigCtxRef.current=ctx;
+}
+},[step,d.witnessOpt,d.claimantOpt]);
+
+const u=(f,v)=>setD(p=>({...p,[f]:v}));
+const uNested=(parent,f,v)=>setD(p=>({...p,[parent]:{...p[parent],[f]:v}}));
+const ta=(f,v)=>setD(p=>{const a=p[f]||[];return{...p,[f]:a.includes(v)?a.filter(x=>x!==v):[...a,v]}});
+
+const steps=[{t:'Employee',n:'01'},{t:'Incident',n:'02'},{t:'Medical & Status',n:'03'},{t:'Evidence',n:'04'},{t:'Flags',n:'05'},{t:'Submit',n:'06'}];
+
+const startDraw=(ev)=>{ev.preventDefault();isDrawingRef.current=true;const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current?.beginPath();sigCtxRef.current?.moveTo(x,y)};
+const draw=(ev)=>{if(!isDrawingRef.current||!sigCtxRef.current)return;ev.preventDefault();const rect=ev.target.getBoundingClientRect(),x=(ev.clientX||ev.touches?.[0]?.clientX||0)-rect.left,y=(ev.clientY||ev.touches?.[0]?.clientY||0)-rect.top;sigCtxRef.current.lineTo(x,y);sigCtxRef.current.stroke()};
+const stopDraw=(dataKey)=>{if(isDrawingRef.current&&sigCanvasRef.current){isDrawingRef.current=false;uNested(dataKey,'signature',sigCanvasRef.current.toDataURL())}};
+const clearSig=(dataKey)=>{if(sigCtxRef.current&&sigCanvasRef.current){sigCtxRef.current.clearRect(0,0,sigCanvasRef.current.width,sigCanvasRef.current.height);uNested(dataKey,'signature',null)}};
+
+const startRecording=async(type)=>{
+ try{
+ const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+ let mimeType='audio/webm;codecs=opus';
+ if(MediaRecorder.isTypeSupported('audio/mp4')){
+  mimeType='audio/mp4';
+ }else if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')){
+  mimeType='audio/webm;codecs=opus';
+ }else if(MediaRecorder.isTypeSupported('audio/webm')){
+  mimeType='audio/webm';
+ }
+ mediaRecorderRef.current=new MediaRecorder(stream,{mimeType});
+ audioChunksRef.current=[];
+ mediaRecorderRef.current.ondataavailable=ev=>{
+  if(ev.data.size>0)audioChunksRef.current.push(ev.data);
+ };
+ mediaRecorderRef.current.onstop=()=>{
+  const audioType=mediaRecorderRef.current.mimeType||'audio/webm';
+  const blob=new Blob(audioChunksRef.current,{type:audioType});
+  setAudioBlobs(prev=>({...prev,[type]:blob}));
+  stream.getTracks().forEach(t=>t.stop());
+ };
+ mediaRecorderRef.current.start(1000);
+ setRecording(type);
+ }catch(err){
+ console.error('Microphone access failed');
+ alert('Could not access microphone');
+ }
+};
+const stopRecording=()=>{if(mediaRecorderRef.current&&recording){mediaRecorderRef.current.stop();setRecording(null)}};
+const clearAudio=(type)=>setAudioBlobs(prev=>{const n={...prev};delete n[type];return n});
+
+const generateLink=async(type,name,email,phone)=>{const claimRef='FROI-'+Date.now().toString().slice(-8);try{const res=await fetch('/api/generate-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claimRef,type,personName:name,email,phone})});const json=await res.json();if(json.success)return json.link}catch(x){console.error('Link generation failed')}return null};
+
+const submitInlineStmt=async(type,formData,sig,audioBlob)=>{
+ const claimRef='FROI-'+Date.now().toString().slice(-8);
+      
+ try{
+ const fd=new FormData();
+ 
+ const preparedData = {
+  ...formData,
+  hasAudioRecording: !!audioBlob,
+  statementType: type,
+  claimRef: claimRef
+ };
+ 
+ fd.append('formData',JSON.stringify(preparedData));
+ 
+ const signerName = formData.typedName || formData.witnessName || formData.claimantName || formData.patientName || '';
+ fd.append('signatureData',JSON.stringify({
+  typedName: signerName,
+  signatureImage: sig
+ }));
+ 
+ fd.append('statementType',type);
+ fd.append('claimRef',claimRef);
+ 
+ if(audioBlob){
+  let ext='webm';
+  if(audioBlob.type.includes('mp4'))ext='m4a';
+  else if(audioBlob.type.includes('ogg'))ext='ogg';
+  fd.append('files',audioBlob,'audio-'+type+'.'+ext);
+ }
+ 
+  
+ const res=await fetch('/api/submit-inline-statement',{method:'POST',body:fd});
+ 
+  
+ const json=await res.json();
+ 
+  
+ if(json.success){
+  setInlineStmts(prev=>[...prev,{type,pdf:json.pdf,filename:json.filename,audioFiles:json.audioFiles||[]}]);
+  return true;
+ } else {
+  console.error('Statement submission failed');
+  alert('Error: '+ (json.error || json.message || 'Unknown error'));
+ }
+ }catch(x){
+ console.error('Submit error');
+ alert('Network error: '+ x.message);
+ }
+ return false;
+};
+
+const submit=async()=>{setSubmitting(true);try{const fd=new FormData();fd.append('formData',JSON.stringify(d));fd.append('inlineStatements',JSON.stringify(inlineStmts));
+uploadedFiles.forEach(f=>fd.append('files',f));
+if(d.scenePhotoFiles)d.scenePhotoFiles.forEach(f=>fd.append('files',f));
+if(d.injuryPhotoFiles)d.injuryPhotoFiles.forEach(f=>fd.append('files',f));
+if(d.videoFiles)d.videoFiles.forEach(f=>fd.append('files',f));
+if(d.evidenceDocFiles)d.evidenceDocFiles.forEach(f=>fd.append('files',f));
+const res=await fetch('/api/submit-claim',{method:'POST',body:fd});const json=await res.json();if(json.success){setResult(json)}else alert('Error: '+(json.error||'Unknown'))}catch(x){alert('Error: '+x.message)}setSubmitting(false)};
+
+if(sessionExpired)return e('div',{className:'portal',style:{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:24}},
+e('div',{style:{maxWidth:480,textAlign:'center',padding:40,background:'var(--gb)',borderRadius:16,border:'1px solid var(--gbd)',boxShadow:'0 4px 24px rgba(0,0,0,0.12)'}},
+e('div',{style:{width:64,height:64,background:'rgba(239,68,68,0.12)',border:'2px solid var(--tr)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',fontSize:28,color:'var(--tr)'}},'!'),
+e('h2',{style:{color:'var(--tt)',fontSize:20,marginBottom:12,fontFamily:"'Outfit',sans-serif"}},'Session Expired'),
+e('p',{style:{color:'var(--tm)',fontSize:14,lineHeight:1.6,marginBottom:8}},'Your session has timed out after 15 minutes of inactivity to protect sensitive health information.'),
+e('p',{style:{color:'var(--tm)',fontSize:13,marginBottom:24}},'Any unsaved data has been cleared from this browser.'),
+e('button',{className:'nav-btn primary',style:{padding:'14px 32px'},onClick:()=>location.reload()},'Start New Session')
+));
+
+if(!hipaaAccepted)return e('div',{className:'portal',style:{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:24}},
+e('div',{style:{maxWidth:580,padding:40,background:'var(--gb)',borderRadius:16,border:'1px solid var(--gbd)',boxShadow:'0 4px 24px rgba(0,0,0,0.12)'}},
+e('div',{style:{textAlign:'center',marginBottom:28}},
+e('div',{style:{width:56,height:56,background:'rgba(79,143,239,0.12)',border:'2px solid var(--ta)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:22,color:'var(--ta)'}},'🔒'),
+e('h2',{style:{color:'var(--tt)',fontSize:22,marginBottom:8,fontFamily:"'Outfit',sans-serif"}},'HIPAA Compliance Notice'),
+e('p',{style:{color:'var(--tm)',fontSize:13}},'Claim Reporting · CompShield')
+),
+e('div',{style:{background:'var(--panel)',borderRadius:12,padding:20,marginBottom:20,border:'1px solid var(--gbd)',fontSize:13,color:'var(--tm)',lineHeight:1.7}},
+e('p',{style:{marginBottom:12}},'This portal collects Protected Health Information (PHI) as defined under the Health Insurance Portability and Accountability Act (HIPAA). By proceeding, you acknowledge that:'),
+e('div',{style:{marginLeft:8}},
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'This system is used to report workers\' compensation claims and may include personal health information, medical records, and employment data.'),
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'All data entered is transmitted securely and handled in accordance with HIPAA privacy and security rules.'),
+e('p',{style:{marginBottom:8,paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'You are an authorized user with a legitimate business need to access and enter this information.'),
+e('p',{style:{paddingLeft:12,borderLeft:'2px solid var(--ta)'}},'Unauthorized access or disclosure of PHI is prohibited and may result in civil and criminal penalties.')
+)
+),
+e('div',{style:{background:'var(--panel)',borderRadius:12,padding:16,marginBottom:24,border:'1px solid var(--gbd)',fontSize:12,color:'var(--tm)'}},
+e('p',{style:{fontWeight:600,marginBottom:6,color:'var(--tt)'}},'Security Measures'),
+e('p',null,'Sessions automatically expire after 15 minutes of inactivity. No PHI is stored locally on this device. SSN fields are masked for privacy protection.')
+),
+e('button',{className:'nav-btn primary',style:{width:'100%',padding:'16px',fontSize:15},onClick:()=>setHipaaAccepted(true)},'I Acknowledge — Proceed to Portal')
+));
+
+if(result)return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'CompShield'}))))),e('div',{className:'success-container'},e('div',{className:'success-icon'},''),e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Claim Submitted'),e('p',{style:{color:'var(--tm)'}},'Reference Number:'),e('div',{className:'ref-number'},result.referenceNumber),e('p',{style:{color:'var(--tm)',margin:'20px 0'}},'Confirmation sent to '+d.submitterEmail),d.ccEmails&&d.ccEmails.trim()&&e('p',{style:{color:'var(--tm)',fontSize:13}},'CC: '+d.ccEmails),inlineStmts.length>0&&e('p',{style:{color:'var(--tg)',fontSize:13}},' '+inlineStmts.length+' e-signed document(s) attached'),e('button',{className:'nav-btn primary',style:{marginTop:20},onClick:()=>location.reload()},'Submit Another Claim')));
+
+const inp=(f,p,t='text')=>e('input',{type:t,className:'input-field',value:d[f]||'',onChange:x=>u(f,x.target.value),placeholder:p});
+const sel=(f,opts,p)=>e('select',{className:'input-field',value:d[f]||'',onChange:x=>u(f,x.target.value)},e('option',{value:''},p),...opts.map(o=>e('option',{key:o,value:o},o)));
+const tog=(f,opts)=>e('div',{className:'toggle-group'},...opts.map(o=>e('button',{key:String(o.v),type:'button',className:'toggle-btn'+(d[f]===o.v?' active'+(o.c?' '+o.c:''):''),onClick:()=>u(f,o.v)},o.l)));
+
+const renderStatementStep=(type,title,subtitle,dataKey,optKey,linkKey,signedKey)=>{
+const data=d[dataKey]||{};
+const setData=(f,v)=>uNested(dataKey,f,v);
+
+const prefillClaimant=()=>{
+ if(type==='claimant'&&d.firstName&&!data.claimantName){
+ setData('claimantName',(d.firstName||'')+' '+(d.lastName||''));
+ if(d.dateOfBirth)setData('dateOfBirth',d.dateOfBirth);
+ }
+ if(type==='hipaa'&&d.firstName&&!data.patientName){
+ setData('patientName',(d.firstName||'')+' '+(d.lastName||''));
+ if(d.dateOfBirth)setData('dateOfBirth',d.dateOfBirth);
+ if(d.entity)setData('employer',d.entity==='Other - Enter Manually'?d.customEntity:d.entity);
+ }
+};
+
+const canSign=()=>{
+ if(!data.typedName)return false;
+ if(!data.signature)return false;
+ if(!data.consent1||!data.consent2)return false;
+ if(type==='witness'&&!data.witnessName)return false;
+ if(type==='claimant'&&!data.claimantName)return false;
+ if(type==='hipaa'&&!data.patientName)return false;
+ return true;
+};
+
+return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+ e('h2',null,title),
+ e('p',{className:'section-subtitle'},subtitle),
+ d[signedKey]&&e('div',{style:{marginTop:8}},
+  e('span',{style:{background:'rgba(16,185,129,0.1)',border:'1px solid var(--tg)',color:'var(--tg)',padding:'6px 12px',borderRadius:8,fontSize:12,fontWeight:600}},'Completed & Signed')
+ )
+ ),
+ 
+ e('div',{className:'form-group full-width'},
+ e('label',null,'How would you like to collect this ',type==='hipaa'?'authorization':'statement','?'),
+ e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginTop:8}},
+  e('div',{
+  className:'option-card'+(d[optKey]==='now'?' selected':''),
+  onClick:()=>{u(optKey,'now');prefillClaimant();}
+  },
+  e('h4',null,'Complete Now'),
+  e('p',null,'Person is present — collect signature immediately')
+  ),
+  e('div',{
+  className:'option-card'+(d[optKey]==='skip'?' selected':''),
+  onClick:()=>u(optKey,'skip')
+  },
+  e('h4',null,'Skip'),
+  e('p',null,'Collect after submission')
+  )
+ )
+ ),
+ 
+ d[optKey]==='now'&&e('div',{style:{marginTop:24}},
+ 
+ type==='witness'&&e('div',null,
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Witness Information'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Witness Name ',e('span',{className:'required'},'*')),
+   e('input',{className:'input-field',value:data.witnessName||'',onChange:x=>setData('witnessName',x.target.value),placeholder:'Full legal name'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Phone'),
+   e('input',{className:'input-field',type:'tel',value:data.witnessPhone||'',onChange:x=>setData('witnessPhone',x.target.value),placeholder:'(555) 555-5555'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Email'),
+   e('input',{className:'input-field',type:'email',value:data.witnessEmail||'',onChange:x=>setData('witnessEmail',x.target.value),placeholder:'email@example.com'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Relationship to Claimant'),
+   e('select',{className:'input-field',value:data.relationship||'',onChange:x=>setData('relationship',x.target.value)},
+   e('option',{value:''},'Select relationship'),
+   e('option',{value:'coworker'},'Coworker'),
+   e('option',{value:'supervisor'},'Supervisor'),
+   e('option',{value:'manager'},'Manager'),
+   e('option',{value:'subordinate'},'Subordinate'),
+   e('option',{value:'customer'},'Customer'),
+   e('option',{value:'vendor'},'Vendor/Contractor'),
+   e('option',{value:'other'},'Other')
+   )
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Where was witness located during incident?'),
+  e('input',{className:'input-field',value:data.witnessLocation||'',onChange:x=>setData('witnessLocation',x.target.value),placeholder:'e.g., Standing 10 feet away near the entrance'})
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:12}},
+  e('label',null,'Witness Statement ',e('span',{className:'required'},'*')),
+  e('textarea',{className:'input-field',rows:5,value:data.statement||'',onChange:x=>setData('statement',x.target.value),placeholder:'Describe in detail what you witnessed. Include:\n• What were you doing before the incident?\n• What did you see/hear?\n• What happened immediately after?\n• Any other relevant observations...'})
+  )
+ ),
+ 
+ type==='claimant'&&e('div',null,
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Claimant Information'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Claimant Name ',e('span',{className:'required'},'*')),
+   e('input',{className:'input-field',value:data.claimantName||'',onChange:x=>setData('claimantName',x.target.value),placeholder:'Full legal name'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Date of Birth'),
+   e('input',{type:'date',className:'input-field',value:data.dateOfBirth||'',onChange:x=>setData('dateOfBirth',x.target.value)})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Phone'),
+   e('input',{className:'input-field',type:'tel',value:data.claimantPhone||'',onChange:x=>setData('claimantPhone',x.target.value),placeholder:'(555) 555-5555'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Email'),
+   e('input',{className:'input-field',type:'email',value:data.claimantEmail||'',onChange:x=>setData('claimantEmail',x.target.value),placeholder:'email@example.com'})
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Describe the Incident in Your Own Words'),
+  e('textarea',{className:'input-field',rows:5,value:data.incidentDescription||'',onChange:x=>setData('incidentDescription',x.target.value),placeholder:'Please describe what happened in your own words. Include:\n• What were you doing before the incident?\n• How did the injury occur?\n• Did anyone witness the incident?\n• What did you do immediately after?'})
+  ),
+  e('div',{className:'form-grid',style:{marginTop:16}},
+  e('div',{className:'form-group'},
+   e('label',null,'Body Parts Injured'),
+   e('input',{className:'input-field',value:data.bodyPartsInjured||'',onChange:x=>setData('bodyPartsInjured',x.target.value),placeholder:'e.g., Lower back, right knee'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Current Symptoms'),
+   e('input',{className:'input-field',value:data.currentSymptoms||'',onChange:x=>setData('currentSymptoms',x.target.value),placeholder:'e.g., Pain, swelling, limited mobility'})
+  )
+  ),
+  e('div',{className:'form-grid',style:{marginTop:12}},
+  e('div',{className:'form-group'},
+   e('label',null,'Have you had this injury before?'),
+   e('select',{className:'input-field',value:data.priorInjury||'',onChange:x=>setData('priorInjury',x.target.value)},
+   e('option',{value:''},'Select'),
+   e('option',{value:'no'},'No - First time'),
+   e('option',{value:'yes_same'},'Yes - Same body part'),
+   e('option',{value:'yes_different'},'Yes - Different body part'),
+   e('option',{value:'yes_work'},'Yes - Prior work injury')
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Are you able to work?'),
+   e('select',{className:'input-field',value:data.ableToWork||'',onChange:x=>setData('ableToWork',x.target.value)},
+   e('option',{value:''},'Select'),
+   e('option',{value:'yes_full'},'Yes - Full duties'),
+   e('option',{value:'yes_light'},'Yes - Light duty only'),
+   e('option',{value:'no'},'No - Unable to work')
+   )
+  )
+  )
+ ),
+ 
+ type==='hipaa'&&e('div',null,
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'HIPAA Authorization'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Patient Name ',e('span',{className:'required'},'*')),
+   e('input',{className:'input-field',value:data.patientName||'',onChange:x=>setData('patientName',x.target.value),placeholder:'Full legal name'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Date of Birth'),
+   e('input',{type:'date',className:'input-field',value:data.dateOfBirth||'',onChange:x=>setData('dateOfBirth',x.target.value)})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Last 4 of SSN'),
+   e('input',{className:'input-field',maxLength:4,value:data.ssnLast4||'',onChange:x=>setData('ssnLast4',x.target.value.replace(/\D/g,'')),placeholder:'XXXX'})
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Employer'),
+   e('input',{className:'input-field',value:data.employer||'',onChange:x=>setData('employer',x.target.value),placeholder:'Employer name'})
+  )
+  ),
+  e('div',{style:{marginTop:20,padding:16,background:'var(--panel2)',borderRadius:12,border:'1px solid var(--gbd)'}},
+  e('h4',{style:{color:'white',fontSize:14,marginBottom:12}},'AUTHORIZATION FOR RELEASE OF PROTECTED HEALTH INFORMATION'),
+  e('div',{style:{fontSize:12,color:'var(--tm)',lineHeight:1.6}},
+   e('p',{style:{marginBottom:12}},'I hereby authorize any healthcare provider, hospital, clinic, pharmacy, or other medical facility that has provided treatment or services to me to release and disclose my protected health information to:'),
+   e('p',{style:{marginBottom:12,fontWeight:600,color:'var(--tt)'}},'CompShield, and its designated representatives, insurance carriers, and claims administrators'),
+   e('p',{style:{marginBottom:12}},'This authorization includes the release of information related to:'),
+   e('ul',{style:{marginLeft:20,marginBottom:12}},
+   e('li',null,'Medical records, reports, and test results'),
+   e('li',null,'Diagnosis and treatment information'),
+   e('li',null,'Billing and payment records'),
+   e('li',null,'Any other information related to my workers\'compensation claim')
+   ),
+   e('p',{style:{marginBottom:12}},'I understand that:'),
+   e('ul',{style:{marginLeft:20}},
+   e('li',null,'This authorization is voluntary'),
+   e('li',null,'I may revoke this authorization at any time in writing'),
+   e('li',null,'This authorization expires 24 months from the date of signature'),
+   e('li',null,'Information disclosed may be subject to re-disclosure')
+   )
+  )
+  )
+ ),
+ 
+ type!=='hipaa'&&e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{className:'audio-rec'},
+  e('h4',null,'Audio Recording (Optional)'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Record a verbal statement in addition to or instead of the written statement above.'),
+  e('div',{style:{display:'flex',alignItems:'center',gap:16}},
+   e('button',{
+   type:'button',
+   className:'rec-btn'+(recording===type?'STOP':'REC'),
+   onClick:()=>recording===type?stopRecording():startRecording(type),
+   style:{width:56,height:56}
+   },recording===type?'STOP':'REC'),
+   e('div',null,
+   e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},
+    recording===type?'Recording in progress...':'Click to start recording'
+   ),
+   recording===type&&e('p',{style:{fontSize:11,color:'var(--tm)'}},'Click the button again to stop')
+   )
+  ),
+  audioBlobs[type]&&e('div',{style:{marginTop:16,padding:12,background:'rgba(16,185,129,0.08)',borderRadius:8,border:'1px solid var(--tg)'}},
+   e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8,fontWeight:600}},'Audio recorded successfully'),
+   e('audio',{src:URL.createObjectURL(audioBlobs[type]),controls:true,style:{width:'100%',borderRadius:6}}),
+   e('button',{
+   type:'button',
+   className:'nav-btn secondary',
+   style:{marginTop:8,padding:'6px 12px',fontSize:11},
+   onClick:()=>clearAudio(type)
+   },'Remove Recording')
+  )
+  )
+ ),
+ 
+ e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{className:'sig-section'},
+  e('h3',{style:{marginBottom:16}},'Electronic Signature'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Use your mouse or finger to sign in the box below'),
+  e('div',{className:'sig-canvas-wrap',style:{border:'2px solid var(--tb)',borderRadius:8}},
+   e('canvas',{
+   ref:sigCanvasRef,
+   className:'sig-canvas',
+   onMouseDown:startDraw,
+   onMouseMove:draw,
+   onMouseUp:()=>stopDraw(dataKey),
+   onMouseLeave:()=>stopDraw(dataKey),
+   onTouchStart:startDraw,
+   onTouchMove:draw,
+   onTouchEnd:()=>stopDraw(dataKey)
+   })
+  ),
+  e('div',{style:{display:'flex',gap:8,marginTop:8}},
+   e('button',{className:'nav-btn secondary',type:'button',style:{padding:'8px 16px'},onClick:()=>clearSig(dataKey)},'Clear Signature'),
+   data.signature&&e('span',{style:{fontSize:12,color:'var(--tg)',display:'flex',alignItems:'center',gap:4}},'Signature captured')
+  ),
+  e('div',{className:'form-group',style:{marginTop:16}},
+   e('label',null,'Type Full Legal Name ',e('span',{className:'required'},'*')),
+   e('input',{className:'input-field',value:data.typedName||'',onChange:x=>setData('typedName',x.target.value),placeholder:'Type your full legal name'})
+  ),
+  e('div',{style:{marginTop:16}},
+   e('div',{className:'checkbox-group'},
+   e('input',{type:'checkbox',checked:data.consent1||false,onChange:x=>setData('consent1',x.target.checked)}),
+   e('label',null,type==='hipaa'?'I authorize the release of my protected health information as described above.':'I certify that the information provided above is true and correct to the best of my knowledge.')
+   ),
+   e('div',{className:'checkbox-group',style:{marginTop:8}},
+   e('input',{type:'checkbox',checked:data.consent2||false,onChange:x=>setData('consent2',x.target.checked)}),
+   e('label',null,'I consent to sign this document electronically in accordance with the E-SIGN Act and agree that my electronic signature has the same legal effect as a handwritten signature.')
+   )
+  ),
+  !d[signedKey]?e('div',{style:{marginTop:20}},
+   e('button',{
+   className:'nav-btn primary',
+   style:{padding:'14px 28px',fontSize:15},
+   disabled:!canSign(),
+   onClick:async()=>{
+    if(!canSign()){
+    alert('Please complete all required fields, sign above, and check both consent boxes.');
+    return;
+    }
+    const ok=await submitInlineStmt(type,data,data.signature,audioBlobs[type]);
+    if(ok){
+    u(signedKey,true);
+    clearAudio(type);
+    alert('Document signed and saved successfully!');
+    }else{
+    alert('Error saving signature. Please try again.');
+    }
+   }
+   },'Sign & Save Document'),
+   !canSign()&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},'Complete all required fields to enable signing')
+  ):e('div',{style:{marginTop:20,padding:16,background:'rgba(16,185,129,0.08)',border:'1px solid var(--tg)',borderRadius:12,textAlign:'center'}},
+   e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},'Document Signed Successfully'),
+   e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'This signed document will be attached to the claim submission.')
+  )
+  )
+ )
+ ),
+ 
+ d[optKey]==='skip'&&e('div',{style:{marginTop:24}},
+ e('div',{className:'info-tip'},
+  e('p',null,'Skipping - this ',type==='hipaa'?'authorization':'statement','will not be collected at this time.')
+ )
+ )
+);
+};
+
+const renderStep=()=>{
+if(step===0)return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+ e('h2',null,'Employee Information'),
+ e('p',{className:'section-subtitle'},'Enter the injured employee\'s personal and employment details')
+ ),
+ e('div',{className:'form-grid'},
+ e('div',{className:'form-group'},
+  e('label',null,'First Name ',e('span',{className:'required'},'*')),
+  inp('firstName','First name')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Last Name ',e('span',{className:'required'},'*')),
+  inp('lastName','Last name')
+ ),
+ e('div',{className:'form-group full-width'},
+  e('label',null,'Mailing Address ',e('span',{className:'required'},'*')),
+  inp('mailingAddress','Street address')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'City ',e('span',{className:'required'},'*')),
+  inp('city','City')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'State ',e('span',{className:'required'},'*')),
+  sel('state',STATES,'Select state')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Zip Code ',e('span',{className:'required'},'*')),
+  inp('zipCode','Zip code')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Phone ',e('span',{className:'required'},'*')),
+  inp('phone','(555) 555-5555','tel')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Date of Birth ',e('span',{className:'required'},'*')),
+  inp('dateOfBirth','','date')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Date of Hire ',e('span',{className:'required'},'*')),
+  inp('dateOfHire','','date')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'SSN ',e('span',{className:'required'},'*')),
+  e('div',{style:{position:'relative'}},e('input',{type:'password',className:'input-field',value:d.ssn||'',onChange:x=>{const v=x.target.value.replace(/[^0-9-]/g,'');if(v.length<=11)u('ssn',v)},placeholder:'XXX-XX-XXXX',autoComplete:'off'}),d.ssn&&d.ssn.length>=4&&e('span',{style:{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',fontSize:12,color:'var(--tm)'}},'Last 4: '+d.ssn.replace(/[^0-9]/g,'').slice(-4)))
+ ),
+ e('div',{className:'form-group full-width'},
+  e('label',null,'Occupation / Job Title ',e('span',{className:'required'},'*')),
+  inp('occupation','Job title or position')
+ )
+ ),
+ (d.firstName || d.lastName) && e('div',{className:'employee-summary'},
+ e('h4',null,'Employee Summary'),
+ e('p',null,e('strong',null,(d.firstName||'')+' '+(d.lastName||''))),
+ d.occupation && e('p',null,e('span',null,'Position: '),d.occupation),
+ d.phone && e('p',null,e('span',null,'Phone: '),d.phone),
+ d.dateOfHire && e('p',null,e('span',null,'Hire Date: '),new Date(d.dateOfHire).toLocaleDateString())
+ )
+);
+
+if(step===1){
+ const calcDaysToReport=()=>{
+ if(!d.dateOfInjury||!d.dateReported)return null;
+ const injury=new Date(d.dateOfInjury);
+ const reported=new Date(d.dateReported);
+ return Math.floor((reported-injury)/(1000*60*60*24));
+ };
+ const daysToReport=calcDaysToReport();
+ const injuryInFuture=d.dateOfInjury&&new Date(d.dateOfInjury)>new Date();
+ const reportBeforeInjury=d.dateOfInjury&&d.dateReported&&new Date(d.dateReported)<new Date(d.dateOfInjury);
+
+ const ENTITIES=IND.entities;
+ const WORK_TYPES=['Full-Time','Part-Time','Per Diem','Temporary','Seasonal','Contractor/1099'];
+ const NATURE_OF_INJURY=IND.natureOfInjury;
+ const CAUSE_OF_INJURY=IND.causeOfInjury;
+
+ return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+  e('h2',null,'Incident Details'),
+  e('p',{className:'section-subtitle'},'What happened, when, and where')
+ ),
+ e('div',{className:'form-group full-width'},
+  e('label',null,'Entity ',e('span',{className:'required'},'*')),
+  sel('entity',[...ENTITIES,'Other - Enter Manually'],'Select Entity'),
+  d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
+ ),
+ e('div',{className:'form-grid',style:{marginTop:16}},
+  e('div',{className:'form-group'},
+  e('label',null,'Date of Injury ',e('span',{className:'required'},'*')),
+  inp('dateOfInjury','','date')
+  ),
+  e('div',{className:'form-group'},
+  e('label',null,'Time of Injury ',e('span',{className:'required'},'*')),
+  inp('timeOfInjury','','time')
+  ),
+  e('div',{className:'form-group'},
+  e('label',null,'Date Reported ',e('span',{className:'required'},'*')),
+  inp('dateReported','','date')
+  ),
+  e('div',{className:'form-group'},
+  e('label',null,'Reported Immediately? ',e('span',{className:'required'},'*')),
+  tog('reportedImmediately',[{v:true,l:'Yes',c:'success'},{v:false,l:'No',c:'warning'}])
+  )
+ ),
+ daysToReport!==null&&e('div',{style:{marginTop:12,marginBottom:8}},
+  e('div',{style:{display:'inline-flex',alignItems:'center',gap:8,padding:'8px 14px',borderRadius:8,fontSize:13,fontWeight:600,
+  background:daysToReport<=1?'rgba(16,185,129,0.1)':daysToReport<=7?'rgba(245,158,11,0.1)':'rgba(239,68,68,0.1)',
+  color:daysToReport<=1?'var(--tg)':daysToReport<=7?'var(--tw)':'var(--tr)',
+  border:'1px solid '+(daysToReport<=1?'var(--tg)':daysToReport<=7?'var(--tw)':'var(--tr)')
+  }},daysToReport===0?'Reported Same Day':daysToReport===1?'Reported Next Day':daysToReport<=7?daysToReport+' Days to Report':daysToReport+' Days to Report \u2014 DELAYED')
+ ),
+ injuryInFuture&&e('div',{className:'warning-box'},'Date of injury is in the future. Please verify.'),
+ reportBeforeInjury&&e('div',{style:{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.25)',borderRadius:12,padding:16,fontSize:14,color:'var(--tr)',marginBottom:18}},'Report date cannot be before injury date.'),
+
+ e('div',{style:{marginTop:20,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{className:'form-group full-width'},
+  e('label',null,'Description of Accident ',e('span',{className:'required'},'*')),
+  e('textarea',{className:'input-field',rows:4,value:d.accidentDescription||'',onChange:x=>u('accidentDescription',x.target.value),placeholder:'Describe who, what, when, where, and how the injury occurred...'})
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Injury Type ',e('span',{className:'required'},'*')),
+  e('div',{className:'injury-grid'},...IND.injuryTypes.map(t=>
+   e('button',{key:t.v,type:'button',className:'injury-btn'+(d.injuryType===t.v?' active':''),onClick:()=>u('injuryType',t.v)},
+   e('span',{className:'injury-icon'},t.i),
+   e('span',{className:'injury-label'},t.l)
+   )
+  ))
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Body Parts Affected ',e('span',{className:'required'},'*')),
+  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+   ...BODY_PARTS.map(p=>e('button',{key:p,type:'button',className:'chip-btn'+(d.bodyParts?.includes(p)?' active':''),onClick:()=>ta('bodyParts',p)},p))
+  ),
+  e('div',{style:{marginTop:12}},
+   e('input',{className:'input-field',style:{maxWidth:300},placeholder:'Other body part...',value:d.customBodyPart||'',onChange:x=>u('customBodyPart',x.target.value)})
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Worksite / Facility Name'),
+  inp('worksiteName','e.g., Sigma Link Rehab - Newark Facility')
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:8}},
+  e('label',null,'Worksite Street Address ',e('span',{className:'required'},'*')),
+  inp('worksiteStreet','Street address where the employee works')
+  ),
+  e('div',{className:'form-grid',style:{marginTop:8}},
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite City ',e('span',{className:'required'},'*')),
+   inp('worksiteCity','City')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite State ',e('span',{className:'required'},'*')),
+   sel('worksiteState',STATES,'Select state')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Worksite Zip ',e('span',{className:'required'},'*')),
+   inp('worksiteZip','Zip code')
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Did the Accident Occur at This Worksite? ',e('span',{className:'required'},'*')),
+  tog('accidentAtWorksite',[
+   {v:true,l:'Yes - Same as Worksite',c:'success'},
+   {v:false,l:'No - Different Location',c:'warning'}
+  ])
+  ),
+  d.accidentAtWorksite===false&&e('div',{style:{marginTop:12}},
+  e('div',{className:'form-group full-width'},
+   e('label',null,'Accident Street Address ',e('span',{className:'required'},'*')),
+   inp('accidentStreet','Street address where the accident occurred')
+  ),
+  e('div',{className:'form-grid',style:{marginTop:12}},
+   e('div',{className:'form-group'},
+   e('label',null,'Accident City ',e('span',{className:'required'},'*')),
+   inp('accidentCity','City')
+   ),
+   e('div',{className:'form-group'},
+   e('label',null,'Accident State ',e('span',{className:'required'},'*')),
+   sel('accidentState',STATES,'Select state')
+   ),
+   e('div',{className:'form-group'},
+   e('label',null,'Accident Zip ',e('span',{className:'required'},'*')),
+   inp('accidentZip','Zip code')
+   )
+  )
+  ),
+  e('div',{className:'form-grid',style:{marginTop:16}},
+  e('div',{className:'form-group'},
+   e('label',null,'Nature of Injury ',e('span',{className:'required'},'*')),
+   e('select',{className:'input-field',value:d.natureOfInjury||'',onChange:x=>u('natureOfInjury',x.target.value)},
+   e('option',{value:''},'Select nature of injury'),
+   ...NATURE_OF_INJURY.map(n=>e('option',{key:n,value:n},n))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Cause of Injury ',e('span',{className:'required'},'*')),
+   e('select',{className:'input-field',value:d.causeOfInjury||'',onChange:x=>u('causeOfInjury',x.target.value)},
+   e('option',{value:''},'Select cause of injury'),
+   ...CAUSE_OF_INJURY.map(c=>e('option',{key:c,value:c},c))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Weekly Wage ',e('span',{className:'required'},'*')),
+   e('div',{style:{position:'relative'}},
+   e('span',{style:{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--tm)',fontSize:14}},'$'),
+   e('input',{type:'text',className:'input-field',style:{paddingLeft:28},value:d.weeklyWage||'',onChange:x=>u('weeklyWage',x.target.value.replace(/[^0-9.]/g,'')),placeholder:'0.00'})
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Work Type ',e('span',{className:'required'},'*')),
+   sel('workType',WORK_TYPES,'Select work type')
+  )
+  )
+ )
+ );
+}
+if(step===2){
+ const RETURN_STATUSES=[
+ {v:'not_returned',l:'Has Not Returned to Work'},
+ {v:'full_duty',l:'Returned - Full Duty'},
+ {v:'light_duty',l:'Returned - Light Duty / Modified'},
+ {v:'part_time',l:'Returned - Part Time'},
+ {v:'unknown',l:'Unknown'}
+ ];
+
+ return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+  e('h2',null,'Medical & Work Status'),
+  e('p',{className:'section-subtitle'},'Treatment details and current work status')
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Has employee received medical treatment? ',e('span',{className:'required'},'*')),
+  tog('soughtMedicalTreatment',[
+  {v:true,l:'Yes - Already Treated',c:'success'},
+  {v:false,l:'No - Not Yet'}
+  ])
+ ),
+ 
+ d.soughtMedicalTreatment===true&&e('div',{style:{marginTop:16}},
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Facility Name ',e('span',{className:'required'},'*')),
+   inp('initialFacilityName','Hospital, clinic, or doctor\'s office')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Treating Physician'),
+   inp('treatingPhysician','Doctor\'s name')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Date of Treatment'),
+   inp('treatmentDate','','date')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Treatment Type'),
+   e('select',{className:'input-field',value:d.treatmentType||'',onChange:x=>u('treatmentType',x.target.value)},
+   e('option',{value:''},'Select type'),
+   e('option',{value:'first_aid'},'First Aid Only'),
+   e('option',{value:'medical_treatment'},'Medical Treatment'),
+   e('option',{value:'emergency'},'Emergency Room'),
+   e('option',{value:'hospitalized'},'Hospitalized'),
+   e('option',{value:'surgery'},'Surgery Required')
+   )
+  )
+  ),
+  e('div',{className:'form-group full-width',style:{marginTop:12}},
+  e('label',null,'Treatment Notes'),
+  e('textarea',{className:'input-field',rows:2,value:d.treatmentNotes||'',onChange:x=>u('treatmentNotes',x.target.value),placeholder:'Brief description of treatment received...'})
+  ),
+  e('div',{className:'form-group',style:{marginTop:16}},
+  e('label',null,'Were work restrictions given?'),
+  tog('workRestrictionsGiven',[
+   {v:true,l:'Yes',c:'warning'},
+   {v:false,l:'No',c:'success'},
+   {v:'pending',l:'Pending'}
+  ])
+  ),
+  d.workRestrictionsGiven===true&&e('div',{className:'form-group',style:{marginTop:12}},
+   e('label',null,'Restriction Details'),
+   e('textarea',{className:'input-field',rows:2,value:d.restrictionDetails||'',onChange:x=>u('restrictionDetails',x.target.value),placeholder:'e.g., No lifting over 10 lbs, no standing more than 2 hours...'})
+  )
+ ),
+
+ d.soughtMedicalTreatment===false&&e('div',{className:'info-tip',style:{marginTop:16}},'Employee has not yet received treatment. Direct to appropriate medical provider.'),
+ 
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Work Status'),
+  e('div',{className:'form-group'},
+  e('label',null,'Is Employee Losing Time From Work? ',e('span',{className:'required'},'*')),
+  tog('losingTime',[
+   {v:true,l:'Yes - Lost Time Claim',c:'warning'},
+   {v:false,l:'No - Medical Only',c:'success'}
+  ])
+  ),
+  d.losingTime===true&&e('div',{className:'warning-box',style:{marginTop:12}},'Lost Time Claim \u2014 This will likely involve indemnity benefits.'),
+  e('div',{className:'form-grid',style:{marginTop:16}},
+  e('div',{className:'form-group'},
+   e('label',null,'Date Last Worked ',e('span',{className:'required'},'*')),
+   inp('dateLastWorked','','date')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Expected Return Date'),
+   inp('expectedReturnDate','','date')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Return Status ',e('span',{className:'required'},'*')),
+   e('select',{className:'input-field',value:d.returnStatus||'',onChange:x=>u('returnStatus',x.target.value)},
+   e('option',{value:''},'Select status'),
+   ...RETURN_STATUSES.map(s=>e('option',{key:s.v,value:s.v},s.l))
+   )
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Light Duty Available?'),
+   tog('lightDutyAvailable',[
+   {v:true,l:'Yes',c:'success'},
+   {v:false,l:'No',c:'warning'}
+   ])
+  )
+  )
+ )
+ );
+}
+if(step===3){
+ return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+  e('h2',null,'Evidence'),
+  e('p',{className:'section-subtitle'},'Document video footage, supervisor input, and upload photos')
+ ),
+ 
+ e('div',{style:{marginBottom:24}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Video Evidence'),
+  e('div',{className:'form-group'},
+  e('label',null,'Is video footage available?'),
+  tog('hasVideo',[
+   {v:true,l:'Yes - Video Available',c:'success'},
+   {v:false,l:'No Video'},
+   {v:'unknown',l:'Unknown / Checking'}
+  ])
+  ),
+  d.hasVideo===true&&e('div',{style:{marginTop:12}},
+  e('div',{className:'warning-box'},'PRESERVE IMMEDIATELY! Video surveillance systems typically auto-delete footage in 7-30 days. Request preservation in writing TODAY.'),
+  e('div',{className:'form-group',style:{marginTop:12}},
+   e('label',null,'Video Notes'),
+   e('textarea',{className:'input-field',rows:2,value:d.videoNotes||'',onChange:x=>u('videoNotes',x.target.value),placeholder:'Camera location, time range, preservation status, who to contact...'})
+  ),
+  e('div',{style:{marginTop:12,background:'var(--panel)',borderRadius:12,padding:16,border:'1px solid var(--tb)'}},
+   e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'UPLOAD VIDEO'),
+   e('input',{
+   type:'file',
+   multiple:true,
+   accept:'video/*,.mp4,.mov,.avi,.wmv,.mkv,.webm',
+   id:'video-upload',
+   style:{display:'none'},
+   onChange:x=>{
+    const files=Array.from(x.target.files);
+    setD(p=>({...p,videoFiles:[...(p.videoFiles||[]),...files]}));
+   }
+   }),
+   e('label',{htmlFor:'video-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'Choose Video Files'),
+   e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:6}},'Accepts MP4, MOV, AVI, WMV, MKV, WebM'),
+   d.videoFiles?.length>0&&e('div',{style:{marginTop:10}},
+   e('p',{style:{fontSize:12,color:'var(--tg)'}},d.videoFiles.length+' video(s) selected'),
+   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
+    ...d.videoFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+    f.name.substring(0,25)+(f.name.length>25?'...':''),
+    e('span',{style:{fontSize:10,color:'var(--tm)'}},'('+Math.round(f.size/1024/1024*10)/10+'MB)'),
+    e('button',{type:'button',onClick:()=>setD(p=>({...p,videoFiles:p.videoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+    ))
+   )
+   )
+  )
+  )
+ ),
+ 
+ e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',margin:0}},'Witnesses'),
+  e('button',{
+   type:'button',
+   className:'nav-btn secondary',
+   style:{padding:'8px 16px',fontSize:12},
+   onClick:()=>setD(p=>({...p,witnesses:[...(p.witnesses||[]),{name:'',phone:'',email:''}]}))
+  },'+ Add Witness')
+  ),
+  (!d.witnesses||d.witnesses.length===0)?
+  e('div',{style:{padding:20,background:'var(--panel)',borderRadius:12,border:'1px dashed var(--tb)',textAlign:'center'}},
+   e('p',{style:{color:'var(--tm)',fontSize:13}},'No witnesses added yet.'),
+   e('p',{style:{color:'var(--tm)',fontSize:11,marginTop:4}},'Click "+ Add Witness" to add witness contact information.')
+  ):
+  e('div',{style:{display:'flex',flexDirection:'column',gap:12}},
+   ...(d.witnesses||[]).map((w,i)=>
+   e('div',{key:i,className:'witness-card',style:{position:'relative'}},
+    e('button',{
+    type:'button',
+    style:{position:'absolute',top:12,right:12,background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:18,padding:4},
+    onClick:()=>setD(p=>({...p,witnesses:p.witnesses.filter((_,idx)=>idx!==i)}))
+    },'×'),
+    e('div',{className:'witness-header'},'Witness #'+(i+1)),
+    e('div',{className:'form-grid'},
+    e('div',{className:'form-group'},
+     e('label',null,'Name'),
+     e('input',{
+     className:'input-field',
+     value:w.name||'',
+     onChange:x=>{
+      const newWitnesses=[...d.witnesses];
+      newWitnesses[i]={...newWitnesses[i],name:x.target.value};
+      u('witnesses',newWitnesses);
+     },
+     placeholder:'Full name'})
+    ),
+    e('div',{className:'form-group'},
+     e('label',null,'Phone'),
+     e('input',{
+     className:'input-field',
+     type:'tel',
+     value:w.phone||'',
+     onChange:x=>{
+      const newWitnesses=[...d.witnesses];
+      newWitnesses[i]={...newWitnesses[i],phone:x.target.value};
+      u('witnesses',newWitnesses);
+     },
+     placeholder:'(555) 555-5555'})
+    ),
+    e('div',{className:'form-group',style:{gridColumn:'1/-1'}},
+     e('label',null,'Email'),
+     e('input',{
+     className:'input-field',
+     type:'email',
+     value:w.email||'',
+     onChange:x=>{
+      const newWitnesses=[...d.witnesses];
+      newWitnesses[i]={...newWitnesses[i],email:x.target.value};
+      u('witnesses',newWitnesses);
+     },
+     placeholder:'witness@email.com'})
+    )
+    )
+   )
+   )
+  ),
+  d.witnesses?.length>0&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},d.witnesses.length+' witness'+(d.witnesses.length>1?'es':'')+' added')
+ ),
+ 
+ e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Supervisor Input'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Supervisor Name ',e('span',{className:'required'},'*')),
+   inp('supervisorName','Supervisor\'s name')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Supervisor Phone ',e('span',{className:'required'},'*')),
+   inp('supervisorPhone','Phone number','tel')
+  )
+  ),
+  e('div',{className:'form-group',style:{marginTop:12}},
+  e('label',null,'Supervisor Comments / Observations'),
+  e('textarea',{className:'input-field',rows:3,value:d.supervisorComments||'',onChange:x=>u('supervisorComments',x.target.value),placeholder:'Supervisor\'s observations about the incident, employee\'s condition, scene conditions, any discrepancies noted...'})
+  )
+ ),
+ 
+ e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:12}},'Photo Documentation'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:16}},'Upload scene and injury photos to document the incident.'),
+  
+  e('div',{style:{background:'var(--panel)',borderRadius:12,padding:16,marginBottom:12,border:'1px solid var(--tb)'}},
+  e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'SCENE PHOTOS'),
+  e('input',{
+   type:'file',
+   multiple:true,
+   accept:'image/*',
+   id:'scene-photos-upload',
+   style:{display:'none'},
+   onChange:x=>{
+   const files=Array.from(x.target.files);
+   setD(p=>({...p,scenePhotoFiles:[...(p.scenePhotoFiles||[]),...files]}));
+   }
+  }),
+  e('label',{htmlFor:'scene-photos-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'Choose Scene Photos'),
+  d.scenePhotoFiles?.length>0&&e('div',{style:{marginTop:10}},
+   e('p',{style:{fontSize:12,color:'var(--tg)'}},''+d.scenePhotoFiles.length+'scene photo(s) selected'),
+   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
+   ...d.scenePhotoFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+    ''+f.name.substring(0,20)+(f.name.length>20?'...':''),
+    e('button',{type:'button',onClick:()=>setD(p=>({...p,scenePhotoFiles:p.scenePhotoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+   ))
+   )
+  )
+  ),
+  
+  e('div',{style:{background:'var(--panel)',borderRadius:12,padding:16,border:'1px solid var(--tb)'}},
+  e('label',{style:{fontSize:12,fontWeight:600,color:'var(--tm)',display:'block',marginBottom:8}},'INJURY PHOTOS'),
+  e('input',{
+   type:'file',
+   multiple:true,
+   accept:'image/*',
+   id:'injury-photos-upload',
+   style:{display:'none'},
+   onChange:x=>{
+   const files=Array.from(x.target.files);
+   setD(p=>({...p,injuryPhotoFiles:[...(p.injuryPhotoFiles||[]),...files]}));
+   }
+  }),
+  e('label',{htmlFor:'injury-photos-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px',fontSize:13}},'Choose Injury Photos'),
+  d.injuryPhotoFiles?.length>0&&e('div',{style:{marginTop:10}},
+   e('p',{style:{fontSize:12,color:'var(--tg)'}},''+d.injuryPhotoFiles.length+'injury photo(s) selected'),
+   e('div',{style:{display:'flex',flexWrap:'wrap',gap:8,marginTop:8}},
+   ...d.injuryPhotoFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+    ''+f.name.substring(0,20)+(f.name.length>20?'...':''),
+    e('button',{type:'button',onClick:()=>setD(p=>({...p,injuryPhotoFiles:p.injuryPhotoFiles.filter((_,idx)=>idx!==i)})),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+   ))
+   )
+  )
+  )
+ )
+ );
+}
+if(step===4){
+ const FLAG_CATEGORIES=[
+ {cat:'Reporting Red Flags',items:['Delayed Reporting (3+ days)','Monday Morning Claim','Friday Afternoon Injury','Reported After Termination Notice','Reported After Disciplinary Action']},
+ {cat:'Witness & Evidence Issues',items:['No Witnesses to Incident','Conflicting Witness Accounts','Only Witness is Friend/Relative','Refuses Recorded Statement','No Physical Evidence']},
+ {cat:'Description Concerns',items:['Vague/Unclear Description','Story Changes Over Time','Description Doesn\'t Match Injury','Mechanism of Injury Implausible','Cannot Identify Exact Location']},
+ {cat:'Employment Factors',items:['New Employee (<90 days)','Recent Disciplinary Action','Facing Layoff/Termination','Performance Issues','Known Job Dissatisfaction','Disgruntled Employee']},
+ {cat:'Claims History',items:['History of Prior WC Claims','Prior Similar Injuries','Claims at Multiple Employers','Frequently Injured','Prior Litigated Claim']},
+ {cat:'Medical Red Flags',items:['Refused Then Sought Treatment','Excessive Treatment Requests','Changed Doctors Multiple Times','Missed Medical Appointments','Non-Compliant with Treatment','Possible Pre-existing Condition','Soft Tissue Only / Hard to Verify']},
+ {cat:'Behavioral Indicators',items:['Attorney Retained Immediately','Demanding Quick Settlement','Uncooperative with Investigation','Overly Familiar with WC Process','Coaching Suspected','Signs of Malingering']},
+ {cat:'Financial & Personal',items:['Known Financial Problems','Works Second Job','Recent/Pending Bankruptcy','Known Personal/Domestic Issues','History of Substance Abuse']},
+ {cat:'Other Concerns',items:['May Have Occurred Off Premises','May Not Be Work-Related','Horseplay Suspected','Intoxication Suspected','Social Media Activity Contradicts']}
+ ];
+
+ const flagSelected=(d.fraudIndicators||[]);
+ const flagCount=flagSelected.length;
+ const highRisk=flagCount>=3;
+
+ const toggleFlag=(item)=>{
+  const curr=d.fraudIndicators||[];
+  u('fraudIndicators',curr.includes(item)?curr.filter(x=>x!==item):[...curr,item]);
+ };
+ const countInCat=(cat)=>cat.items.filter(i=>flagSelected.includes(i)).length;
+
+ return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+  e('h2',null,'Investigation Flags'),
+  e('p',{className:'section-subtitle'},'Document concerns for investigation \u2014 indicators, not accusations')
+ ),
+ 
+ e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud.'),
+ 
+ e('div',{className:'form-group'},
+  e('label',null,'Do you have any validity concerns about this claim?'),
+  tog('validityConcerns',[
+  {v:true,l:'Yes - Concerns Exist',c:'warning'},
+  {v:false,l:'No Concerns'}
+  ])
+ ),
+ 
+ d.validityConcerns===true&&e('div',{className:'form-group',style:{marginTop:12}},
+  e('label',null,'Explain Your Concerns'),
+  e('textarea',{className:'input-field',rows:3,value:d.concernDetails||'',onChange:x=>u('concernDetails',x.target.value),placeholder:'Describe specific concerns. Be factual and objective...'})
+ ),
+ 
+ e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+   e('h3',{style:{fontSize:14,color:'var(--tr)',margin:0}},'Red Flag Indicators'),
+   flagCount>0&&e('div',{style:{
+    padding:'5px 12px',borderRadius:8,fontSize:12,fontWeight:600,
+    background:highRisk?'rgba(248,113,113,0.2)':'rgba(251,191,36,0.2)',
+    color:highRisk?'var(--tr)':'var(--tw)',
+    border:'1px solid '+(highRisk?'var(--tr)':'var(--tw)')
+   }},flagCount+' Flag'+(flagCount>1?'s':'')+' Selected'+(highRisk?' \u2014 HIGH RISK':''))
+  ),
+
+  flagSelected.length>0&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}},
+   ...flagSelected.map(f=>e('span',{key:f,style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',padding:'4px 10px',borderRadius:6,fontSize:11,display:'inline-flex',alignItems:'center',gap:6,cursor:'pointer'},onClick:()=>toggleFlag(f)},f,' \u00d7'))
+  ),
+
+  ...FLAG_CATEGORIES.map((cat,ci)=>{
+   const isOpen=openFlagCat===ci;
+   const catCount=countInCat(cat);
+   return e('div',{key:cat.cat,style:{border:'1px solid var(--gbd)',borderRadius:10,marginBottom:6,overflow:'hidden',background:'var(--panel)'}},
+    e('div',{
+     style:{padding:'12px 14px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',transition:'background 0.15s'},
+     onClick:()=>setOpenFlagCat(isOpen?null:ci)
+    },
+     e('span',{style:{fontSize:13,fontWeight:600,color:'var(--tt)'}},cat.cat),
+     e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+      catCount>0&&e('span',{style:{background:'var(--tr)',color:'white',fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:10}},catCount),
+      e('span',{style:{color:'var(--tm)',fontSize:14,transition:'transform 0.2s',transform:isOpen?'rotate(180deg)':'rotate(0)' }},'\u25be')
+     )
+    ),
+    isOpen&&e('div',{style:{padding:'4px 14px 14px',display:'flex',flexWrap:'wrap',gap:6}},
+     ...cat.items.map(item=>e('button',{key:item,type:'button',className:'chip-btn'+(flagSelected.includes(item)?' active danger':''),onClick:()=>toggleFlag(item),style:{fontSize:12}},item))
+    )
+   );
+  }),
+
+  e('div',{style:{marginTop:10,display:'flex',gap:8}},
+   e('input',{className:'input-field',style:{flex:1},placeholder:'Other red flag...',value:d.customRedFlag||'',onChange:x=>u('customRedFlag',x.target.value),
+   onKeyDown:x=>{if(x.key==='Enter'&&d.customRedFlag?.trim()){toggleFlag(d.customRedFlag.trim());u('customRedFlag','')}}
+   }),
+   d.customRedFlag&&e('button',{type:'button',className:'nav-btn primary',style:{padding:'10px 16px',background:'var(--tr)'},onClick:()=>{if(d.customRedFlag.trim()){toggleFlag(d.customRedFlag.trim());u('customRedFlag','')}}},'+ Add')
+  )
+ ),
+ 
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Investigation Notes'),
+  e('div',{className:'form-group'},
+  e('label',null,'Notes / Observations'),
+  e('textarea',{className:'input-field',rows:3,value:d.investigationNotes||'',onChange:x=>u('investigationNotes',x.target.value),placeholder:'Document investigation findings, interviews conducted, evidence reviewed...'})
+  )
+ ),
+
+ e('div',{style:{marginTop:28,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
+  e('h3',{style:{fontSize:14,color:'var(--tg)',marginBottom:16}},'Third Party / Subrogation'),
+  e('div',{className:'form-group'},
+  e('label',null,'Is a third party potentially responsible?'),
+  tog('thirdPartyInvolved',[
+   {v:true,l:'Yes - Third Party Involved',c:'success'},
+   {v:false,l:'No'},
+   {v:'maybe',l:'Possibly / Investigating'}
+  ])
+  ),
+  (d.thirdPartyInvolved===true||d.thirdPartyInvolved==='maybe')&&e('div',{style:{marginTop:12}},
+  e('div',{className:'form-group'},
+   e('label',null,'Brief Details'),
+   e('textarea',{className:'input-field',rows:2,value:d.thirdPartyDetails||'',onChange:x=>u('thirdPartyDetails',x.target.value),placeholder:'Who is the third party and how were they involved?'})
+  )
+  )
+ ),
+ 
+ highRisk&&e('div',{style:{marginTop:24,padding:16,background:'rgba(248,113,113,0.1)',borderRadius:12,border:'1px solid var(--tr)'}},
+  e('h4',{style:{fontSize:13,color:'var(--tr)',marginBottom:8}},'High Risk Claim \u2014 '+flagCount+' Flags'),
+  e('p',{style:{fontSize:12,color:'var(--tm)'}},'Consider: recorded statements, additional documentation, early SIU involvement, surveillance.')
+ )
+ );
+}
+if(step===5){
+ const validateClaim=()=>{
+ const ans=v=>v===true||v===false; // yes/no toggle has been answered
+ const errors=[];
+ // Step 0 — Employee
+ if(!d.firstName)errors.push({field:'Employee First Name',step:0});
+ if(!d.lastName)errors.push({field:'Employee Last Name',step:0});
+ if(!d.dateOfBirth)errors.push({field:'Date of Birth',step:0});
+ if(!d.mailingAddress)errors.push({field:'Mailing Address',step:0});
+ if(!d.city)errors.push({field:'City',step:0});
+ if(!d.state)errors.push({field:'State',step:0});
+ if(!d.zipCode)errors.push({field:'Zip Code',step:0});
+ if(!d.phone)errors.push({field:'Phone',step:0});
+ if(!d.dateOfHire)errors.push({field:'Date of Hire',step:0});
+ if(!d.occupation)errors.push({field:'Occupation',step:0});
+ if(!d.ssn)errors.push({field:'SSN',step:0});
+ else if(d.ssn.replace(/[^0-9]/g,'').length<9)errors.push({field:'Complete SSN (9 digits)',step:0});
+ // Step 1 — Incident
+ if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
+ if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
+ if(!d.timeOfInjury)errors.push({field:'Time of Injury',step:1});
+ if(!d.dateReported)errors.push({field:'Date Reported',step:1});
+ if(!ans(d.reportedImmediately))errors.push({field:'Reported Immediately?',step:1});
+ if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
+ if(!d.injuryType)errors.push({field:'Injury Type',step:1});
+ if(!d.bodyParts||d.bodyParts.length===0)errors.push({field:'Body Parts Affected',step:1});
+ if(!d.worksiteStreet)errors.push({field:'Worksite Street Address',step:1});
+ if(!d.worksiteCity)errors.push({field:'Worksite City',step:1});
+ if(!d.worksiteState)errors.push({field:'Worksite State',step:1});
+ if(!d.worksiteZip)errors.push({field:'Worksite Zip Code',step:1});
+ if(d.accidentAtWorksite===false){
+  if(!d.accidentStreet)errors.push({field:'Accident Street Address',step:1});
+  if(!d.accidentCity)errors.push({field:'Accident City',step:1});
+  if(!d.accidentState)errors.push({field:'Accident State',step:1});
+  if(!d.accidentZip)errors.push({field:'Accident Zip Code',step:1});
+ }
+ if(!d.natureOfInjury)errors.push({field:'Nature of Injury',step:1});
+ if(!d.causeOfInjury)errors.push({field:'Cause of Injury',step:1});
+ if(!d.weeklyWage)errors.push({field:'Weekly Wage',step:1});
+ if(!d.workType)errors.push({field:'Work Type',step:1});
+ // Step 2 — Medical & Work Status
+ if(!ans(d.soughtMedicalTreatment))errors.push({field:'Medical Treatment Received?',step:2});
+ if(d.soughtMedicalTreatment===true&&!d.initialFacilityName)errors.push({field:'Treatment Facility Name',step:2});
+ if(!ans(d.losingTime))errors.push({field:'Losing Time From Work?',step:2});
+ if(d.losingTime===true&&!d.dateLastWorked)errors.push({field:'Date Last Worked',step:2});
+ if(!d.returnStatus)errors.push({field:'Return Status',step:2});
+ // Step 3 — Evidence (Supervisor)
+ if(!d.supervisorName)errors.push({field:'Supervisor Name',step:3});
+ if(!d.supervisorPhone)errors.push({field:'Supervisor Phone',step:3});
+ // Step 5 — Submit
+ if(!d.submitterName)errors.push({field:'Submitter Name',step:5});
+ if(!d.submitterEmail)errors.push({field:'Submitter Email',step:5});
+ if(d.submitterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail))errors.push({field:'Valid Email Address',step:5});
+ return errors;
+ };
+ const validationErrors=validateClaim();
+ const canSubmit=validationErrors.length===0;
+ 
+ const calcCompletion=()=>{
+ let filled=0,total=0;
+ const required=['firstName','lastName','entity','dateOfInjury','accidentDescription','injuryType','submitterName','submitterEmail'];
+ required.forEach(f=>{total+=2;if(d[f])filled+=2});
+ const important=['phone','occupation','dateOfHire','weeklyWage','workType','dateReported','bodyParts','soughtMedicalTreatment','witness1Name','losingTime'];
+ important.forEach(f=>{total+=1;if(d[f]&&(Array.isArray(d[f])?d[f].length>0:true))filled+=1});
+ return Math.min(100,Math.round((filled/total)*100));
+ };
+ const completionScore=calcCompletion();
+ 
+ const clearDraft=()=>{
+ if(confirm('Are you sure you want to clear all form data? This cannot be undone.')){
+    location.reload();
+ }
+ };
+ 
+ const totalFiles=(uploadedFiles?.length||0)+(d.scenePhotoFiles?.length||0)+(d.injuryPhotoFiles?.length||0)+(d.videoFiles?.length||0)+(d.evidenceDocFiles?.length||0);
+
+ return e('div',{className:'content'},
+ e('div',{className:'section-header'},
+  e('h2',null,'Review & Submit'),
+  e('p',{className:'section-subtitle'},'Review your claim information and submit'),
+  
+ ),
+ 
+ e('div',{style:{display:'flex',gap:24,alignItems:'center',justifyContent:'center',margin:'24px 0'}},
+  e('div',{style:{textAlign:'center'}},
+  e('div',{style:{
+   display:'inline-block',width:100,height:100,borderRadius:'50%',
+   background:'conic-gradient('+(completionScore>=80?'var(--tg)':completionScore>=50?'var(--tw)':'var(--tr)')+' '+completionScore+'%, rgba(156,163,175,0.2) '+completionScore+'%)',
+   position:'relative'}},
+   e('div',{style:{
+   position:'absolute',top:8,left:8,width:84,height:84,
+   background:'var(--td)',borderRadius:'50%',
+   display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column'}},
+   e('span',{style:{fontSize:28,fontWeight:'bold',color:completionScore>=80?'var(--tg)':completionScore>=50?'var(--tw)':'var(--tr)'}},completionScore+'%'),
+   e('span',{style:{fontSize:10,color:'var(--tm)'}},'Complete')
+   )
+  )
+  ),
+  e('div',{style:{textAlign:'left'}},
+  e('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:8}},
+   e('span',{style:{fontSize:18}},canSubmit?'':'!'),
+   e('span',{style:{fontSize:14,fontWeight:600,color:canSubmit?'var(--tg)':'var(--tw)'}},
+   canSubmit?'Ready to Submit':validationErrors.length+'Required Field'+(validationErrors.length>1?'s':'')+'Missing')
+  ),
+  totalFiles>0&&e('div',{style:{display:'flex',alignItems:'center',gap:8}},
+   e('span',{style:{fontSize:18}},''),
+   e('span',{style:{fontSize:13,color:'var(--tm)'}},totalFiles+' file'+(totalFiles>1?'s':'')+' to upload')
+  )
+  )
+ ),
+ 
+ !canSubmit&&e('div',{style:{background:'rgba(248,113,113,0.1)',border:'1px solid var(--tr)',borderRadius:12,padding:16,marginBottom:20}},
+  e('h4',{style:{color:'var(--tr)',fontSize:13,marginBottom:12}},'Please complete the following required fields:'),
+  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+  ...validationErrors.map((err,i)=>
+   e('button',{
+   key:i,
+   type:'button',
+   onClick:()=>setStep(err.step),
+   style:{
+    background:'rgba(239,68,68,0.1)',border:'1px solid var(--tr)',color:'var(--tr)',
+    padding:'6px 12px',borderRadius:6,fontSize:12,cursor:'pointer',
+    fontFamily:'Inter'}
+   },'→ '+err.field)
+  )
+  )
+ ),
+ 
+ e('div',{style:{marginBottom:20}},
+  e('button',{
+  type:'button',
+  className:'nav-btn secondary',
+  style:{width:'100%',padding:'12px'},
+  onClick:()=>setShowPreview(!showPreview)
+  },showPreview?'▼ Hide Claim Preview':'▶ Show Full Claim Preview')
+ ),
+ 
+ showPreview&&e('div',{style:{background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)',padding:20,marginBottom:20}},
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'EMPLOYEE INFORMATION'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Name: '),e('span',{style:{color:'var(--tt)'}},d.firstName+' '+d.lastName||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Occupation: '),e('span',{style:{color:'var(--tt)'}},d.occupation||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Phone: '),e('span',{style:{color:'var(--tt)'}},d.phone||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'DOB: '),e('span',{style:{color:'var(--tt)'}},d.dateOfBirth||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Hire Date: '),e('span',{style:{color:'var(--tt)'}},d.dateOfHire||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Address: '),e('span',{style:{color:'var(--tt)'}},[d.mailingAddress,d.city,d.state,d.zipCode].filter(Boolean).join(', ')||'—'))
+  )
+  ),
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'CLAIM INFORMATION'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Entity: '),e('span',{style:{color:'var(--tt)'}},d.entity==='Other - Enter Manually'?d.customEntity:d.entity||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Date of Injury: '),e('span',{style:{color:'var(--tt)'}},d.dateOfInjury||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Time: '),e('span',{style:{color:'var(--tt)'}},d.timeOfInjury||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Date Reported: '),e('span',{style:{color:'var(--tt)'}},d.dateReported||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Weekly Wage: '),e('span',{style:{color:'var(--tt)'}},d.weeklyWage?'$'+d.weeklyWage:'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Work Type: '),e('span',{style:{color:'var(--tt)'}},d.workType||'—'))
+  )
+  ),
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'INCIDENT DETAILS'),
+  e('div',{style:{fontSize:13,marginBottom:12}},
+   e('span',{style:{color:'var(--tm)'}},'Description: '),
+   e('p',{style:{color:'var(--tt)',marginTop:4,padding:8,background:'var(--panel)',borderRadius:6}},d.accidentDescription||'—')
+  ),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Injury Type: '),e('span',{style:{color:'var(--tt)'}},INJURY_TYPES.find(t=>t.v===d.injuryType)?.l||d.injuryType||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Body Parts: '),e('span',{style:{color:'var(--tt)'}},d.bodyParts?.join(', ')||'—')),
+   d.natureOfInjury&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Nature: '),e('span',{style:{color:'var(--tt)'}},d.natureOfInjury)),
+   d.causeOfInjury&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Cause: '),e('span',{style:{color:'var(--tt)'}},d.causeOfInjury))
+  )
+  ),
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'MEDICAL TREATMENT'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Treatment Received: '),e('span',{style:{color:'var(--tt)'}},d.soughtMedicalTreatment===true?'Yes':d.soughtMedicalTreatment===false?'No':'—')),
+   d.initialFacilityName&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Facility: '),e('span',{style:{color:'var(--tt)'}},d.initialFacilityName)),
+   d.treatingPhysician&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Physician: '),e('span',{style:{color:'var(--tt)'}},d.treatingPhysician)),
+   d.referralType&&e('div',null,e('span',{style:{color:'var(--tm)'}},'Referral: '),e('span',{style:{color:'var(--tt)'}},d.referralType))
+  )
+  ),
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'WORK STATUS'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Losing Time: '),e('span',{style:{color:d.losingTime?'var(--tw)':'var(--tg)'}},d.losingTime===true?'Yes - Lost Time':d.losingTime===false?'No - Medical Only':'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Date Last Worked: '),e('span',{style:{color:'var(--tt)'}},d.dateLastWorked||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Return Status: '),e('span',{style:{color:'var(--tt)'}},d.returnStatus||'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Light Duty Available: '),e('span',{style:{color:'var(--tt)'}},d.lightDutyAvailable===true?'Yes':d.lightDutyAvailable===false?'No':'—'))
+  )
+  ),
+  e('div',{style:{marginBottom:20}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'WITNESSES & EVIDENCE'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Witnesses: '),e('span',{style:{color:'var(--tt)'}},d.witnesses?.length>0?d.witnesses.length+' recorded':'None')),
+   d.witnesses?.length>0&&e('div',{style:{gridColumn:'1/-1',marginTop:4}},
+   ...d.witnesses.map((w,i)=>e('div',{key:i,style:{fontSize:12,color:'var(--tm)',marginBottom:4}},
+    '• '+(w.name||'Unnamed')+(w.phone?' - '+w.phone:'')+(w.email?' - '+w.email:'')
+   ))
+   ),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Video Available: '),e('span',{style:{color:'var(--tt)'}},d.hasVideo===true?'Yes':d.hasVideo===false?'No':'—')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Supervisor: '),e('span',{style:{color:'var(--tt)'}},d.supervisorName||'—'))
+  )
+  ),
+  (d.fraudIndicators?.length>0||d.validityConcerns||d.thirdPartyInvolved)&&e('div',{style:{marginBottom:0}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12,borderBottom:'1px solid var(--gbd)',paddingBottom:8}},'FLAGS & SPECIAL HANDLING'),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'8px 24px',fontSize:13}},
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Validity Concerns: '),e('span',{style:{color:d.validityConcerns?'var(--tr)':'var(--tt)'}},d.validityConcerns?'Yes':'No')),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Red Flags: '),e('span',{style:{color:d.fraudIndicators?.length>0?'var(--tr)':'var(--tt)'}},d.fraudIndicators?.length||0)),
+   e('div',null,e('span',{style:{color:'var(--tm)'}},'Third Party: '),e('span',{style:{color:d.thirdPartyInvolved?'var(--tg)':'var(--tt)'}},d.thirdPartyInvolved===true?'Yes - Subrogation Potential':d.thirdPartyInvolved==='maybe'?'Possibly':'No'))
+  )
+  )
+ ),
+ 
+ !showPreview&&e('div',{className:'summary-grid'},
+  e('div',{className:'summary-section'},
+  e('h4',null,'Employee'),
+  e('p',{style:{fontWeight:600}},(d.firstName||'—')+' '+(d.lastName||'')),
+  e('p',null,d.occupation||'No occupation specified'),
+  d.phone&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.phone)
+  ),
+  e('div',{className:'summary-section'},
+  e('h4',null,'Claim'),
+  e('p',{style:{fontWeight:600}},d.entity==='Other - Enter Manually'?d.customEntity||'—':d.entity||'No entity selected'),
+  e('p',null,d.dateOfInjury||'No date specified'),
+  d.injuryType&&e('p',{style:{fontSize:12,color:'var(--tm)'}},INJURY_TYPES.find(t=>t.v===d.injuryType)?.l)
+  ),
+  e('div',{className:'summary-section'},
+  e('h4',null,'Medical'),
+  e('p',null,d.soughtMedicalTreatment===true?'Treatment received':d.soughtMedicalTreatment===false?'Needs referral':'Not specified'),
+  d.initialFacilityName&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.initialFacilityName)
+  ),
+  e('div',{className:'summary-section'},
+  e('h4',null,'Work Status'),
+  e('p',{style:{color:d.losingTime?'var(--tw)':'var(--tg)'}},d.losingTime===true?'Lost Time Claim':d.losingTime===false?'Medical Only':'Not specified'),
+  d.returnStatus&&e('p',{style:{fontSize:12,color:'var(--tm)'}},d.returnStatus)
+  )
+ ),
+ 
+ e('div',{style:{marginTop:20,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'Additional Documents'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Upload any additional documents not already attached (medical records, police reports, etc.)'),
+  e('input',{
+  type:'file',
+  multiple:true,
+  accept:'image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt',
+  onChange:x=>setUploadedFiles(Array.from(x.target.files)),
+  style:{display:'none'},
+  id:'final-file-upload'}),
+  e('label',{htmlFor:'final-file-upload',className:'nav-btn secondary',style:{display:'inline-block',cursor:'pointer',padding:'10px 16px'}},'Choose Files'),
+  uploadedFiles.length>0&&e('div',{style:{marginTop:12}},
+  e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8}},' '+uploadedFiles.length+' additional file(s) selected:'),
+  e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+   ...uploadedFiles.map((f,i)=>e('div',{key:i,style:{background:'var(--td)',padding:'6px 10px',borderRadius:6,fontSize:11,color:'var(--tm)',display:'flex',alignItems:'center',gap:6}},
+   ''+f.name.substring(0,25)+(f.name.length>25?'...':''),
+   e('button',{type:'button',onClick:()=>setUploadedFiles(uploadedFiles.filter((_,idx)=>idx!==i)),style:{background:'none',border:'none',color:'var(--tr)',cursor:'pointer',fontSize:14}},'×')
+   ))
+  )
+  ),
+  totalFiles>0&&e('div',{style:{marginTop:12,paddingTop:12,borderTop:'1px solid var(--gbd)'}},
+  e('p',{style:{fontSize:11,color:'var(--tm)'}},'Previously attached from Evidence section:'),
+  d.scenePhotoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.scenePhotoFiles.length+' scene photo(s)'),
+  d.injuryPhotoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.injuryPhotoFiles.length+' injury photo(s)'),
+  d.videoFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.videoFiles.length+' video(s)'),
+  d.evidenceDocFiles?.length>0&&e('p',{style:{fontSize:11,color:'var(--tg)'}},'• '+d.evidenceDocFiles.length+' evidence document(s)')
+  )
+ ),
+ 
+ e('div',{style:{marginTop:20,padding:16,background:'var(--panel)',borderRadius:12,border:'1px solid var(--gbd)'}},
+  e('h4',{style:{color:'var(--ta)',fontSize:13,marginBottom:12}},'Submitter Information'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Your Name ',e('span',{className:'required'},'*')),
+   inp('submitterName','Your full name')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Your Email ',e('span',{className:'required'},'*')),
+   inp('submitterEmail','your.email@company.com','email')
+  ),
+  e('div',{className:'form-group',style:{gridColumn:'1 / -1'}},
+   e('label',null,'CC Additional Recipients'),
+   inp('ccEmails','Additional email addresses, separated by commas','email'),
+   e('small',{style:{color:'var(--tm)',fontSize:11,marginTop:4,display:'block'}},'These recipients will receive a copy of the FROI notification')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Your Title'),
+   inp('submitterTitle','e.g., HR Manager, Safety Director')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Your Phone'),
+   inp('submitterPhone','Phone number','tel')
+  )
+  )
+ ),
+ 
+ e('div',{style:{marginTop:20,padding:16,background:'var(--panel2)',borderRadius:12,border:'1px solid var(--gbd)'}},
+  e('p',{style:{fontSize:13,color:'var(--tt)',textAlign:'center',fontWeight:600}},'CERTIFICATION'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',textAlign:'center',marginTop:8}},'I certify that the information provided in this report is true and correct to the best of my knowledge. I understand that submitting false information may have legal consequences.')
+ ),
+ 
+ e('div',{style:{marginTop:24,display:'flex',gap:12,justifyContent:'space-between',flexWrap:'wrap'}},
+  e('button',{
+  type:'button',
+  className:'nav-btn secondary',
+  style:{padding:'12px 20px'},
+  onClick:clearDraft
+  },'Reset Form'),
+  e('div',{style:{display:'flex',gap:12}},
+  e('button',{
+   type:'button',
+   className:'nav-btn secondary',
+   style:{padding:'12px 20px'},
+   onClick:()=>setStep(0)
+  },'← Back to Start'),
+  e('button',{
+   type:'button',
+   className:'nav-btn primary',
+   style:{padding:'14px 32px',fontSize:15,opacity:canSubmit?1:0.6},
+   disabled:submitting||!canSubmit,
+   onClick:submit
+  },submitting?'Submitting...':'Submit Claim')
+  )
+ ),
+ 
+ !canSubmit&&e('p',{style:{fontSize:11,color:'var(--tw)',textAlign:'center',marginTop:12}},'Please complete all required fields before submitting.')
+ );
+}
+return null;
+};
+
+return e('div',{className:'portal'},e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/compshield-logo.svg',alt:'CompShield'})),e('div',{className:'brand-text'},e('h1',null,'Claim Reporting'),e('p',null,IND.label+' · CompShield'))),e('div',{style:{display:'flex',alignItems:'center',gap:12}},e('button',{className:'theme-toggle',onClick:toggleTheme,type:'button'},e('span',{className:'theme-toggle-icon'},theme==='dark'?'☀':'☾'),theme==='dark'?'Light':'Dark'),e('div',{className:'completion-badge'},e('div',{className:'progress-bar'},...steps.map((s,i)=>e('div',{key:i,className:'progress-seg'+(i<step?' done':i===step?' current':'')}))),e('span',{className:'completion-text'},(step+1)+'/'+steps.length))))),e('div',{className:'body'},e('aside',{className:'sidebar'},e('div',{className:'steps'},...steps.map((s,i)=>e('div',{key:i,className:'step'+(i===step?' active':''),onClick:()=>setStep(i)},e('div',{className:'step-num'},s.n),e('span',null,s.t))))),e('main',{className:'main'},e('div',{key:'step-'+step},renderStep()),step<5&&e('div',{className:'nav'},e('button',{className:'nav-btn secondary',onClick:()=>setStep(Math.max(0,step-1)),disabled:step===0},'← Back'),e('button',{className:'nav-btn primary',onClick:()=>setStep(step+1)},'Continue →')))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+</script>
+</body>
+</html>

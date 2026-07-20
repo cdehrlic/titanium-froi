@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompShield - Complete Statement</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--td:#1e2a38;--tn:#2d3a4a;--ts:#3d4f63;--tl:#4a6178;--ta:#5ba4e6;--ta2:#7eb8f0;--tg:#34d399;--tw:#fbbf24;--tr:#f87171;--tt:#f1f5f9;--tm:#94a3b8;--tb:rgba(148,163,184,0.15);--gb:rgba(45,58,74,0.6);--gbd:rgba(148,163,184,0.12)}
+body{font-family:'DM Sans',sans-serif;background:var(--td);min-height:100vh;color:var(--tt)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(91,164,230,0.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:24px}
+.header{background:linear-gradient(180deg,var(--tn) 0%,var(--td) 100%);border-bottom:1px solid var(--gbd);padding:20px;text-align:center;border-radius:16px 16px 0 0}
+.header h1{font-family:'Space Grotesk',sans-serif;font-size:20px;color:white;margin-bottom:4px}
+.header p{font-size:12px;color:var(--tm)}
+.content{background:var(--gb);border-radius:0 0 16px 16px;border:1px solid var(--gbd);border-top:none;padding:28px}
+.loading,.error,.success{text-align:center;padding:60px 20px}
+.loading p{color:var(--tm);font-size:16px}
+.error{background:rgba(248,113,113,0.1);border-radius:12px;border:1px solid var(--tr)}
+.error h2{color:var(--tr);margin-bottom:12px}
+.error p{color:var(--tm)}
+.success{background:rgba(52,211,153,0.1);border-radius:12px;border:1px solid var(--tg)}
+.success h2{color:var(--tg);margin-bottom:12px;font-size:24px}
+.success p{color:var(--tm)}
+.claim-info{background:rgba(91,164,230,0.1);border:1px solid rgba(91,164,230,0.3);border-radius:12px;padding:16px;margin-bottom:24px}
+.claim-info h3{color:var(--ta);font-size:14px;margin-bottom:8px}
+.claim-info p{font-size:13px;color:var(--tt)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.form-group .required{color:var(--tr)}
+.input-field{background:rgba(30,42,56,0.8);border:1px solid var(--tb);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tt);font-family:'DM Sans',sans-serif;width:100%;transition:all 0.2s}
+.input-field:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(91,164,230,0.15)}
+textarea.input-field{min-height:120px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.section-title{font-size:14px;font-weight:700;color:var(--ta);margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--gbd)}
+.legal-text{font-size:11px;color:var(--tm);line-height:1.6;padding:16px;background:rgba(30,42,56,0.5);border-radius:8px;margin:16px 0}
+.legal-text h4{color:var(--tt);font-size:13px;margin-bottom:8px}
+.sig-section{background:rgba(30,42,56,0.5);border-radius:12px;padding:20px;margin-top:20px;border:1px solid var(--gbd)}
+.sig-section h3{color:var(--ta);font-size:14px;margin-bottom:12px}
+.sig-canvas-wrap{background:white;border-radius:8px;overflow:hidden;border:2px solid var(--tb)}
+.sig-canvas{width:100%;height:150px;cursor:crosshair;touch-action:none;display:block}
+.sig-actions{display:flex;gap:8px;margin-top:10px}
+.checkbox-group{display:flex;align-items:flex-start;gap:10px;margin:12px 0}
+.checkbox-group input{margin-top:3px;width:18px;height:18px;accent-color:var(--ta);flex-shrink:0}
+.checkbox-group label{font-size:13px;color:var(--tt);line-height:1.4}
+.btn{padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.btn-secondary{background:transparent;border:1px solid var(--tb);color:var(--tm)}
+.btn-secondary:hover{border-color:var(--tl);color:var(--tt)}
+.btn-primary{background:linear-gradient(135deg,var(--tg) 0%,#10b981 100%);color:white;width:100%;margin-top:20px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(52,211,153,0.4)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.audio-rec{background:rgba(30,42,56,0.5);border-radius:12px;padding:16px;margin:16px 0;border:1px solid var(--gbd)}
+.audio-rec h4{color:var(--ta);font-size:13px;margin-bottom:8px}
+.rec-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:24px;background:var(--tr);display:flex;align-items:center;justify-content:center;color:white}
+.rec-btn.recording{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.audio-preview{margin-top:12px;padding:12px;background:rgba(52,211,153,0.1);border-radius:8px;border:1px solid var(--tg)}
+.audio-preview p{font-size:12px;color:var(--tg);margin-bottom:8px}
+.audio-preview audio{width:100%;border-radius:6px}
+.spinner{width:40px;height:40px;border:4px solid var(--tb);border-top-color:var(--ta);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>COMPSHIELD</h1>
+    <p>Secure E-Signature Portal</p>
+  </div>
+  <div class="content" id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading form...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const app = document.getElementById('app');
+  const token = window.location.pathname.split('/').pop();
+  
+  let linkData = null;
+  let audioBlob = null;
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
+  let sigCanvas = null;
+  let sigCtx = null;
+  let isDrawing = false;
+  let hasSignature = false;
+
+  // Validate the token first
+  async function init() {
+    try {
+      const res = await fetch('/api/validate-link/' + token);
+      const data = await res.json();
+      
+      if (!data.valid) {
+        showError(data.error || 'Invalid or expired link');
+        return;
+      }
+      
+      linkData = data;
+      renderForm();
+    } catch (err) {
+      showError('Unable to load form. Please try again later.');
+    }
+  }
+
+  function showError(message) {
+    app.innerHTML = `
+      <div class="error">
+        <h2>⚠️ Unable to Load</h2>
+        <p>${message}</p>
+        <p style="margin-top:16px;font-size:12px;">If you believe this is an error, please contact the person who sent you this link.</p>
+      </div>
+    `;
+  }
+
+  function showSuccess() {
+    app.innerHTML = `
+      <div class="success">
+        <h2>✓ Submitted Successfully</h2>
+        <p>Your ${linkData.type === 'hipaa' ? 'authorization' : 'statement'} has been received and recorded.</p>
+        <p style="margin-top:16px;font-size:12px;">You may close this window.</p>
+      </div>
+    `;
+  }
+
+  function renderForm() {
+    const typeLabel = linkData.type === 'hipaa' ? 'HIPAA Authorization' : 
+                      linkData.type === 'witness' ? 'Witness Statement' : 
+                      'Claimant Statement';
+    
+    let formFields = '';
+    
+    if (linkData.type === 'witness') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Witness Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="witnessName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="input-field" id="witnessPhone" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="input-field" id="witnessEmail" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label>Relationship to Claimant</label>
+            <select class="input-field" id="relationship">
+              <option value="">Select relationship</option>
+              <option value="coworker">Coworker</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="manager">Manager</option>
+              <option value="customer">Customer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Your Statement <span class="required">*</span></label>
+          <textarea class="input-field" id="statement" placeholder="Please describe what you witnessed in detail. Include where you were, what you saw and heard, and any other relevant observations..." required></textarea>
+        </div>
+      `;
+    } else if (linkData.type === 'claimant') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Your Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="claimantName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" class="input-field" id="dateOfBirth">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="input-field" id="claimantPhone" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="input-field" id="claimantEmail" placeholder="email@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Describe the Incident <span class="required">*</span></label>
+          <textarea class="input-field" id="incidentDescription" placeholder="Please describe what happened in your own words. Include what you were doing, how the injury occurred, and what happened immediately after..." required></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Body Parts Injured</label>
+            <input type="text" class="input-field" id="bodyPartsInjured" placeholder="e.g., Lower back, right knee">
+          </div>
+          <div class="form-group">
+            <label>Current Symptoms</label>
+            <input type="text" class="input-field" id="currentSymptoms" placeholder="e.g., Pain, swelling">
+          </div>
+        </div>
+      `;
+    } else if (linkData.type === 'hipaa') {
+      formFields = `
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="patientName" value="${linkData.personName || ''}" placeholder="Full legal name" required>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth <span class="required">*</span></label>
+            <input type="date" class="input-field" id="dateOfBirth" required>
+          </div>
+          <div class="form-group">
+            <label>Last 4 of SSN</label>
+            <input type="text" class="input-field" id="ssnLast4" maxlength="4" placeholder="XXXX">
+          </div>
+          <div class="form-group">
+            <label>Employer</label>
+            <input type="text" class="input-field" id="employer" placeholder="Employer name">
+          </div>
+        </div>
+        <div class="legal-text">
+          <h4>AUTHORIZATION FOR RELEASE OF PROTECTED HEALTH INFORMATION</h4>
+          <p>I hereby authorize any healthcare provider, hospital, clinic, pharmacy, or other medical facility that has provided treatment or services to me to release and disclose my protected health information to:</p>
+          <p style="margin:8px 0;font-weight:600;color:var(--tt);">CompShield and its designated representatives, insurance carriers, and claims administrators</p>
+          <p>This authorization includes the release of information related to:</p>
+          <ul style="margin:8px 0 8px 20px;">
+            <li>Medical records, reports, and test results</li>
+            <li>Diagnosis and treatment information</li>
+            <li>Billing and payment records</li>
+            <li>Any other information related to my workers' compensation claim</li>
+          </ul>
+          <p>I understand that:</p>
+          <ul style="margin:8px 0 8px 20px;">
+            <li>This authorization is voluntary</li>
+            <li>I may revoke this authorization at any time in writing</li>
+            <li>This authorization expires 24 months from the date of signature</li>
+            <li>Information disclosed may be subject to re-disclosure</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    // Audio recording section (not for HIPAA)
+    const audioSection = linkData.type !== 'hipaa' ? `
+      <div class="audio-rec">
+        <h4>🎤 Audio Recording (Optional)</h4>
+        <p style="font-size:12px;color:var(--tm);margin-bottom:12px;">You may record a verbal statement in addition to the written statement above.</p>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <button type="button" class="rec-btn" id="recordBtn" onclick="toggleRecording()">🎤</button>
+          <div>
+            <p id="recordStatus" style="font-size:13px;color:var(--tm);">Click to start recording</p>
+          </div>
+        </div>
+        <div id="audioPreview" style="display:none;" class="audio-preview">
+          <p>✓ Audio recorded</p>
+          <audio id="audioPlayer" controls></audio>
+          <button type="button" class="btn btn-secondary" style="margin-top:8px;padding:6px 12px;font-size:12px;" onclick="clearAudio()">Remove Recording</button>
+        </div>
+      </div>
+    ` : '';
+
+    app.innerHTML = `
+      <div class="claim-info">
+        <h3>📋 ${typeLabel}</h3>
+        <p><strong>Claim Reference:</strong> ${linkData.claimRef}</p>
+        <p><strong>Expires:</strong> ${new Date(linkData.expiresAt).toLocaleDateString()}</p>
+      </div>
+      
+      <form id="statementForm" onsubmit="return false;">
+        ${formFields}
+        
+        ${audioSection}
+        
+        <div class="section-title">✍️ Electronic Signature</div>
+        
+        <div class="sig-section">
+          <h3>Sign Below</h3>
+          <p style="font-size:12px;color:var(--tm);margin-bottom:12px;">Use your mouse or finger to sign in the box below.</p>
+          <div class="sig-canvas-wrap">
+            <canvas id="sigCanvas" class="sig-canvas"></canvas>
+          </div>
+          <div class="sig-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearSignature()">Clear</button>
+            <span id="sigStatus" style="font-size:12px;color:var(--tm);margin-left:auto;"></span>
+          </div>
+          
+          <div class="form-group" style="margin-top:16px;">
+            <label>Type Your Full Legal Name <span class="required">*</span></label>
+            <input type="text" class="input-field" id="typedName" placeholder="Type your full legal name" required>
+          </div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent1" required>
+            <label for="consent1">${linkData.type === 'hipaa' ? 
+              'I authorize the release of my protected health information as described above.' : 
+              'I certify that the information provided above is true and correct to the best of my knowledge.'}</label>
+          </div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent2" required>
+            <label for="consent2">I consent to sign this document electronically in accordance with the E-SIGN Act and agree that my electronic signature has the same legal effect as a handwritten signature.</label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+          ✍️ Sign & Submit
+        </button>
+      </form>
+    `;
+
+    // Initialize signature canvas
+    setTimeout(initSignatureCanvas, 100);
+  }
+
+  function initSignatureCanvas() {
+    sigCanvas = document.getElementById('sigCanvas');
+    if (!sigCanvas) return;
+    
+    const rect = sigCanvas.getBoundingClientRect();
+    sigCanvas.width = rect.width || 600;
+    sigCanvas.height = 150;
+    
+    sigCtx = sigCanvas.getContext('2d');
+    sigCtx.strokeStyle = '#1a1f26';
+    sigCtx.lineWidth = 2;
+    sigCtx.lineCap = 'round';
+
+    sigCanvas.addEventListener('mousedown', startDraw);
+    sigCanvas.addEventListener('mousemove', draw);
+    sigCanvas.addEventListener('mouseup', stopDraw);
+    sigCanvas.addEventListener('mouseleave', stopDraw);
+    sigCanvas.addEventListener('touchstart', startDraw);
+    sigCanvas.addEventListener('touchmove', draw);
+    sigCanvas.addEventListener('touchend', stopDraw);
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const rect = sigCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+    sigCtx.beginPath();
+    sigCtx.moveTo(x, y);
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const rect = sigCanvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY || 0) - rect.top;
+    sigCtx.lineTo(x, y);
+    sigCtx.stroke();
+    hasSignature = true;
+    document.getElementById('sigStatus').textContent = '✓ Signature captured';
+    document.getElementById('sigStatus').style.color = '#34d399';
+  }
+
+  function stopDraw() {
+    isDrawing = false;
+  }
+
+  window.clearSignature = function() {
+    if (sigCtx && sigCanvas) {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      hasSignature = false;
+      document.getElementById('sigStatus').textContent = '';
+    }
+  };
+
+  // Audio recording functions
+  window.toggleRecording = async function() {
+    const btn = document.getElementById('recordBtn');
+    const status = document.getElementById('recordStatus');
+    
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Try to use mp4/m4a format first, fall back to webm
+        let mimeType = 'audio/webm;codecs=opus';
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+          mimeType = 'audio/ogg;codecs=opus';
+        }
+        
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            audioChunks.push(e.data);
+          }
+        };
+        
+        mediaRecorder.onstop = () => {
+          const audioType = mediaRecorder.mimeType || 'audio/webm';
+          audioBlob = new Blob(audioChunks, { type: audioType });
+          const url = URL.createObjectURL(audioBlob);
+          const player = document.getElementById('audioPlayer');
+          player.src = url;
+          player.load();
+          document.getElementById('audioPreview').style.display = 'block';
+          stream.getTracks().forEach(t => t.stop());
+          console.log('Audio recorded:', audioBlob.size, 'bytes,', audioType);
+        };
+        
+        mediaRecorder.start(1000); // Collect data every second
+        isRecording = true;
+        btn.classList.add('recording');
+        btn.textContent = '⏹';
+        status.textContent = 'Recording... Click to stop';
+        status.style.color = '#f87171';
+      } catch (err) {
+        console.error('Microphone error:', err);
+        alert('Could not access microphone. Please allow microphone access and try again.');
+      }
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      btn.classList.remove('recording');
+      btn.textContent = '🎤';
+      status.textContent = 'Recording saved';
+      status.style.color = '#34d399';
+    }
+  };
+
+  window.clearAudio = function() {
+    audioBlob = null;
+    document.getElementById('audioPreview').style.display = 'none';
+    document.getElementById('recordStatus').textContent = 'Click to start recording';
+    document.getElementById('recordStatus').style.color = 'var(--tm)';
+  };
+
+  window.submitForm = async function() {
+    const btn = document.getElementById('submitBtn');
+    
+    // Validation
+    const typedName = document.getElementById('typedName')?.value?.trim();
+    const consent1 = document.getElementById('consent1')?.checked;
+    const consent2 = document.getElementById('consent2')?.checked;
+    
+    if (!typedName) {
+      alert('Please type your full legal name.');
+      return;
+    }
+    if (!hasSignature) {
+      alert('Please sign in the signature box above.');
+      return;
+    }
+    if (!consent1 || !consent2) {
+      alert('Please check both consent boxes to continue.');
+      return;
+    }
+
+    // Type-specific validation
+    if (linkData.type === 'witness') {
+      if (!document.getElementById('witnessName')?.value?.trim()) {
+        alert('Please enter your name.');
+        return;
+      }
+      if (!document.getElementById('statement')?.value?.trim()) {
+        alert('Please provide your statement.');
+        return;
+      }
+    } else if (linkData.type === 'claimant') {
+      if (!document.getElementById('claimantName')?.value?.trim()) {
+        alert('Please enter your name.');
+        return;
+      }
+      if (!document.getElementById('incidentDescription')?.value?.trim()) {
+        alert('Please describe the incident.');
+        return;
+      }
+    } else if (linkData.type === 'hipaa') {
+      if (!document.getElementById('patientName')?.value?.trim()) {
+        alert('Please enter the patient name.');
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting...';
+
+    try {
+      // Gather form data
+      const formData = {};
+      
+      if (linkData.type === 'witness') {
+        formData.witnessName = document.getElementById('witnessName')?.value || '';
+        formData.witnessPhone = document.getElementById('witnessPhone')?.value || '';
+        formData.witnessEmail = document.getElementById('witnessEmail')?.value || '';
+        formData.relationship = document.getElementById('relationship')?.value || '';
+        formData.statement = document.getElementById('statement')?.value || '';
+      } else if (linkData.type === 'claimant') {
+        formData.claimantName = document.getElementById('claimantName')?.value || '';
+        formData.dateOfBirth = document.getElementById('dateOfBirth')?.value || '';
+        formData.claimantPhone = document.getElementById('claimantPhone')?.value || '';
+        formData.claimantEmail = document.getElementById('claimantEmail')?.value || '';
+        formData.incidentDescription = document.getElementById('incidentDescription')?.value || '';
+        formData.bodyPartsInjured = document.getElementById('bodyPartsInjured')?.value || '';
+        formData.currentSymptoms = document.getElementById('currentSymptoms')?.value || '';
+      } else if (linkData.type === 'hipaa') {
+        formData.patientName = document.getElementById('patientName')?.value || '';
+        formData.dateOfBirth = document.getElementById('dateOfBirth')?.value || '';
+        formData.ssnLast4 = document.getElementById('ssnLast4')?.value || '';
+        formData.employer = document.getElementById('employer')?.value || '';
+      }
+      
+      formData.hasAudioRecording = !!audioBlob;
+
+      const signatureData = {
+        typedName: typedName,
+        signatureImage: sigCanvas.toDataURL('image/png')
+      };
+
+      const fd = new FormData();
+      fd.append('formData', JSON.stringify(formData));
+      fd.append('signatureData', JSON.stringify(signatureData));
+      
+      if (audioBlob) {
+        // Determine file extension based on mime type
+        let ext = 'webm';
+        if (audioBlob.type.includes('mp4')) ext = 'm4a';
+        else if (audioBlob.type.includes('ogg')) ext = 'ogg';
+        else if (audioBlob.type.includes('wav')) ext = 'wav';
+        fd.append('files', audioBlob, 'audio-statement.' + ext);
+      }
+
+      const res = await fetch('/api/submit-statement/' + token, {
+        method: 'POST',
+        body: fd
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        showSuccess();
+      } else {
+        alert('Error: ' + (result.error || 'Submission failed. Please try again.'));
+        btn.disabled = false;
+        btn.textContent = '✍️ Sign & Submit';
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Network error. Please check your connection and try again.');
+      btn.disabled = false;
+      btn.textContent = '✍️ Sign & Submit';
+    }
+  };
+
+  // Initialize
+  init();
+})();
+</script>
+</body>
+</html>
