@@ -50,7 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // comp-shield.com  = full marketing site + CompShield-branded claim portal (cs-*.html)
 // wcreporting.com  = Titanium-branded claim reporting portal only
 // Any other host (e.g. Railway's *.up.railway.app) is served normally.
-const PORTAL_PATHS = ['/report', '/portal', '/followup', '/statement'];
+const PORTAL_PATHS = ['/report', '/portal', '/followup', '/statement', '/livewell'];
 const isCSHost = req => ((req.headers.host || '').split(':')[0].replace(/^www\./, '').toLowerCase()) === 'comp-shield.com';
 const siteBase = req => isCSHost(req) ? 'https://www.comp-shield.com' : CONFIG.BASE_URL;
 app.use((req, res, next) => {
@@ -1665,6 +1665,7 @@ app.get('/resources/lower-experience-mod', sendPage('guide-experience-mod.html')
 app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.html'));
 app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
 app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
+app.get('/livewell', (req, res) => res.sendFile(path.join(__dirname, 'livewell-portal.html')));
 
 app.get('/statement/:token', (req, res) => {
   res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-statement.html' : 'statement.html'));

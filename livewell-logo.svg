@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="lw-title">
+<title id="lw-title">Live Well Healthcare Solutions</title>
+<defs>
+<linearGradient id="lwTeal" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#5eead4"/>
+<stop offset="0.45" stop-color="#14b8a6"/>
+<stop offset="1" stop-color="#0f766e"/>
+</linearGradient>
+</defs>
+<path fill="url(#lwTeal)" d="M32 55C20 46 7 35 7 24 7 16 13 11 20 11c6 0 10 3 12 7 2-4 6-7 12-7 7 0 13 5 13 13 0 11-13 22-25 31z"/>
+<path fill="none" stroke="#ecfdf5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M13 30h10l4-9 6 18 4-9h10"/>
+</svg>
