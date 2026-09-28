@@ -1664,6 +1664,7 @@ app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
 app.get('/resources/lower-experience-mod', sendPage('guide-experience-mod.html'));
 app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.html'));
 app.get('/resources/code-rule-59', sendPage('guide-code-rule-59.html'));
+app.get('/resources/workers-comp-audit', sendPage('guide-workers-comp-audit.html'));
 app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
 app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
 app.get('/livewell', (req, res) => res.sendFile(path.join(__dirname, 'livewell-portal.html')));
