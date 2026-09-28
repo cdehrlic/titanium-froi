@@ -273,212 +273,409 @@ function getEntityName(formData) {
 // Helper to build follow-up link
 function buildFollowUpLink(referenceNumber, formData, base) {
   const name = encodeURIComponent((formData.firstName || '') + ' ' + (formData.lastName || ''));
-  const dob = formData.dateOfBirth || '';
+  const dob = encodeURIComponent(formData.dateOfBirth || '');
+  const doi = encodeURIComponent(formData.dateOfInjury || '');
   const entity = encodeURIComponent(getEntityName(formData));
   const industry = encodeURIComponent(formData.industry || 'healthcare');
-  return `${base || CONFIG.BASE_URL}/followup.html?ref=${referenceNumber}&name=${name}&dob=${dob}&entity=${entity}&industry=${industry}`;
+  const lang = formData.primaryLanguage === 'Spanish' ? '&lang=es' : '';
+  return `${base || CONFIG.BASE_URL}/followup.html?ref=${encodeURIComponent(referenceNumber)}&name=${name}&dob=${dob}&doi=${doi}&entity=${entity}&industry=${industry}${lang}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// E-SIGNATURE PDF GENERATION - WITNESS STATEMENT
+// SHARED HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════
-function generateWitnessStatementPDF(data, signatureData) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
-    const chunks = [];
-    doc.on('data', chunk => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
 
-    // Get entity name for header
-    const entityName = data.entityName || 'Workers Compensation Claim';
+// Escape user-entered text before it goes into an HTML email.
+function h(v) {
+  return String(v === null || v === undefined ? '' : v)
+    .replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
-    // Header - Use entity name instead of Titanium
-    doc.rect(0, 0, 612, 70).fill('#1a1f26');
-    doc.fontSize(18).font('Helvetica-Bold').fillColor('white').text('WITNESS STATEMENT', 50, 25);
-    doc.fontSize(10).fillColor('#94a3b8').text(entityName + ' | www.wcreporting.com', 50, 48);
-    doc.y = 90;
+// True when a value was actually answered (not null, blank, or an empty list).
+function isFilled(v) {
+  return v !== null && v !== undefined
+    && !(typeof v === 'string' && v.trim() === '')
+    && !(Array.isArray(v) && v.length === 0);
+}
 
-    // Reference info
-    doc.fontSize(10).fillColor('#1a1f26').font('Helvetica-Bold');
-    doc.text('Claim Reference: ', 50, doc.y, { continued: true });
-    doc.font('Helvetica').text(data.claimRef || 'N/A');
-    doc.font('Helvetica-Bold').text('Date: ', 50, doc.y + 15, { continued: true });
-    doc.font('Helvetica').text(new Date().toLocaleDateString());
-    doc.moveDown(2);
+// Red flags the system can detect on its own from the dates and times on a report.
+// Mirrors autoFlags() in portal.html so the submitter sees the same list.
+function parseISODate(s) {
+  if (!s || !/^\d{4}-\d{2}-\d{2}/.test(s)) return null;
+  const [y, m, d] = s.slice(0, 10).split('-').map(Number);
+  return Date.UTC(y, m - 1, d);
+}
+function toMinutes(t) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+function computeAutoFlags(fd) {
+  const flags = [];
+  const DAY = 86400000;
+  const doi = parseISODate(fd.dateOfInjury);
+  const reported = parseISODate(fd.dateReported);
+  const hire = parseISODate(fd.dateOfHire);
+  if (doi !== null) {
+    if (doi > Date.now()) flags.push('Date of injury is in the future');
+    if (new Date(doi).getUTCDay() === 1) flags.push('Injury date falls on a Monday');
+  }
+  if (doi !== null && reported !== null) {
+    const lag = Math.round((reported - doi) / DAY);
+    if (lag < 0) flags.push('Date reported is before the date of injury');
+    else if (lag >= 2) flags.push('Reported ' + lag + ' days after the injury');
+  }
+  if (doi !== null && hire !== null) {
+    const tenure = Math.round((doi - hire) / DAY);
+    if (tenure < 0) flags.push('Date of injury is before the date of hire');
+    else if (tenure < 90) flags.push('Injured ' + tenure + ' day' + (tenure === 1 ? '' : 's') + ' after hire');
+  }
+  const inj = toMinutes(fd.timeOfInjury);
+  const start = toMinutes(fd.timeWorkdayBegan);
+  // Only flag when the injury is shortly before the start time, so overnight shifts are not flagged.
+  if (inj !== null && start !== null && inj < start && start - inj <= 8 * 60) {
+    flags.push('Injury time is before the workday began');
+  }
+  return flags;
+}
 
-    // Witness info
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#1a1f26').text('WITNESS INFORMATION');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica');
-    doc.text('Name: ' + (data.witnessName || 'N/A'));
-    doc.text('Phone: ' + (data.witnessPhone || 'N/A'));
-    doc.text('Email: ' + (data.witnessEmail || 'N/A'));
-    doc.text('Relationship to Claimant: ' + (data.relationship || 'N/A'));
-    doc.moveDown(1.5);
+// Spanish to English translation of statement answers (optional).
+// Needs ANTHROPIC_API_KEY on the server. Returns null when no key is set; throws on API errors.
+const TRANSLATE_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+async function translateToEnglish(fields) {
+  const entries = Object.entries(fields || {}).filter(([, v]) => typeof v === 'string' && v.trim());
+  if (!entries.length) return {};
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: TRANSLATE_MODEL,
+        max_tokens: 4000,
+        system: 'You translate workers\' compensation statements from Spanish to English for a claims file. ' +
+          'Translate faithfully and literally. Keep the speaker\'s meaning, uncertainty, and word choice. ' +
+          'Do not summarize, correct, clean up, or add anything. If a value is already English, return it unchanged. ' +
+          'Return only a JSON object with the same keys, where each value is the English text.',
+        messages: [{ role: 'user', content: JSON.stringify(Object.fromEntries(entries)) }]
+      })
+    });
+    if (!res.ok) throw new Error('translation service returned ' + res.status);
+    const json = await res.json();
+    const text = (json.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start < 0 || end < start) throw new Error('translation response was not readable');
+    return JSON.parse(text.slice(start, end + 1));
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error('translation timed out');
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
-    // Statement
-    doc.font('Helvetica-Bold').fontSize(12).text('STATEMENT');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica');
-    doc.text(data.statement || 'No statement provided.', { width: 500, align: 'left' });
-    doc.moveDown(1.5);
+// ═══════════════════════════════════════════════════════════════════════════════
+// PDF LAYOUT HELPERS (statements and root cause)
+// ═══════════════════════════════════════════════════════════════════════════════
+const PDF_COLORS = { dark: '#1a1f26', accent: '#5ba4e6', label: '#475569', text: '#111827', muted: '#6e7681', danger: '#b91c1c', translation: '#1e40af' };
+const PDF_BOTTOM = 715;
 
-    // Audio recording note if applicable
-    if (data.hasAudioRecording) {
-      doc.font('Helvetica-Bold').fillColor('#5ba4e6').text('📎 Audio Recording Attached');
-      doc.font('Helvetica').fillColor('#6e7681').fontSize(9);
-      doc.text('An audio recording of this statement is attached to this submission.');
-      doc.moveDown(1.5);
-    }
-
-    // E-Signature Section
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#1a1f26').text('ELECTRONIC SIGNATURE');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    
-    doc.fontSize(9).font('Helvetica').fillColor('#333');
-    doc.text('I, ' + (signatureData.typedName || data.witnessName) + ', certify that the above statement is true and correct to the best of my knowledge. I understand that this statement may be used in connection with a workers\' compensation claim and that providing false information may result in legal consequences.', { width: 500 });
-    doc.moveDown(1);
-
-    // Signature image if provided
-    if (signatureData.signatureImage) {
-      try {
-        const sigBuffer = Buffer.from(signatureData.signatureImage.replace(/^data:image\/png;base64,/, ''), 'base64');
-        doc.image(sigBuffer, 50, doc.y, { width: 200, height: 60 });
-        doc.y += 65;
-      } catch (e) {
-        doc.text('[Signature on file]');
+function makePdfWriter(doc) {
+  const L = 50, W = 512;
+  const ensure = need => { if (doc.y + need > PDF_BOTTOM) { doc.addPage(); doc.y = 50; } };
+  return {
+    ensure,
+    header(title, subtitle) {
+      doc.rect(0, 0, 612, 70).fill(PDF_COLORS.dark);
+      doc.fontSize(18).font('Helvetica-Bold').fillColor('white').text(title, L, 22, { width: W });
+      doc.fontSize(10).font('Helvetica').fillColor('#94a3b8').text(subtitle, L, 46, { width: W });
+      doc.y = 88;
+    },
+    banner(text, color) {
+      const height = doc.heightOfString(text, { width: W - 20 }) + 16;
+      ensure(height + 10);
+      const top = doc.y;
+      doc.rect(L, top, W, height).fill(color);
+      doc.font('Helvetica-Bold').fontSize(10).fillColor('white').text(text, L + 10, top + 8, { width: W - 20 });
+      doc.y = top + height + 12;
+    },
+    section(title, subtitle) {
+      ensure(60);
+      doc.moveDown(0.4);
+      doc.font('Helvetica-Bold').fontSize(12).fillColor(PDF_COLORS.dark).text(title.toUpperCase(), L, doc.y, { width: W });
+      if (subtitle) doc.font('Helvetica-Oblique').fontSize(8).fillColor(PDF_COLORS.muted).text(subtitle, L, doc.y, { width: W });
+      const y = doc.y + 3;
+      doc.moveTo(L, y).lineTo(L + 200, y).lineWidth(1).stroke(PDF_COLORS.accent);
+      doc.y = y + 8;
+    },
+    // A question and its answer. altLabel shows under the label (Spanish wording), translation under the answer.
+    field(label, value, altLabel, translation) {
+      ensure(42);
+      doc.font('Helvetica-Bold').fontSize(9).fillColor(PDF_COLORS.label).text(label, L, doc.y, { width: W });
+      if (altLabel) doc.font('Helvetica-Oblique').fontSize(8).fillColor(PDF_COLORS.muted).text(altLabel, L, doc.y, { width: W });
+      doc.moveDown(0.15);
+      doc.font('Helvetica').fontSize(10).fillColor(PDF_COLORS.text).text(String(value), L, doc.y, { width: W });
+      if (translation) {
+        doc.moveDown(0.15);
+        doc.font('Helvetica-Oblique').fontSize(9).fillColor(PDF_COLORS.translation).text('English translation: ' + translation, L, doc.y, { width: W });
+      }
+      doc.moveDown(0.6);
+    },
+    bullets(items) {
+      items.forEach(item => {
+        ensure(16);
+        doc.font('Helvetica').fontSize(10).fillColor(PDF_COLORS.text).text('\u2022  ' + item, L + 6, doc.y, { width: W - 6 });
+        doc.moveDown(0.2);
+      });
+      doc.moveDown(0.4);
+    },
+    paragraph(text, opts = {}) {
+      ensure(30);
+      doc.font(opts.font || 'Helvetica').fontSize(opts.size || 9).fillColor(opts.color || '#333333').text(text, L, doc.y, { width: W });
+      doc.moveDown(0.6);
+    },
+    // Footer on every page: document name, claim reference, page numbers, and the hash on the last page.
+    footer(label, hash) {
+      const range = doc.bufferedPageRange();
+      for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+        const bottom = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+        doc.font('Helvetica').fontSize(8).fillColor(PDF_COLORS.muted)
+          .text(label + '  |  Page ' + (i - range.start + 1) + ' of ' + range.count, L, 748, { width: W, align: 'center', lineBreak: false });
+        if (hash && i === range.start + range.count - 1) {
+          doc.fontSize(7).fillColor('#94a3b8').text('Document Hash: ' + hash, L, 760, { width: W, align: 'center', lineBreak: false });
+        }
+        doc.page.margins.bottom = bottom;
       }
     }
-    
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica-Bold').text('Typed Name: ' + (signatureData.typedName || 'N/A'));
-    doc.font('Helvetica').text('Date Signed: ' + (signatureData.signedAt || new Date().toISOString()));
-    doc.text('IP Address: ' + (signatureData.ipAddress || 'N/A'));
-    doc.moveDown(1);
+  };
+}
 
-    // Legal notice
-    doc.rect(50, doc.y, 512, 60).fill('#f0f6fc');
-    doc.fontSize(8).fillColor('#6e7681');
-    doc.text('ELECTRONIC SIGNATURE CERTIFICATION', 60, doc.y - 55, { width: 490 });
-    doc.text('This document was electronically signed in accordance with the Electronic Signatures in Global and National Commerce Act (E-SIGN Act, 15 U.S.C. § 7001 et seq.) and the Uniform Electronic Transactions Act (UETA). The signer consented to conduct this transaction electronically and acknowledged that an electronic signature has the same legal effect as a handwritten signature.', 60, doc.y - 40, { width: 490 });
-    doc.moveDown(4);
-
-    // Document hash
-    doc.fontSize(8).fillColor('#94a3b8');
-    doc.text('Document Hash: ' + (signatureData.documentHash || 'N/A'), 50, 720);
-
-    doc.end();
+function pdfToBuffer(build) {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50, size: 'LETTER', bufferPages: true });
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+      build(doc);
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// E-SIGNATURE PDF GENERATION - CLAIMANT STATEMENT
+// STATEMENT PDFs (witness and claimant)
 // ═══════════════════════════════════════════════════════════════════════════════
-function generateClaimantStatementPDF(data, signatureData) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
-    const chunks = [];
-    doc.on('data', chunk => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
+const RELATIONSHIP_LABELS = { coworker: 'Coworker', supervisor: 'Supervisor', manager: 'Manager', other: 'Other' };
+const OBSERVATION_LABELS = { saw: 'Yes, saw the injury happen', after: 'No, arrived right after it happened', heard: 'No, heard about it later' };
+const PRIOR_INJURY_LABELS = { no: 'No', yes_same: 'Yes, same body part', yes_work: 'Yes, prior work injury', yes_other: 'Yes, other injury' };
+const ABLE_TO_WORK_LABELS = { yes_full: 'Yes, full duties', yes_light: 'Yes, light duty', no: 'No, unable to work' };
+const YES_NO_LABELS = { yes: 'Yes', no: 'No', unsure: 'Not sure' };
 
-    // Get entity name for header
-    const entityName = data.entityName || 'Workers Compensation Claim';
+// [key, English question, Spanish question, code map (optional), translate free text?]
+const STATEMENT_LAYOUT = {
+  witness: {
+    title: 'WITNESS STATEMENT',
+    titleEs: 'Declaración de testigo',
+    nameKey: 'witnessName',
+    sections: [
+      { title: 'Witness Information', es: 'Información del testigo', fields: [
+        ['witnessName', 'Name', 'Nombre'],
+        ['witnessPhone', 'Phone', 'Teléfono'],
+        ['witnessEmail', 'Email', 'Correo electrónico'],
+        ['relationship', 'Relationship to the injured worker', 'Relación con el empleado lesionado', RELATIONSHIP_LABELS],
+        ['witnessLocation', 'Where the witness was during the incident', '¿Dónde estaba usted durante el incidente?', null, true]
+      ]},
+      { title: 'What the Witness Observed', es: 'Lo que observó el testigo', fields: [
+        ['observation', 'Did the witness see the injury happen?', '¿Vio usted cuando ocurrió la lesión?', OBSERVATION_LABELS],
+        ['statement', 'Statement', 'Declaración', null, true],
+        ['claimantSaidAfter', 'What the injured worker said right after', '¿Qué dijo el empleado justo después?', null, true],
+        ['othersPresent', 'Other people present', 'Otras personas presentes', null, true],
+        ['conditions', 'Conditions at the time (lighting, floor, equipment)', 'Condiciones en ese momento (iluminación, piso, equipo)', null, true]
+      ]}
+    ],
+    certify: name => 'I, ' + name + ', certify that the above statement is true and correct to the best of my knowledge. I understand that this statement may be used in connection with a workers\' compensation claim and that providing false information may result in legal consequences.'
+  },
+  claimant: {
+    title: 'CLAIMANT STATEMENT',
+    titleEs: 'Declaración del empleado',
+    nameKey: 'claimantName',
+    sections: [
+      { title: 'Claimant Information', es: 'Información del empleado', fields: [
+        ['claimantName', 'Name', 'Nombre'],
+        ['dateOfBirth', 'Date of birth', 'Fecha de nacimiento'],
+        ['claimantPhone', 'Phone', 'Teléfono'],
+        ['claimantEmail', 'Email', 'Correo electrónico'],
+        ['employer', 'Employer', 'Empleador'],
+        ['jobTitle', 'Job title', 'Puesto']
+      ]},
+      { title: 'The Incident', es: 'El incidente', fields: [
+        ['incidentDescription', 'What happened, in the worker\'s own words', 'Lo que pasó, en sus propias palabras', null, true],
+        ['firstReportedDate', 'Date the injury was first reported', 'Fecha en que reportó la lesión por primera vez'],
+        ['firstReportedTo', 'Who it was first reported to', '¿A quién se lo reportó primero?', null, true]
+      ]},
+      { title: 'Injury and Work Status', es: 'Lesión y estado de trabajo', fields: [
+        ['bodyPartsInjured', 'Body parts injured', 'Partes del cuerpo lesionadas', null, true],
+        ['currentSymptoms', 'Current symptoms', 'Síntomas actuales', null, true],
+        ['medicalTreatment', 'Medical treatment received', 'Tratamiento médico recibido', null, true],
+        ['ableToWork', 'Able to work?', '¿Puede trabajar?', ABLE_TO_WORK_LABELS]
+      ]},
+      { title: 'Prior Injuries and Other Work', es: 'Lesiones anteriores y otros trabajos', fields: [
+        ['priorInjury', 'Prior injury to this or another body part?', '¿Ha tenido una lesión antes?', PRIOR_INJURY_LABELS],
+        ['priorInjuryBodyPart', 'Prior injury: body part', 'Lesión anterior: parte del cuerpo', null, true],
+        ['priorInjuryYear', 'Prior injury: year', 'Lesión anterior: año'],
+        ['priorClaimFiled', 'Prior injury: was a claim filed?', 'Lesión anterior: ¿presentó un reclamo?', YES_NO_LABELS],
+        ['priorDoctors', 'Doctors seen for prior injuries', 'Médicos que lo atendieron por lesiones anteriores', null, true],
+        ['otherEmployment', 'Other jobs or side work', 'Otros trabajos o trabajos extra', null, true],
+        ['outsideActivities', 'Activities outside work (sports, hobbies, second job duties)', 'Actividades fuera del trabajo (deportes, pasatiempos)', null, true]
+      ]}
+    ],
+    certify: name => 'I, ' + name + ', certify that the information provided above is true and correct to the best of my knowledge. I understand that this statement will be used in connection with my workers\' compensation claim. I acknowledge that providing false or misleading information may result in denial of benefits and/or legal consequences including criminal prosecution.'
+  }
+};
 
-    // Header - Use entity name instead of Titanium
-    doc.rect(0, 0, 612, 70).fill('#1a1f26');
-    doc.fontSize(18).font('Helvetica-Bold').fillColor('white').text('CLAIMANT STATEMENT', 50, 25);
-    doc.fontSize(10).fillColor('#94a3b8').text(entityName + ' | www.wcreporting.com', 50, 48);
-    doc.y = 90;
+// Keys whose answers are free text and should be translated when the statement is in Spanish.
+function statementTranslateKeys(kind) {
+  const keys = [];
+  STATEMENT_LAYOUT[kind].sections.forEach(s => s.fields.forEach(f => { if (f[4]) keys.push(f[0]); }));
+  return keys;
+}
 
-    // Reference info
-    doc.fontSize(10).fillColor('#1a1f26').font('Helvetica-Bold');
-    doc.text('Claim Reference: ', 50, doc.y, { continued: true });
-    doc.font('Helvetica').text(data.claimRef || 'N/A');
-    doc.font('Helvetica-Bold').text('Date of Injury: ', 50, doc.y + 15, { continued: true });
-    doc.font('Helvetica').text(data.dateOfInjury || 'N/A');
-    doc.moveDown(2);
+function buildStatementPDF(kind, data, signatureData, opts) {
+  opts = opts || {};
+  signatureData = signatureData || {};
+  const layout = STATEMENT_LAYOUT[kind];
+  const signed = opts.signed !== false;
+  const spanish = data.language === 'es';
+  const translations = opts.translations || {};
+  const entityName = data.entityName || 'Workers Compensation Claim';
+  if (kind === 'claimant' && !isFilled(data.employer)) data = { ...data, employer: entityName };
 
-    // Claimant info
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#1a1f26').text('CLAIMANT INFORMATION');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica');
-    doc.text('Name: ' + (data.claimantName || 'N/A'));
-    doc.text('Date of Birth: ' + (data.dateOfBirth || 'N/A'));
-    doc.text('Phone: ' + (data.claimantPhone || 'N/A'));
-    doc.text('Email: ' + (data.claimantEmail || 'N/A'));
-    doc.text('Employer: ' + (data.employer || entityName));
-    doc.text('Job Title: ' + (data.jobTitle || 'N/A'));
-    doc.moveDown(1.5);
+  return pdfToBuffer(doc => {
+    const w = makePdfWriter(doc);
+    w.header(layout.title + (spanish ? '  /  ' + layout.titleEs : ''), entityName + ' | www.wcreporting.com');
 
-    // Statement
-    doc.font('Helvetica-Bold').fontSize(12).text('DESCRIPTION OF INCIDENT');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica');
-    doc.text(data.incidentDescription || 'No description provided.', { width: 500, align: 'left' });
-    doc.moveDown(1);
+    if (!signed) {
+      w.banner('UNSIGNED: this statement was submitted without a signature. Treat it as an unsigned account until a signed copy is obtained.', PDF_COLORS.danger);
+    }
 
-    // Injury details
-    doc.font('Helvetica-Bold').fontSize(12).text('INJURY DETAILS');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica');
-    doc.text('Body Parts Injured: ' + (data.bodyPartsInjured || 'N/A'));
-    doc.text('Current Symptoms: ' + (data.currentSymptoms || 'N/A'));
-    doc.text('Medical Treatment Received: ' + (data.medicalTreatment || 'N/A'));
-    doc.moveDown(1.5);
+    w.section('Claim');
+    w.field('Claim reference', data.claimRef || 'N/A');
+    if (isFilled(data.dateOfInjury)) w.field('Date of injury', data.dateOfInjury);
+    w.field('Statement date', new Date().toLocaleDateString('en-US'));
+    if (spanish) {
+      const note = opts.translationNote
+        || (Object.keys(translations).length ? 'Given in Spanish. The original answers are shown with an English translation under each one.' : 'Given in Spanish. Original answers shown.');
+      w.field('Language', note);
+    }
 
-    // Audio recording note
+    layout.sections.forEach(section => {
+      const rows = section.fields.filter(f => isFilled(data[f[0]]) || f[0] === 'statement' || f[0] === 'incidentDescription');
+      if (!rows.length) return;
+      w.section(section.title, spanish ? section.es : null);
+      section.fields.forEach(([key, label, labelEs, codes, translate]) => {
+        let value = data[key];
+        if (!isFilled(value)) {
+          if (key === 'statement' || key === 'incidentDescription') value = 'No statement provided.';
+          else return;
+        }
+        if (codes) value = codes[value] || value;
+        const translation = spanish && translate ? translations[key] : null;
+        w.field(label, value, spanish ? labelEs : null, translation && translation !== data[key] ? translation : null);
+      });
+    });
+
     if (data.hasAudioRecording) {
-      doc.font('Helvetica-Bold').fillColor('#5ba4e6').text('📎 Audio Recording Attached');
-      doc.font('Helvetica').fillColor('#6e7681').fontSize(9);
-      doc.text('An audio recording of this statement is attached to this submission.');
-      doc.moveDown(1.5);
+      w.section('Audio');
+      w.paragraph('An audio recording of this statement is attached to the same email as this PDF.', { size: 10 });
     }
 
-    // E-Signature Section
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#1a1f26').text('ELECTRONIC SIGNATURE');
-    doc.moveTo(50, doc.y + 2).lineTo(250, doc.y + 2).stroke('#5ba4e6');
-    doc.moveDown(0.5);
-    
-    doc.fontSize(9).font('Helvetica').fillColor('#333');
-    doc.text('I, ' + (signatureData.typedName || data.claimantName) + ', certify that the information provided above is true and correct to the best of my knowledge. I understand that this statement will be used in connection with my workers\' compensation claim. I acknowledge that providing false or misleading information may result in denial of benefits and/or legal consequences including criminal prosecution.', { width: 500 });
-    doc.moveDown(1);
-
-    // Signature image
-    if (signatureData.signatureImage) {
-      try {
-        const sigBuffer = Buffer.from(signatureData.signatureImage.replace(/^data:image\/png;base64,/, ''), 'base64');
-        doc.image(sigBuffer, 50, doc.y, { width: 200, height: 60 });
-        doc.y += 65;
-      } catch (e) {
-        doc.text('[Signature on file]');
+    w.section('Signature');
+    const signerName = signatureData.typedName || data.typedName || data[layout.nameKey] || '';
+    if (signed) {
+      w.paragraph(layout.certify(signerName || '[name not provided]'));
+      if (signatureData.signatureImage) {
+        try {
+          const sigBuffer = Buffer.from(String(signatureData.signatureImage).replace(/^data:image\/\w+;base64,/, ''), 'base64');
+          w.ensure(75);
+          const sigTop = doc.y;
+          doc.image(sigBuffer, 50, sigTop, { width: 200, height: 60 });
+          doc.y = sigTop + 68;
+        } catch (e) {
+          w.paragraph('[Drawn signature could not be rendered; typed signature below]');
+        }
       }
+      w.field('Typed name', signatureData.typedName || 'N/A');
+      w.field('Date signed', signatureData.signedAt || new Date().toISOString());
+      w.field('IP address', signatureData.ipAddress || 'N/A');
+      const legal = 'This document was electronically signed in accordance with the Electronic Signatures in Global and National Commerce Act (E-SIGN Act, 15 U.S.C. \u00A7 7001 et seq.) and the Uniform Electronic Transactions Act (UETA). The signer consented to conduct this transaction electronically and acknowledged that an electronic signature has the same legal effect as a handwritten signature.';
+      const boxH = doc.font('Helvetica').fontSize(8).heightOfString(legal, { width: 492 }) + 26;
+      w.ensure(boxH + 10);
+      const top = doc.y;
+      doc.rect(50, top, 512, boxH).fill('#f0f6fc');
+      doc.font('Helvetica-Bold').fontSize(8).fillColor(PDF_COLORS.muted).text('ELECTRONIC SIGNATURE CERTIFICATION', 60, top + 8, { width: 492 });
+      doc.font('Helvetica').fontSize(8).fillColor(PDF_COLORS.muted).text(legal, 60, doc.y + 2, { width: 492 });
+      doc.y = top + boxH + 8;
+    } else {
+      w.paragraph('Not signed. The person did not complete the electronic signature for this statement.', { size: 10, font: 'Helvetica-Bold', color: PDF_COLORS.danger });
+      if (isFilled(signatureData.typedName)) w.field('Name typed (not signed)', signatureData.typedName);
     }
-    
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica-Bold').text('Typed Name: ' + (signatureData.typedName || 'N/A'));
-    doc.font('Helvetica').text('Date Signed: ' + (signatureData.signedAt || new Date().toISOString()));
-    doc.text('IP Address: ' + (signatureData.ipAddress || 'N/A'));
-    doc.moveDown(1);
 
-    // Legal notice
-    doc.rect(50, doc.y, 512, 60).fill('#f0f6fc');
-    doc.fontSize(8).fillColor('#6e7681');
-    doc.text('ELECTRONIC SIGNATURE CERTIFICATION', 60, doc.y - 55, { width: 490 });
-    doc.text('This document was electronically signed in accordance with the Electronic Signatures in Global and National Commerce Act (E-SIGN Act, 15 U.S.C. § 7001 et seq.) and the Uniform Electronic Transactions Act (UETA). The signer consented to conduct this transaction electronically and acknowledged that an electronic signature has the same legal effect as a handwritten signature.', 60, doc.y - 40, { width: 490 });
+    w.footer(layout.title + (signed ? '' : ' (UNSIGNED)') + '  |  ' + (data.claimRef || ''), signatureData.documentHash);
+  });
+}
 
-    // Document hash
-    doc.fontSize(8).fillColor('#94a3b8');
-    doc.text('Document Hash: ' + (signatureData.documentHash || 'N/A'), 50, 720);
+function generateWitnessStatementPDF(data, signatureData, opts) {
+  return buildStatementPDF('witness', data, signatureData, opts);
+}
 
-    doc.end();
+function generateClaimantStatementPDF(data, signatureData, opts) {
+  return buildStatementPDF('claimant', data, signatureData, opts);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROOT CAUSE ANALYSIS PDF
+// ═══════════════════════════════════════════════════════════════════════════════
+function hasRootCauseContent(rc) {
+  return !!rc && (isFilled(rc.directCause) || isFilled(rc.factors) || isFilled(rc.actions)
+    || typeof rc.proceduresExisted === 'boolean' || typeof rc.trainingProvided === 'boolean');
+}
+
+function generateRootCausePDF(rc, referenceNumber, entityName) {
+  const yn = v => v === true ? 'Yes' : v === false ? 'No' : null;
+  return pdfToBuffer(doc => {
+    const w = makePdfWriter(doc);
+    w.header('ROOT CAUSE ANALYSIS', (entityName || 'Workers Compensation Claim') + ' | www.wcreporting.com');
+    w.section('Claim');
+    w.field('Claim reference', referenceNumber || 'N/A');
+    if (isFilled(rc.dateOfInjury)) w.field('Date of injury', rc.dateOfInjury);
+    w.field('Completed', new Date().toLocaleDateString('en-US'));
+    if (isFilled(rc.completedBy)) w.field('Completed by', rc.completedBy);
+
+    w.section('Cause');
+    w.field('Direct cause of the incident', isFilled(rc.directCause) ? rc.directCause : 'Not provided');
+    if (yn(rc.proceduresExisted)) w.field('Were procedures in place?', yn(rc.proceduresExisted));
+    if (yn(rc.trainingProvided)) w.field('Was training provided?', yn(rc.trainingProvided));
+
+    w.section('Contributing Factors');
+    if (isFilled(rc.factors)) w.bullets(rc.factors); else w.paragraph('None selected.', { size: 10 });
+
+    w.section('Corrective Actions');
+    if (isFilled(rc.actions)) w.bullets(rc.actions); else w.paragraph('None selected.', { size: 10 });
+
+    w.footer('ROOT CAUSE ANALYSIS  |  ' + (referenceNumber || ''));
   });
 }
 
@@ -711,6 +908,8 @@ function generateClaimPDF(formData, referenceNumber) {
     }
     addFieldIf('Weekly Wage', formData.weeklyWage);
     addFieldIf('Employment Type', formData.workType);
+    addFieldIf('Days Worked Per Week', formData.daysPerWeek);
+    addFieldIf('Primary Language', formData.primaryLanguage === 'Other' ? (formData.primaryLanguageOther || 'Other') : formData.primaryLanguage);
     if (has(formData.normalSchedule) || has(formData.hoursPerWeek)) {
       addFieldRow([{ label: 'Normal Schedule', value: formData.normalSchedule }, { label: 'Hours/Week', value: formData.hoursPerWeek }]);
     }
@@ -719,6 +918,7 @@ function generateClaimPDF(formData, referenceNumber) {
     addSection('CLAIM INFORMATION');
     addField('Entity', entityName);
     addFieldRow([{ label: 'Date of Injury', value: formData.dateOfInjury }, { label: 'Time', value: formData.timeOfInjury }]);
+    addFieldIf('Time Workday Began', formData.timeWorkdayBegan);
     addFieldRow([{ label: 'Date Reported', value: formData.dateReported }, { label: 'Reported Immediately', value: formData.reportedImmediately === true ? 'Yes' : formData.reportedImmediately === false ? 'NO (delayed)' : 'N/A' }]);
 
     // ── 3. INCIDENT DETAILS ────────────────────────────────────────────────────
@@ -759,6 +959,8 @@ function generateClaimPDF(formData, referenceNumber) {
     addFieldIf('Refused Treatment', yesNo(formData.refusedTreatment));
     addFieldIf('Refusal Reason', formData.refusalReason);
     addFieldIf('Refusal Form Signed', yesNo(formData.refusalFormSigned));
+    addFieldIf('Post-Accident Drug Test', { yes: 'Yes', no: 'No', not_required: 'Not required by policy' }[formData.postAccidentDrugTest]);
+    addFieldIf('OSHA Recordable', { yes: 'Yes', no: 'No', unknown: 'Unknown' }[formData.oshaRecordable]);
     // Referral
     if (has(formData.referralType) || has(formData.referralFacility) || has(formData.referralPhone) || has(formData.referralAddress) || has(formData.referralNotes)) {
       addFieldIf('Referral Type', formData.referralType);
@@ -777,6 +979,7 @@ function generateClaimPDF(formData, referenceNumber) {
     addFieldIf('Expected Return Date', formData.expectedReturnDate);
     addFieldIf('Actual Return Date', formData.actualReturnDate);
     addFieldIf('Still Being Paid', yesNo(formData.stillBeingPaid));
+    addFieldIf('Wages Paid for Date of Injury', yesNo(formData.paidDayOfInjury));
     // Salary continuation
     if (formData.hasSalaryContinuation !== null && formData.hasSalaryContinuation !== undefined) {
       addFieldIf('Salary Continuation', yesNo(formData.hasSalaryContinuation));
@@ -887,11 +1090,13 @@ function generateClaimPDF(formData, referenceNumber) {
 
     // ── 11. INVESTIGATION FLAGS / FRAUD INDICATORS ─────────────────────────────
     const fraudFlags = mapCodes(formData.fraudIndicators, FRAUD_LABELS);
-    const hasInvestigation = formData.validityConcerns === true || has(fraudFlags) || has(formData.concernDetails)
+    const autoFlags = computeAutoFlags(formData);
+    const hasInvestigation = autoFlags.length > 0 || formData.validityConcerns === true || has(fraudFlags) || has(formData.concernDetails)
       || has(formData.customRedFlag) || has(formData.investigationNotes)
       || formData.recommendDeny === true || formData.recommendSIU === true;
     if (hasInvestigation) {
       addSection('INVESTIGATION FLAGS / FRAUD INDICATORS', COLORS.danger);
+      if (autoFlags.length) addLongText('Detected From Report Dates', autoFlags.map(f => '\u2022 ' + f).join('\n'));
       addFieldIf('Validity Concerns', yesNo(formData.validityConcerns));
       addLongText('Concern Details', formData.concernDetails);
       addFieldIf('Fraud Indicators', fraudFlags);
@@ -1097,14 +1302,14 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
               <h2 style="color:white;margin:0;">${linkData.type === 'hipaa' ? 'HIPAA Authorization' : linkData.type.charAt(0).toUpperCase() + linkData.type.slice(1) + ' Statement'} Received</h2>
             </div>
             <div style="padding:20px;background:#f8fafc;">
-              <p><strong>Entity:</strong> ${linkData.entityName || 'N/A'}</p>
-              <p><strong>Claim:</strong> ${linkData.claimRef}</p>
-              <p><strong>Type:</strong> ${linkData.type}</p>
-              <p><strong>Signed By:</strong> ${signatureData.typedName || 'N/A'}</p>
-              <p><strong>Signed At:</strong> ${signatureData.signedAt}</p>
-              <p><strong>IP Address:</strong> ${signatureData.ipAddress}</p>
+              <p><strong>Entity:</strong> ${h(linkData.entityName || 'N/A')}</p>
+              <p><strong>Claim:</strong> ${h(linkData.claimRef)}</p>
+              <p><strong>Type:</strong> ${h(linkData.type)}</p>
+              <p><strong>Signed By:</strong> ${h(signatureData.typedName || 'N/A')}</p>
+              <p><strong>Signed At:</strong> ${h(signatureData.signedAt)}</p>
+              <p><strong>IP Address:</strong> ${h(signatureData.ipAddress)}</p>
               <p><strong>Document Hash:</strong> <code style="font-size:10px;">${signatureData.documentHash}</code></p>
-              ${formData.hasAudioRecording ? '<p><strong>📎 Audio Recording Attached</strong></p>' : ''}
+              ${formData.hasAudioRecording ? '<p><strong>Audio recording attached</strong></p>' : ''}
             </div>
           </div>`,
         attachments
@@ -1212,8 +1417,16 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     
     console.log(`📋 Processing claim ${referenceNumber} for ${entityName}`);
 
-    const pdfBuffer = await generateClaimPDF(formData, referenceNumber);
-    const attachments = [{ filename: `${referenceNumber}-ClaimReport.pdf`, content: pdfBuffer, contentType: 'application/pdf' }];
+    const problems = [];
+    const attachments = [];
+    try {
+      const pdfBuffer = await generateClaimPDF(formData, referenceNumber);
+      attachments.push({ filename: `${referenceNumber}-ClaimReport.pdf`, content: pdfBuffer, contentType: 'application/pdf' });
+    } catch (pdfErr) {
+      console.error('Claim PDF generation error:', pdfErr.message);
+      problems.push(`The claim report PDF could not be generated (${pdfErr.message}). The claim was still received; the summary below and any uploads are attached. Resubmit or contact support to regenerate the PDF.`);
+    }
+    const autoFlags = computeAutoFlags(formData);
     
     // Add inline statement PDFs and their audio files
     inlineStatements.forEach(stmt => {
@@ -1266,29 +1479,35 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     const emailHtml = `
       <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;">
         <div style="background:#1a1f26;padding:25px;text-align:center;">
-          <h1 style="color:white;margin:0;">${entityName}</h1>
+          <h1 style="color:white;margin:0;">${h(entityName)}</h1>
           <p style="color:#5ba4e6;margin:8px 0 0;">Workers Compensation Claim Report</p>
         </div>
         <div style="background:${priorityColor};padding:12px 20px;">
           <p style="color:white;margin:0;font-weight:bold;">PRIORITY: ${priority}</p>
         </div>
         <div style="padding:25px;background:#f8fafc;">
+          ${problems.length ? `
+          <div style="background:#fee2e2;border:1px solid #dc2626;padding:15px;margin-bottom:20px;border-radius:8px;">
+            <h3 style="color:#b91c1c;margin:0 0 8px;">Attention: a document is missing</h3>
+            ${problems.map(p => `<p style="margin:4px 0;font-size:13px;color:#7f1d1d;">${h(p)}</p>`).join('')}
+          </div>` : ''}
           <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
             <h2 style="color:#1a1f26;margin:0 0 15px;border-bottom:2px solid #5ba4e6;padding-bottom:10px;">Claim Summary</h2>
             <table style="width:100%;font-size:14px;">
               <tr><td style="padding:5px 0;color:#6e7681;width:140px;">Reference:</td><td style="font-weight:bold;">${referenceNumber}</td></tr>
-              <tr><td style="padding:5px 0;color:#6e7681;">Entity:</td><td style="font-weight:bold;">${entityName}</td></tr>
-              <tr><td style="padding:5px 0;color:#6e7681;">Employee:</td><td>${formData.firstName || ''} ${formData.lastName || ''}</td></tr>
-              <tr><td style="padding:5px 0;color:#6e7681;">Date of Injury:</td><td>${formData.dateOfInjury || 'N/A'}</td></tr>
-              <tr><td style="padding:5px 0;color:#6e7681;">Injury Type:</td><td>${INJURY_TYPE_LABELS[formData.injuryType] || formData.injuryType || 'N/A'}</td></tr>
+              <tr><td style="padding:5px 0;color:#6e7681;">Entity:</td><td style="font-weight:bold;">${h(entityName)}</td></tr>
+              <tr><td style="padding:5px 0;color:#6e7681;">Employee:</td><td>${h(formData.firstName || '')} ${h(formData.lastName || '')}</td></tr>
+              <tr><td style="padding:5px 0;color:#6e7681;">Date of Injury:</td><td>${h(formData.dateOfInjury || 'N/A')}</td></tr>
+              <tr><td style="padding:5px 0;color:#6e7681;">Injury Type:</td><td>${h(INJURY_TYPE_LABELS[formData.injuryType] || formData.injuryType || 'N/A')}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Losing Time:</td><td style="${formData.losingTime === true ? 'color:#dc2626;font-weight:bold;' : ''}">${formData.losingTime === true ? 'YES' : 'No'}</td></tr>
+              ${autoFlags.length ? `<tr><td style="padding:5px 0;color:#6e7681;vertical-align:top;">Date Flags:</td><td style="color:#b45309;font-weight:bold;">${autoFlags.map(h).join('<br/>')}</td></tr>` : ''}
             </table>
           </div>
           ${inlineStatements.length > 0 ? `
           <div style="background:#dcfce7;border:1px solid #16a34a;padding:15px;margin-bottom:20px;border-radius:8px;">
             <h3 style="color:#16a34a;margin:0 0 10px;">✓ E-Signed Documents Attached</h3>
             <ul style="margin:5px 0;font-size:13px;">
-              ${inlineStatements.map(s => `<li>${s.filename}${s.audioFiles && s.audioFiles.length > 0 ? ' <strong>(+ Audio Recording)</strong>' : ''}</li>`).join('')}
+              ${inlineStatements.map(s => `<li>${h(s.filename)}${s.audioFiles && s.audioFiles.length > 0 ? ' <strong>(+ Audio Recording)</strong>' : ''}</li>`).join('')}
             </ul>
           </div>` : ''}
           ${audioFileCount > 0 ? `
@@ -1299,9 +1518,9 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
           <div style="background:#eff6ff;border:1px solid #5ba4e6;padding:15px;margin-bottom:20px;border-radius:8px;">
             <h3 style="color:#1a1f26;margin:0 0 8px;">📋 Complete Follow-Up</h3>
             <p style="margin:0 0 10px;font-size:13px;color:#334155;">Use the link below to submit root cause analysis and collect signed statements:</p>
-            <a href="${followUpLink}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Open Follow-Up Form</a>
+            <a href="${h(followUpLink)}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Open Follow-Up Form</a>
           </div>
-          <p style="font-size:13px;color:#6e7681;">Submitted by: ${formData.submitterName || 'N/A'} (${formData.submitterEmail || 'N/A'})</p>
+          <p style="font-size:13px;color:#6e7681;">Submitted by: ${h(formData.submitterName || 'N/A')} (${h(formData.submitterEmail || 'N/A')})</p>
         </div>
         <div style="background:#1a1f26;padding:20px;text-align:center;">
           <p style="color:#94a3b8;margin:0;font-size:12px;">www.wcreporting.com</p>
@@ -1333,13 +1552,13 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
               <div style="background:#1a1f26;padding:25px;text-align:center;">
-                <h1 style="color:white;margin:0;">${entityName}</h1>
+                <h1 style="color:white;margin:0;">${h(entityName)}</h1>
               </div>
               <div style="padding:30px;background:#f8fafc;">
                 <div style="background:#dcfce7;border:1px solid #16a34a;padding:20px;border-radius:8px;text-align:center;margin-bottom:25px;">
                   <h2 style="color:#16a34a;margin:0;">✓ Claim Submitted Successfully</h2>
                 </div>
-                <p>Your claim for <strong>${formData.firstName || ''} ${formData.lastName || ''}</strong> has been received.</p>
+                <p>Your claim for <strong>${h(formData.firstName || '')} ${h(formData.lastName || '')}</strong> has been received.</p>
                 <div style="background:white;border-radius:8px;padding:20px;margin:20px 0;border:1px solid #e2e8f0;text-align:center;">
                   <p style="margin:0 0 10px;font-size:14px;"><strong>Reference Number:</strong></p>
                   <p style="margin:0;font-size:24px;font-family:monospace;font-weight:bold;">${referenceNumber}</p>
@@ -1347,7 +1566,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
                 <div style="background:#eff6ff;border:1px solid #5ba4e6;padding:15px;margin:20px 0;border-radius:8px;">
                   <h3 style="color:#1a1f26;margin:0 0 8px;">Next Step: Complete Follow-Up</h3>
                   <p style="margin:0 0 12px;font-size:13px;color:#334155;">Submit root cause analysis, witness statements, and claimant statements using the link below:</p>
-                  <a href="${followUpLink}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Complete Follow-Up</a>
+                  <a href="${h(followUpLink)}" style="display:inline-block;background:#5ba4e6;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:13px;">Complete Follow-Up</a>
                 </div>
                 <p style="color:#64748b;">Our team will review and follow up if needed.</p>
               </div>
@@ -1371,8 +1590,8 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/followup', upload.any(), async (req, res) => {
   try {
-    const { referenceNumber, entity, rootCause, witnessStatement, claimantStatement, witnessSigned, claimantSigned } = req.body;
-    
+    const { referenceNumber, entity, rootCause, witnessStatement, claimantStatement, witnessSigned, claimantSigned, dateOfInjury } = req.body;
+
     if (!referenceNumber) {
       return res.status(400).json({ error: 'Missing reference number' });
     }
@@ -1381,144 +1600,228 @@ app.post('/api/followup', upload.any(), async (req, res) => {
     const rootCauseData = JSON.parse(rootCause || '{}');
     const witnessData = JSON.parse(witnessStatement || '{}');
     const claimantData = JSON.parse(claimantStatement || '{}');
+    const files = req.files || [];
+    const wSigned = witnessSigned === 'true';
+    const cSigned = claimantSigned === 'true';
 
-    // Build follow-up summary for email
-    let summary = `CLAIM FOLLOW-UP SUBMITTED\nReference: ${referenceNumber}\nSubmitted: ${new Date().toLocaleString()}\n\n`;
+    // A statement is included if it was signed OR if anyone typed into it. Unsigned ones are stamped UNSIGNED.
+    const hasWitness = wSigned || ['witnessName', 'statement', 'claimantSaidAfter', 'witnessLocation'].some(k => isFilled(witnessData[k]));
+    const hasClaimant = cSigned || ['incidentDescription', 'bodyPartsInjured', 'currentSymptoms', 'priorDoctors', 'otherEmployment'].some(k => isFilled(claimantData[k]));
+    const hasRoot = hasRootCauseContent(rootCauseData);
 
-    // Root Cause
-    summary += `=== ROOT CAUSE ANALYSIS ===\n`;
-    if (rootCauseData.directCause) summary += `Direct Cause: ${rootCauseData.directCause}\n`;
-    if (rootCauseData.proceduresExisted !== null && rootCauseData.proceduresExisted !== undefined) summary += `Procedures in Place: ${rootCauseData.proceduresExisted ? 'Yes' : 'No'}\n`;
-    if (rootCauseData.trainingProvided !== null && rootCauseData.trainingProvided !== undefined) summary += `Training Provided: ${rootCauseData.trainingProvided ? 'Yes' : 'No'}\n`;
-    if (rootCauseData.factors && rootCauseData.factors.length > 0) summary += `Contributing Factors (${rootCauseData.factors.length}): ${rootCauseData.factors.join(', ')}\n`;
-    if (rootCauseData.actions && rootCauseData.actions.length > 0) summary += `Corrective Actions (${rootCauseData.actions.length}): ${rootCauseData.actions.join(', ')}\n`;
-
-    // Witness Statement
-    if (witnessSigned === 'true') {
-      summary += `\n=== WITNESS STATEMENT (SIGNED) ===\n`;
-      summary += `Witness: ${witnessData.witnessName || 'N/A'}\n`;
-      summary += `Relationship: ${witnessData.relationship || 'N/A'}\n`;
-      summary += `Location During Incident: ${witnessData.witnessLocation || 'N/A'}\n`;
-      summary += `Statement: ${witnessData.statement || 'N/A'}\n`;
-      summary += `Signed By: ${witnessData.typedName}\n`;
+    if (!hasWitness && !hasClaimant && !hasRoot && files.length === 0) {
+      return res.status(400).json({ error: 'Nothing was filled in. Complete at least one statement or the root cause analysis before submitting.' });
     }
 
-    // Claimant Statement
-    if (claimantSigned === 'true') {
-      summary += `\n=== CLAIMANT STATEMENT (SIGNED) ===\n`;
-      summary += `Claimant: ${claimantData.claimantName || 'N/A'}\n`;
-      summary += `DOB: ${claimantData.dateOfBirth || 'N/A'}\n`;
-      summary += `Description: ${claimantData.incidentDescription || 'N/A'}\n`;
-      summary += `Body Parts: ${claimantData.bodyPartsInjured || 'N/A'}\n`;
-      summary += `Symptoms: ${claimantData.currentSymptoms || 'N/A'}\n`;
-      summary += `Prior Injury: ${claimantData.priorInjury || 'N/A'}\n`;
-      summary += `Able to Work: ${claimantData.ableToWork || 'N/A'}\n`;
-      summary += `Signed By: ${claimantData.typedName}\n`;
-    }
-
-    // Build attachments array
+    const problems = [];
     const attachments = [];
+    const safeName = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w.-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    const hasAudio = field => !!files.find(f => f.fieldname === field);
 
-    // Generate Witness Statement PDF if signed
-    if (witnessSigned === 'true' && witnessData.typedName) {
+    // Translate Spanish answers to English (only when the statement was given in Spanish).
+    async function translateStatement(kind, data, label) {
+      if (data.language !== 'es') return {};
+      const keys = statementTranslateKeys(kind);
+      const toTranslate = {};
+      keys.forEach(k => { if (isFilled(data[k])) toTranslate[k] = data[k]; });
+      try {
+        const result = await translateToEnglish(toTranslate);
+        if (result === null) {
+          problems.push(`${label} was given in Spanish. No English translation was added because ANTHROPIC_API_KEY is not set on the server.`);
+          return {};
+        }
+        return result;
+      } catch (err) {
+        problems.push(`${label} was given in Spanish, but the English translation failed (${err.message}). The original Spanish answers are in the PDF.`);
+        return {};
+      }
+    }
+
+    const [witnessEn, claimantEn] = await Promise.all([
+      hasWitness ? translateStatement('witness', witnessData, 'The witness statement') : {},
+      hasClaimant ? translateStatement('claimant', claimantData, 'The claimant statement') : {}
+    ]);
+
+    // Witness statement PDF
+    if (hasWitness) {
       try {
         const sigData = {
           typedName: witnessData.typedName,
-          signatureImage: witnessData.signature || null,
+          signatureImage: wSigned ? (witnessData.signature || null) : null,
           signedAt: new Date().toISOString(),
           ipAddress: getClientIP(req),
           documentHash: generateDocumentHash({ witnessData, type: 'witness-followup' })
         };
-        const witnessPdf = await generateWitnessStatementPDF({
+        const pdf = await generateWitnessStatementPDF({
           ...witnessData,
           claimRef: referenceNumber,
-          entityName: entityName,
-          hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'witnessAudio'))
-        }, sigData);
+          entityName,
+          dateOfInjury: witnessData.dateOfInjury || dateOfInjury,
+          hasAudioRecording: hasAudio('witnessAudio')
+        }, sigData, { signed: wSigned, translations: witnessEn });
         attachments.push({
-          filename: `${entityName}-WitnessStatement-${witnessData.witnessName || 'Unknown'}-${referenceNumber}.pdf`,
-          content: witnessPdf,
+          filename: `${safeName(entityName)}-WitnessStatement${wSigned ? '' : '-UNSIGNED'}-${safeName(witnessData.witnessName) || 'Unknown'}-${referenceNumber}.pdf`,
+          content: pdf,
           contentType: 'application/pdf'
         });
       } catch (pdfErr) {
         console.error('Witness PDF generation error:', pdfErr.message);
+        problems.push(`The witness statement PDF could not be generated (${pdfErr.message}). The witness's answers are in the body of this email.`);
       }
     }
 
-    // Generate Claimant Statement PDF if signed
-    if (claimantSigned === 'true' && claimantData.typedName) {
+    // Claimant statement PDF
+    if (hasClaimant) {
       try {
         const sigData = {
           typedName: claimantData.typedName,
-          signatureImage: claimantData.signature || null,
+          signatureImage: cSigned ? (claimantData.signature || null) : null,
           signedAt: new Date().toISOString(),
           ipAddress: getClientIP(req),
           documentHash: generateDocumentHash({ claimantData, type: 'claimant-followup' })
         };
-        const claimantPdf = await generateClaimantStatementPDF({
+        const pdf = await generateClaimantStatementPDF({
           ...claimantData,
           claimRef: referenceNumber,
-          entityName: entityName,
-          hasAudioRecording: !!(req.files && req.files.find(f => f.fieldname === 'claimantAudio'))
-        }, sigData);
+          entityName,
+          dateOfInjury: claimantData.dateOfInjury || dateOfInjury,
+          hasAudioRecording: hasAudio('claimantAudio')
+        }, sigData, { signed: cSigned, translations: claimantEn });
         attachments.push({
-          filename: `${entityName}-ClaimantStatement-${referenceNumber}.pdf`,
-          content: claimantPdf,
+          filename: `${safeName(entityName)}-ClaimantStatement${cSigned ? '' : '-UNSIGNED'}-${referenceNumber}.pdf`,
+          content: pdf,
           contentType: 'application/pdf'
         });
       } catch (pdfErr) {
         console.error('Claimant PDF generation error:', pdfErr.message);
+        problems.push(`The claimant statement PDF could not be generated (${pdfErr.message}). The claimant's answers are in the body of this email.`);
       }
     }
 
-    // Add audio files
-    if (req.files) {
-      req.files.forEach(file => {
-        attachments.push({
-          filename: file.originalname,
-          content: file.buffer,
-          contentType: file.mimetype || 'audio/webm'
-        });
-      });
+    // Root cause analysis PDF
+    if (hasRoot) {
+      try {
+        const pdf = await generateRootCausePDF({ ...rootCauseData, dateOfInjury }, referenceNumber, entityName);
+        attachments.push({ filename: `${safeName(entityName)}-RootCauseAnalysis-${referenceNumber}.pdf`, content: pdf, contentType: 'application/pdf' });
+      } catch (pdfErr) {
+        console.error('Root cause PDF generation error:', pdfErr.message);
+        problems.push(`The root cause analysis PDF could not be generated (${pdfErr.message}). The answers are in the body of this email.`);
+      }
     }
 
-    // Build HTML email
+    // Audio recordings
+    files.forEach(file => {
+      attachments.push({
+        filename: file.originalname,
+        content: file.buffer,
+        contentType: file.mimetype || 'audio/webm'
+      });
+    });
+
+    // ── Plain-text summary ──
+    const label = (map, v) => (map && map[v]) || v;
+    const line = (name, v) => isFilled(v) ? `${name}: ${Array.isArray(v) ? v.join(', ') : v}\n` : '';
+    let summary = `CLAIM FOLLOW-UP SUBMITTED\nReference: ${referenceNumber}\nEntity: ${entityName}\nSubmitted: ${new Date().toLocaleString()}\n\n`;
+    if (problems.length) summary += `ATTENTION:\n${problems.map(p => '- ' + p).join('\n')}\n\n`;
+    if (hasRoot) {
+      summary += `=== ROOT CAUSE ANALYSIS ===\n`;
+      summary += line('Direct Cause', rootCauseData.directCause);
+      if (typeof rootCauseData.proceduresExisted === 'boolean') summary += `Procedures in Place: ${rootCauseData.proceduresExisted ? 'Yes' : 'No'}\n`;
+      if (typeof rootCauseData.trainingProvided === 'boolean') summary += `Training Provided: ${rootCauseData.trainingProvided ? 'Yes' : 'No'}\n`;
+      summary += line('Contributing Factors', rootCauseData.factors);
+      summary += line('Corrective Actions', rootCauseData.actions);
+      summary += '\n';
+    }
+    if (hasWitness) {
+      summary += `=== WITNESS STATEMENT (${wSigned ? 'SIGNED' : 'UNSIGNED'})${witnessData.language === 'es' ? ' [Spanish]' : ''} ===\n`;
+      summary += line('Witness', witnessData.witnessName);
+      summary += line('Relationship', label(RELATIONSHIP_LABELS, witnessData.relationship));
+      summary += line('Saw It Happen', label(OBSERVATION_LABELS, witnessData.observation));
+      summary += line('Location During Incident', witnessData.witnessLocation);
+      summary += line('Statement', witnessData.statement);
+      summary += line('Statement (English)', witnessEn.statement);
+      summary += line('Injured Worker Said Right After', witnessData.claimantSaidAfter);
+      summary += line('Others Present', witnessData.othersPresent);
+      summary += line('Conditions', witnessData.conditions);
+      summary += line(wSigned ? 'Signed By' : 'Name Typed (not signed)', witnessData.typedName);
+      summary += '\n';
+    }
+    if (hasClaimant) {
+      summary += `=== CLAIMANT STATEMENT (${cSigned ? 'SIGNED' : 'UNSIGNED'})${claimantData.language === 'es' ? ' [Spanish]' : ''} ===\n`;
+      summary += line('Claimant', claimantData.claimantName);
+      summary += line('DOB', claimantData.dateOfBirth);
+      summary += line('Description', claimantData.incidentDescription);
+      summary += line('Description (English)', claimantEn.incidentDescription);
+      summary += line('First Reported', [claimantData.firstReportedDate, claimantData.firstReportedTo].filter(Boolean).join(' to '));
+      summary += line('Body Parts', claimantData.bodyPartsInjured);
+      summary += line('Symptoms', claimantData.currentSymptoms);
+      summary += line('Able to Work', label(ABLE_TO_WORK_LABELS, claimantData.ableToWork));
+      summary += line('Prior Injury', label(PRIOR_INJURY_LABELS, claimantData.priorInjury));
+      summary += line('Prior Injury Detail', [claimantData.priorInjuryBodyPart, claimantData.priorInjuryYear, isFilled(claimantData.priorClaimFiled) ? 'claim filed: ' + label(YES_NO_LABELS, claimantData.priorClaimFiled) : ''].filter(Boolean).join(', '));
+      summary += line('Prior Doctors', claimantData.priorDoctors);
+      summary += line('Other Jobs', claimantData.otherEmployment);
+      summary += line('Outside Activities', claimantData.outsideActivities);
+      summary += line(cSigned ? 'Signed By' : 'Name Typed (not signed)', claimantData.typedName);
+    }
+
+    // ── HTML email ──
+    const row = (name, v, en) => isFilled(v)
+      ? `<p style="margin:6px 0;"><strong>${h(name)}:</strong> ${h(Array.isArray(v) ? v.join(', ') : v)}${en && en !== v ? `<br/><em style="color:#1e40af;">English: ${h(en)}</em>` : ''}</p>`
+      : '';
+    const chips = (arr, bg, border) => (arr || []).map(x => `<span style="display:inline-block;background:${bg};border:1px solid ${border};padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${h(x)}</span>`).join(' ');
+    const status = signed => signed
+      ? '<span style="color:#16a34a;">(Signed)</span>'
+      : '<span style="color:#dc2626;">(UNSIGNED)</span>';
+    const card = (title, body) => `
+          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
+            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #5ba4e6;padding-bottom:8px;">${title}</h3>
+            ${body}
+          </div>`;
+
     const emailHtml = `
       <div style="font-family:Arial,sans-serif;max-width:650px;margin:0 auto;">
         <div style="background:#1a1f26;padding:25px;text-align:center;">
           <h1 style="color:white;margin:0;">Follow-Up Received</h1>
-          <p style="color:#5ba4e6;margin:8px 0 0;">${referenceNumber} — ${entityName}</p>
+          <p style="color:#5ba4e6;margin:8px 0 0;">${h(referenceNumber)} | ${h(entityName)}</p>
         </div>
         <div style="padding:25px;background:#f8fafc;">
-          ${rootCauseData.directCause || (rootCauseData.factors && rootCauseData.factors.length > 0) ? `
-          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
-            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #d97706;padding-bottom:8px;">Root Cause Analysis</h3>
-            ${rootCauseData.directCause ? `<p><strong>Direct Cause:</strong> ${rootCauseData.directCause}</p>` : ''}
-            ${rootCauseData.proceduresExisted !== null && rootCauseData.proceduresExisted !== undefined ? `<p><strong>Procedures in Place:</strong> ${rootCauseData.proceduresExisted ? 'Yes' : '<span style="color:#dc2626;">No</span>'}</p>` : ''}
-            ${rootCauseData.trainingProvided !== null && rootCauseData.trainingProvided !== undefined ? `<p><strong>Training Provided:</strong> ${rootCauseData.trainingProvided ? 'Yes' : '<span style="color:#dc2626;">No</span>'}</p>` : ''}
-            ${rootCauseData.factors && rootCauseData.factors.length > 0 ? `<p><strong>Contributing Factors (${rootCauseData.factors.length}):</strong><br/>${rootCauseData.factors.map(f => `<span style="display:inline-block;background:#fef3c7;border:1px solid #d97706;padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${f}</span>`).join(' ')}</p>` : ''}
-            ${rootCauseData.actions && rootCauseData.actions.length > 0 ? `<p><strong>Corrective Actions (${rootCauseData.actions.length}):</strong><br/>${rootCauseData.actions.map(a => `<span style="display:inline-block;background:#dcfce7;border:1px solid #16a34a;padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${a}</span>`).join(' ')}</p>` : ''}
+          ${problems.length ? `
+          <div style="background:#fee2e2;border:1px solid #dc2626;padding:15px;margin-bottom:20px;border-radius:8px;">
+            <h3 style="color:#b91c1c;margin:0 0 8px;">Attention</h3>
+            ${problems.map(p => `<p style="margin:4px 0;font-size:13px;color:#7f1d1d;">${h(p)}</p>`).join('')}
           </div>` : ''}
-          ${witnessSigned === 'true' ? `
-          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
-            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #5ba4e6;padding-bottom:8px;">Witness Statement (Signed)</h3>
-            <p><strong>Witness:</strong> ${witnessData.witnessName || 'N/A'}</p>
-            <p><strong>Relationship:</strong> ${witnessData.relationship || 'N/A'}</p>
-            <p><strong>Statement:</strong> ${witnessData.statement || 'N/A'}</p>
-            <p style="color:#16a34a;font-weight:bold;">✓ Signed by: ${witnessData.typedName}</p>
-          </div>` : ''}
-          ${claimantSigned === 'true' ? `
-          <div style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;border:1px solid #e2e8f0;">
-            <h3 style="color:#1a1f26;margin:0 0 12px;border-bottom:2px solid #5ba4e6;padding-bottom:8px;">Claimant Statement (Signed)</h3>
-            <p><strong>Claimant:</strong> ${claimantData.claimantName || 'N/A'}</p>
-            <p><strong>Description:</strong> ${claimantData.incidentDescription || 'N/A'}</p>
-            <p><strong>Body Parts:</strong> ${claimantData.bodyPartsInjured || 'N/A'}</p>
-            <p><strong>Symptoms:</strong> ${claimantData.currentSymptoms || 'N/A'}</p>
-            <p style="color:#16a34a;font-weight:bold;">✓ Signed by: ${claimantData.typedName}</p>
-          </div>` : ''}
-          ${req.files && req.files.length > 0 ? `
+          ${hasRoot ? card('Root Cause Analysis', `
+            ${row('Direct Cause', rootCauseData.directCause)}
+            ${typeof rootCauseData.proceduresExisted === 'boolean' ? `<p style="margin:6px 0;"><strong>Procedures in Place:</strong> ${rootCauseData.proceduresExisted ? 'Yes' : '<span style="color:#dc2626;font-weight:bold;">No</span>'}</p>` : ''}
+            ${typeof rootCauseData.trainingProvided === 'boolean' ? `<p style="margin:6px 0;"><strong>Training Provided:</strong> ${rootCauseData.trainingProvided ? 'Yes' : '<span style="color:#dc2626;font-weight:bold;">No</span>'}</p>` : ''}
+            ${isFilled(rootCauseData.factors) ? `<p style="margin:6px 0;"><strong>Contributing Factors (${rootCauseData.factors.length}):</strong><br/>${chips(rootCauseData.factors, '#fef3c7', '#d97706')}</p>` : ''}
+            ${isFilled(rootCauseData.actions) ? `<p style="margin:6px 0;"><strong>Corrective Actions (${rootCauseData.actions.length}):</strong><br/>${chips(rootCauseData.actions, '#dcfce7', '#16a34a')}</p>` : ''}`) : ''}
+          ${hasWitness ? card(`Witness Statement ${status(wSigned)}${witnessData.language === 'es' ? ' <span style="color:#64748b;font-size:13px;">Spanish</span>' : ''}`, `
+            ${row('Witness', witnessData.witnessName)}
+            ${row('Relationship', label(RELATIONSHIP_LABELS, witnessData.relationship))}
+            ${row('Saw It Happen', label(OBSERVATION_LABELS, witnessData.observation))}
+            ${row('Location During Incident', witnessData.witnessLocation, witnessEn.witnessLocation)}
+            ${row('Statement', witnessData.statement, witnessEn.statement)}
+            ${row('Injured Worker Said Right After', witnessData.claimantSaidAfter, witnessEn.claimantSaidAfter)}
+            ${row('Others Present', witnessData.othersPresent, witnessEn.othersPresent)}
+            ${row('Conditions', witnessData.conditions, witnessEn.conditions)}
+            ${wSigned ? `<p style="color:#16a34a;font-weight:bold;">Signed by: ${h(witnessData.typedName)}</p>` : '<p style="color:#dc2626;font-weight:bold;">Not signed</p>'}`) : ''}
+          ${hasClaimant ? card(`Claimant Statement ${status(cSigned)}${claimantData.language === 'es' ? ' <span style="color:#64748b;font-size:13px;">Spanish</span>' : ''}`, `
+            ${row('Claimant', claimantData.claimantName)}
+            ${row('Description', claimantData.incidentDescription, claimantEn.incidentDescription)}
+            ${row('First Reported', [claimantData.firstReportedDate, claimantData.firstReportedTo].filter(Boolean).join(' to '))}
+            ${row('Body Parts', claimantData.bodyPartsInjured, claimantEn.bodyPartsInjured)}
+            ${row('Symptoms', claimantData.currentSymptoms, claimantEn.currentSymptoms)}
+            ${row('Able to Work', label(ABLE_TO_WORK_LABELS, claimantData.ableToWork))}
+            ${row('Prior Injury', label(PRIOR_INJURY_LABELS, claimantData.priorInjury))}
+            ${row('Prior Injury Detail', [claimantData.priorInjuryBodyPart, claimantData.priorInjuryYear, isFilled(claimantData.priorClaimFiled) ? 'claim filed: ' + label(YES_NO_LABELS, claimantData.priorClaimFiled) : ''].filter(Boolean).join(', '))}
+            ${row('Prior Doctors', claimantData.priorDoctors, claimantEn.priorDoctors)}
+            ${row('Other Jobs', claimantData.otherEmployment, claimantEn.otherEmployment)}
+            ${row('Outside Activities', claimantData.outsideActivities, claimantEn.outsideActivities)}
+            ${cSigned ? `<p style="color:#16a34a;font-weight:bold;">Signed by: ${h(claimantData.typedName)}</p>` : '<p style="color:#dc2626;font-weight:bold;">Not signed</p>'}`) : ''}
+          ${files.length > 0 ? `
           <div style="background:#dbeafe;border:1px solid #3b82f6;padding:12px;margin-bottom:15px;border-radius:8px;">
-            <p style="color:#3b82f6;margin:0;font-weight:bold;">🎤 ${req.files.length} Audio Recording(s) Attached</p>
+            <p style="color:#1d4ed8;margin:0;font-weight:bold;">${files.length} audio recording(s) attached</p>
           </div>` : ''}
         </div>
         <div style="background:#1a1f26;padding:20px;text-align:center;">
@@ -1526,18 +1829,18 @@ app.post('/api/followup', upload.any(), async (req, res) => {
         </div>
       </div>`;
 
-    // Send notification email
+    const parts = [hasWitness && (wSigned ? 'Witness' : 'Witness (unsigned)'), hasClaimant && (cSigned ? 'Claimant' : 'Claimant (unsigned)'), hasRoot && 'Root Cause'].filter(Boolean);
     await transporter.sendMail({
       from: CONFIG.SMTP.auth.user,
       to: CONFIG.CLAIMS_EMAIL,
-      subject: `[FOLLOW-UP] ${referenceNumber} - ${entityName} - Root Cause & Statements`,
+      subject: `[FOLLOW-UP]${problems.length ? ' [ATTENTION]' : ''} ${referenceNumber} - ${entityName} - ${parts.join(', ') || 'Audio'}`,
       html: emailHtml,
       text: summary,
       attachments
     });
 
-    console.log(`✅ Follow-up received for ${referenceNumber}`);
-    res.json({ success: true, referenceNumber });
+    console.log(`✅ Follow-up received for ${referenceNumber} (${attachments.length} attachments${problems.length ? ', ' + problems.length + ' problem(s)' : ''})`);
+    res.json({ success: true, referenceNumber, problems });
   } catch (error) {
     console.error('Follow-up submission error:', error);
     res.status(500).json({ error: 'Failed to submit follow-up' });

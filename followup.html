@@ -19,6 +19,76 @@ const params=new URLSearchParams(window.location.search);
 const refNum=params.get('ref')||'';
 const claimantName=decodeURIComponent(params.get('name')||'');
 const claimantDOB=params.get('dob')||'';
+const injuryDate=params.get('doi')||'';
+const startLang=params.get('lang')==='es'?'es':'en';
+const T={
+ en:{
+  select:'Select',fullName:'Full legal name',phone:'Phone',email:'Email',
+  witnessTab:'Witness Statement',claimantTab:'Claimant Statement',
+  witnessSubtitle:'Collect a signed witness statement',claimantSubtitle:'Collect the injured worker\'s signed statement',
+  witnessName:'Witness name',relationship:'Relationship to the injured worker',coworker:'Coworker',supervisor:'Supervisor',manager:'Manager',other:'Other',
+  observation:'Did you see the injury happen?',obsSaw:'Yes, I saw it happen',obsAfter:'No, I arrived right after',obsHeard:'No, I heard about it later',
+  location:'Where were you during the incident?',locationPh:'e.g., 10 feet away near the entrance',
+  statement:'Statement',statementPh:'Describe in detail what you saw and heard, in order.',
+  saidAfter:'What did the injured worker say right after?',saidAfterPh:'Their words as closely as you remember them',
+  othersPresent:'Who else was there?',othersPresentPh:'Names of anyone else present',
+  conditions:'Conditions at the time',conditionsPh:'Lighting, floor, weather, equipment',
+  claimantName:'Your name',dob:'Date of birth',
+  describe:'What happened, in your own words',describePh:'What were you doing? How did the injury happen? What happened right after?',
+  firstReportedDate:'When did you first report the injury?',firstReportedTo:'Who did you first report it to?',firstReportedToPh:'Name and title',
+  bodyParts:'Body parts injured',bodyPartsPh:'e.g., lower back, right knee',
+  symptoms:'Current symptoms',symptomsPh:'e.g., pain, swelling, limited movement',
+  ableToWork:'Are you able to work?',ableFull:'Yes, full duties',ableLight:'Yes, light duty',ableNo:'No, unable to work',
+  historyTitle:'Prior injuries and other work',
+  priorInjury:'Have you ever injured this or any other body part before?',priorNo:'No',priorSame:'Yes, same body part',priorWork:'Yes, a prior work injury',priorOther:'Yes, another injury',
+  priorBodyPart:'Prior injury: body part',priorYear:'Prior injury: year',priorClaim:'Did you file a claim for it?',yes:'Yes',no:'No',unsure:'Not sure',
+  priorDoctors:'Doctors you saw for prior injuries',priorDoctorsPh:'Names, practices, or hospitals',
+  otherEmployment:'Do you have any other job or side work?',otherEmploymentPh:'Employer and type of work, or "None"',
+  outsideActivities:'Activities outside work',outsideActivitiesPh:'Sports, gym, hobbies, or physical work at home',
+  audioTitle:'Audio recording (optional)',audioHelp:'Record a verbal statement.',recStart:'Tap to start',recording:'Recording...',audioDone:'Audio recorded',remove:'Remove',
+  sigTitle:'Electronic signature',sigHelp:'Sign in the box below',clear:'Clear',sigCaptured:'Signature captured',
+  typedName:'Type your full legal name',typedNamePh:'Type your full legal name',
+  consent1:'I certify that the information provided is true and correct to the best of my knowledge.',
+  consent2:'I consent to sign electronically per the E-SIGN Act.',
+  signSave:'Sign and save',signHint:'Complete the required fields, sign above, and check both boxes',
+  signedTitle:'Statement signed',signedHelp:'This signed document will be attached to the claim.',
+  submit:'Submit follow-up',submitting:'Submitting...',
+  doneTitle:'Follow-up submitted',doneText:'The statements and root cause analysis have been sent to the claims team.',close:'Close window'
+ },
+ es:{
+  select:'Seleccione',fullName:'Nombre legal completo',phone:'Teléfono',email:'Correo electrónico',
+  witnessTab:'Declaración de testigo',claimantTab:'Declaración del empleado',
+  witnessSubtitle:'Declaración firmada de un testigo',claimantSubtitle:'Declaración firmada del empleado lesionado',
+  witnessName:'Nombre del testigo',relationship:'Relación con el empleado lesionado',coworker:'Compañero de trabajo',supervisor:'Supervisor',manager:'Gerente',other:'Otro',
+  observation:'¿Vio usted cuando ocurrió la lesión?',obsSaw:'Sí, lo vi',obsAfter:'No, llegué justo después',obsHeard:'No, me enteré después',
+  location:'¿Dónde estaba usted durante el incidente?',locationPh:'Ej.: a 10 pies, cerca de la entrada',
+  statement:'Declaración',statementPh:'Describa con detalle lo que vio y escuchó, en orden.',
+  saidAfter:'¿Qué dijo el empleado justo después?',saidAfterPh:'Sus palabras, lo más exacto que recuerde',
+  othersPresent:'¿Quién más estaba presente?',othersPresentPh:'Nombres de otras personas presentes',
+  conditions:'Condiciones en ese momento',conditionsPh:'Iluminación, piso, clima, equipo',
+  claimantName:'Su nombre',dob:'Fecha de nacimiento',
+  describe:'Lo que pasó, en sus propias palabras',describePh:'¿Qué estaba haciendo? ¿Cómo ocurrió la lesión? ¿Qué pasó justo después?',
+  firstReportedDate:'¿Cuándo reportó la lesión por primera vez?',firstReportedTo:'¿A quién se lo reportó primero?',firstReportedToPh:'Nombre y puesto',
+  bodyParts:'Partes del cuerpo lesionadas',bodyPartsPh:'Ej.: espalda baja, rodilla derecha',
+  symptoms:'Síntomas actuales',symptomsPh:'Ej.: dolor, hinchazón, movimiento limitado',
+  ableToWork:'¿Puede trabajar?',ableFull:'Sí, todas mis tareas',ableLight:'Sí, trabajo liviano',ableNo:'No puedo trabajar',
+  historyTitle:'Lesiones anteriores y otros trabajos',
+  priorInjury:'¿Se ha lastimado antes esta u otra parte del cuerpo?',priorNo:'No',priorSame:'Sí, la misma parte del cuerpo',priorWork:'Sí, una lesión de trabajo anterior',priorOther:'Sí, otra lesión',
+  priorBodyPart:'Lesión anterior: parte del cuerpo',priorYear:'Lesión anterior: año',priorClaim:'¿Presentó un reclamo por esa lesión?',yes:'Sí',no:'No',unsure:'No estoy seguro',
+  priorDoctors:'Médicos que lo atendieron por lesiones anteriores',priorDoctorsPh:'Nombres, consultorios u hospitales',
+  otherEmployment:'¿Tiene otro trabajo o trabajos extra?',otherEmploymentPh:'Empleador y tipo de trabajo, o "Ninguno"',
+  outsideActivities:'Actividades fuera del trabajo',outsideActivitiesPh:'Deportes, gimnasio, pasatiempos o trabajo físico en casa',
+  audioTitle:'Grabación de audio (opcional)',audioHelp:'Grabe una declaración verbal.',recStart:'Toque para empezar',recording:'Grabando...',audioDone:'Audio grabado',remove:'Eliminar',
+  sigTitle:'Firma electrónica',sigHelp:'Firme en el recuadro',clear:'Borrar',sigCaptured:'Firma capturada',
+  typedName:'Escriba su nombre legal completo',typedNamePh:'Escriba su nombre legal completo',
+  consent1:'Certifico que la información proporcionada es verdadera y correcta según mi leal saber y entender.',
+  consent2:'Acepto firmar electrónicamente de acuerdo con la Ley E-SIGN.',
+  signSave:'Firmar y guardar',signHint:'Complete los campos requeridos, firme arriba y marque ambas casillas',
+  signedTitle:'Declaración firmada',signedHelp:'Este documento firmado se adjuntará al reclamo.',
+  submit:'Enviar',submitting:'Enviando...',
+  doneTitle:'Enviado',doneText:'Las declaraciones fueron enviadas al equipo de reclamos.',close:'Cerrar ventana'
+ }
+};
 const entity=decodeURIComponent(params.get('entity')||'');
 const industry=['healthcare','construction','general'].includes((params.get('industry')||'').toLowerCase())?(params.get('industry')||'').toLowerCase():'healthcare';
 const IND_RC={
@@ -36,6 +106,7 @@ function App(){
 const[tab,setTab]=S(0);
 const[submitted,setSubmitted]=S(false);
 const[submitting,setSubmitting]=S(false);
+const[lang,setLang]=S(startLang);const t=T[lang];
 
 // Root Cause state
 const[openRcCat,setOpenRcCat]=S(null);
@@ -43,8 +114,8 @@ const[openCaCat,setOpenCaCat]=S(null);
 const[rootData,setRootData]=S({directCause:'',factors:[],actions:[],proceduresExisted:null,trainingProvided:null,customFactor:'',customAction:''});
 
 // Statement state
-const[witnessData,setWitnessData]=S({witnessName:'',witnessPhone:'',witnessEmail:'',relationship:'',witnessLocation:'',statement:'',typedName:'',signature:null,consent1:false,consent2:false});
-const[claimantData,setClaimantData]=S({claimantName:claimantName,dateOfBirth:claimantDOB,claimantPhone:'',claimantEmail:'',incidentDescription:'',bodyPartsInjured:'',currentSymptoms:'',priorInjury:'',ableToWork:'',typedName:'',signature:null,consent1:false,consent2:false});
+const[witnessData,setWitnessData]=S({witnessName:'',witnessPhone:'',witnessEmail:'',relationship:'',observation:'',witnessLocation:'',statement:'',claimantSaidAfter:'',othersPresent:'',conditions:'',typedName:'',signature:null,consent1:false,consent2:false});
+const[claimantData,setClaimantData]=S({claimantName:claimantName,dateOfBirth:claimantDOB,claimantPhone:'',claimantEmail:'',incidentDescription:'',firstReportedDate:'',firstReportedTo:'',bodyPartsInjured:'',currentSymptoms:'',ableToWork:'',priorInjury:'',priorInjuryBodyPart:'',priorInjuryYear:'',priorClaimFiled:'',priorDoctors:'',otherEmployment:'',outsideActivities:'',typedName:'',signature:null,consent1:false,consent2:false});
 
 const[witnessSigned,setWitnessSigned]=S(false);
 const[claimantSigned,setClaimantSigned]=S(false);
@@ -53,7 +124,7 @@ const[audioBlobs,setAudioBlobs]=S({});
 const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);
 const mediaRecorderRef=R(null);const audioChunksRef=R([]);
 
-const tabNames=['Witness Statement','Claimant Statement','Root Cause'];
+const tabNames=[t.witnessTab,t.claimantTab,'Root Cause'];
 const tabDone=[
  witnessSigned,
  claimantSigned,
@@ -101,21 +172,27 @@ const uRoot=(k,v)=>setRootData(p=>({...p,[k]:v}));
 const toggleArr=(arr,item)=>arr.includes(item)?arr.filter(x=>x!==item):[...arr,item];
 
 // Submit
+const filledIn=(data,keys)=>keys.some(k=>String(data[k]||'').trim());
 const handleSubmit=async()=>{
+ const witnessStarted=filledIn(witnessData,['witnessName','statement','claimantSaidAfter','witnessLocation']);
+ const claimantStarted=filledIn(claimantData,['incidentDescription','bodyPartsInjured','currentSymptoms','priorDoctors','otherEmployment']);
+ const unsigned=[witnessStarted&&!witnessSigned&&'witness statement',claimantStarted&&!claimantSigned&&'claimant statement'].filter(Boolean);
+ if(unsigned.length&&!window.confirm('The '+unsigned.join(' and ')+(unsigned.length>1?' are':' is')+' filled in but not signed. '+(unsigned.length>1?'They':'It')+' will be sent marked UNSIGNED. Send anyway?'))return;
  setSubmitting(true);
  try{
   const fd=new FormData();
   fd.append('referenceNumber',refNum);
   fd.append('entity',entity);
+  fd.append('dateOfInjury',injuryDate);
   fd.append('rootCause',JSON.stringify(rootData));
-  fd.append('witnessStatement',JSON.stringify(witnessData));
-  fd.append('claimantStatement',JSON.stringify(claimantData));
+  fd.append('witnessStatement',JSON.stringify({...witnessData,language:lang}));
+  fd.append('claimantStatement',JSON.stringify({...claimantData,language:lang}));
   fd.append('witnessSigned',witnessSigned);
   fd.append('claimantSigned',claimantSigned);
   if(audioBlobs.witness){const ext=audioBlobs.witness.type.includes('webm')?'.webm':audioBlobs.witness.type.includes('mpeg')?'.mp3':'.m4a';fd.append('witnessAudio',audioBlobs.witness,'witness-audio'+ext)}
   if(audioBlobs.claimant){const ext=audioBlobs.claimant.type.includes('webm')?'.webm':audioBlobs.claimant.type.includes('mpeg')?'.mp3':'.m4a';fd.append('claimantAudio',audioBlobs.claimant,'claimant-audio'+ext)}
   const res=await fetch('/api/followup',{method:'POST',body:fd});
-  if(res.ok){setSubmitted(true)}else{alert('Error submitting. Please try again.')}
+  if(res.ok){setSubmitted(true)}else{let msg='Error submitting. Please try again.';try{const j=await res.json();if(j&&j.error)msg=j.error}catch(_){}alert(msg)}
  }catch(err){alert('Network error. Please try again.')}
  setSubmitting(false);
 };
@@ -124,10 +201,10 @@ if(submitted)return e('div',{className:'page'},
  e('header',{className:'header'},e('div',{className:'header-content'},e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/titanium-logo.webp',alt:'Titanium Defense Group'}))))),
  e('div',{className:'main'},e('div',{className:'success-container'},
   e('div',{className:'success-icon'},'✓'),
-  e('h2',{style:{color:'var(--tg)',marginBottom:16}},'Follow-Up Submitted'),
+  e('h2',{style:{color:'var(--tg)',marginBottom:16}},t.doneTitle),
   e('p',{style:{color:'var(--tm)'}},'Reference: '+refNum),
-  e('p',{style:{color:'var(--tm)',marginTop:12}},'Your root cause analysis and statements have been attached to the claim. The investigation team has been notified.'),
-  e('button',{className:'nav-btn primary',style:{marginTop:24},onClick:()=>window.close()},'Close Window')
+  e('p',{style:{color:'var(--tm)',marginTop:12}},t.doneText),
+  e('button',{className:'nav-btn primary',style:{marginTop:24},onClick:()=>window.close()},t.close)
  ))
 );
 
@@ -247,111 +324,84 @@ const renderRootCause=()=>{
 const renderStatement=(type,data,setData,signed,setSigned)=>{
  const isWitness=type==='witness';
  const canSign=data.typedName&&data.signature&&data.consent1&&data.consent2&&(isWitness?data.witnessName:data.claimantName);
+ const set=(k)=>(x)=>setData(p=>({...p,[k]:x.target.value}));
+ const field=(label,input,opts={})=>e('div',{className:'form-group',style:opts.full?{gridColumn:'1/-1'}:undefined},e('label',null,label,opts.req?e('span',{className:'required'},' *'):null),input);
+ const text=(k,ph,type_)=>e('input',{className:'input-field',type:type_||'text',value:data[k]||'',onChange:set(k),placeholder:ph||''});
+ const area=(k,ph,rows)=>e('textarea',{className:'input-field',rows:rows||3,value:data[k]||'',onChange:set(k),placeholder:ph||''});
+ const select=(k,opts)=>e('select',{className:'input-field',value:data[k]||'',onChange:set(k)},e('option',{value:''},t.select),...opts.map(o=>e('option',{key:o[0],value:o[0]},o[1])));
+ const choice=(k,opts)=>e('div',{className:'toggle-group'},...opts.map(o=>e('button',{key:o[0],type:'button',className:'toggle-btn'+(data[k]===o[0]?' active':''),onClick:()=>setData(p=>({...p,[k]:o[0]}))},o[1])));
+ const sub=(title)=>e('h3',{style:{fontSize:14,color:'var(--ta)',margin:'22px 0 14px'}},title);
 
  return e('div',null,
   signed&&e('div',{style:{marginBottom:20,padding:16,background:'rgba(16,185,129,0.08)',border:'1px solid var(--tg)',borderRadius:12,textAlign:'center'}},
-   e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},'Statement Signed Successfully'),
-   e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},'This signed document will be attached to the claim.')
+   e('p',{style:{fontSize:16,color:'var(--tg)',fontWeight:600}},t.signedTitle),
+   e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:4}},t.signedHelp)
   ),
 
   !signed&&e('div',null,
    isWitness?e('div',null,
     e('div',{className:'form-grid'},
-     e('div',{className:'form-group'},
-      e('label',null,'Witness Name ',e('span',{className:'required'},'*')),
-      e('input',{className:'input-field',value:data.witnessName,onChange:x=>setData(p=>({...p,witnessName:x.target.value})),placeholder:'Full legal name'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Phone'),
-      e('input',{className:'input-field',type:'tel',value:data.witnessPhone,onChange:x=>setData(p=>({...p,witnessPhone:x.target.value})),placeholder:'(555) 555-5555'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Email'),
-      e('input',{className:'input-field',type:'email',value:data.witnessEmail,onChange:x=>setData(p=>({...p,witnessEmail:x.target.value})),placeholder:'email@example.com'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Relationship to Claimant'),
-      e('select',{className:'input-field',value:data.relationship,onChange:x=>setData(p=>({...p,relationship:x.target.value}))},
-       e('option',{value:''},'Select'),e('option',{value:'coworker'},'Coworker'),e('option',{value:'supervisor'},'Supervisor'),e('option',{value:'manager'},'Manager'),e('option',{value:'other'},'Other')
-      )
-     )
+     field(t.witnessName,text('witnessName',t.fullName),{req:true}),
+     field(t.phone,text('witnessPhone','(555) 555-5555','tel')),
+     field(t.email,text('witnessEmail','email@example.com','email')),
+     field(t.relationship,select('relationship',[['coworker',t.coworker],['supervisor',t.supervisor],['manager',t.manager],['other',t.other]]))
     ),
-    e('div',{className:'form-group'},
-     e('label',null,'Where were you located during the incident?'),
-     e('input',{className:'input-field',value:data.witnessLocation,onChange:x=>setData(p=>({...p,witnessLocation:x.target.value})),placeholder:'e.g., 10 feet away near the entrance'})
-    ),
-    e('div',{className:'form-group'},
-     e('label',null,'Witness Statement ',e('span',{className:'required'},'*')),
-     e('textarea',{className:'input-field',rows:5,value:data.statement,onChange:x=>setData(p=>({...p,statement:x.target.value})),placeholder:'Describe in detail what you witnessed...'})
+    field(t.observation,choice('observation',[['saw',t.obsSaw],['after',t.obsAfter],['heard',t.obsHeard]])),
+    field(t.location,text('witnessLocation',t.locationPh)),
+    field(t.statement,area('statement',t.statementPh,5),{req:true}),
+    field(t.saidAfter,area('claimantSaidAfter',t.saidAfterPh,2)),
+    e('div',{className:'form-grid'},
+     field(t.othersPresent,text('othersPresent',t.othersPresentPh)),
+     field(t.conditions,text('conditions',t.conditionsPh))
     )
    ):e('div',null,
     e('div',{className:'form-grid'},
-     e('div',{className:'form-group'},
-      e('label',null,'Claimant Name ',e('span',{className:'required'},'*')),
-      e('input',{className:'input-field',value:data.claimantName,onChange:x=>setData(p=>({...p,claimantName:x.target.value})),placeholder:'Full legal name'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Date of Birth'),
-      e('input',{type:'date',className:'input-field',value:data.dateOfBirth,onChange:x=>setData(p=>({...p,dateOfBirth:x.target.value}))})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Phone'),
-      e('input',{className:'input-field',type:'tel',value:data.claimantPhone,onChange:x=>setData(p=>({...p,claimantPhone:x.target.value})),placeholder:'(555) 555-5555'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Email'),
-      e('input',{className:'input-field',type:'email',value:data.claimantEmail,onChange:x=>setData(p=>({...p,claimantEmail:x.target.value})),placeholder:'email@example.com'})
-     )
+     field(t.claimantName,text('claimantName',t.fullName),{req:true}),
+     field(t.dob,text('dateOfBirth','','date')),
+     field(t.phone,text('claimantPhone','(555) 555-5555','tel')),
+     field(t.email,text('claimantEmail','email@example.com','email'))
     ),
-    e('div',{className:'form-group'},
-     e('label',null,'Describe the Incident in Your Own Words'),
-     e('textarea',{className:'input-field',rows:5,value:data.incidentDescription,onChange:x=>setData(p=>({...p,incidentDescription:x.target.value})),placeholder:'What happened? What were you doing? How did the injury occur?'})
-    ),
+    field(t.describe,area('incidentDescription',t.describePh,5)),
     e('div',{className:'form-grid'},
-     e('div',{className:'form-group'},
-      e('label',null,'Body Parts Injured'),
-      e('input',{className:'input-field',value:data.bodyPartsInjured,onChange:x=>setData(p=>({...p,bodyPartsInjured:x.target.value})),placeholder:'e.g., Lower back, right knee'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Current Symptoms'),
-      e('input',{className:'input-field',value:data.currentSymptoms,onChange:x=>setData(p=>({...p,currentSymptoms:x.target.value})),placeholder:'e.g., Pain, swelling, limited mobility'})
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Have you had this injury before?'),
-      e('select',{className:'input-field',value:data.priorInjury,onChange:x=>setData(p=>({...p,priorInjury:x.target.value}))},
-       e('option',{value:''},'Select'),e('option',{value:'no'},'No'),e('option',{value:'yes_same'},'Yes - Same body part'),e('option',{value:'yes_work'},'Yes - Prior work injury')
-      )
-     ),
-     e('div',{className:'form-group'},
-      e('label',null,'Are you able to work?'),
-      e('select',{className:'input-field',value:data.ableToWork,onChange:x=>setData(p=>({...p,ableToWork:x.target.value}))},
-       e('option',{value:''},'Select'),e('option',{value:'yes_full'},'Yes - Full duties'),e('option',{value:'yes_light'},'Yes - Light duty'),e('option',{value:'no'},'No - Unable')
-      )
-     )
-    )
+     field(t.firstReportedDate,text('firstReportedDate','','date')),
+     field(t.firstReportedTo,text('firstReportedTo',t.firstReportedToPh)),
+     field(t.bodyParts,text('bodyPartsInjured',t.bodyPartsPh)),
+     field(t.symptoms,text('currentSymptoms',t.symptomsPh)),
+     field(t.ableToWork,select('ableToWork',[['yes_full',t.ableFull],['yes_light',t.ableLight],['no',t.ableNo]]))
+    ),
+    sub(t.historyTitle),
+    field(t.priorInjury,select('priorInjury',[['no',t.priorNo],['yes_same',t.priorSame],['yes_work',t.priorWork],['yes_other',t.priorOther]])),
+    data.priorInjury&&data.priorInjury!=='no'&&e('div',{className:'form-grid'},
+     field(t.priorBodyPart,text('priorInjuryBodyPart',t.bodyPartsPh)),
+     field(t.priorYear,text('priorInjuryYear','2022')),
+     field(t.priorClaim,choice('priorClaimFiled',[['yes',t.yes],['no',t.no],['unsure',t.unsure]]),{full:true}),
+     field(t.priorDoctors,area('priorDoctors',t.priorDoctorsPh,2),{full:true})
+    ),
+    field(t.otherEmployment,area('otherEmployment',t.otherEmploymentPh,2)),
+    field(t.outsideActivities,area('outsideActivities',t.outsideActivitiesPh,2))
    ),
 
    // Audio recording
    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
     e('div',{className:'audio-rec'},
-     e('h4',null,'Audio Recording (Optional)'),
-     e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Record a verbal statement.'),
+     e('h4',null,t.audioTitle),
+     e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},t.audioHelp),
      e('div',{style:{display:'flex',alignItems:'center',gap:16}},
       e('button',{type:'button',className:'rec-btn'+(recording===type?' recording':''),onClick:()=>recording===type?stopRecording():startRecording(type)},recording===type?'STOP':'REC'),
-      e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},recording===type?'Recording...':'Click to start')
+      e('p',{style:{fontSize:13,fontWeight:600,color:recording===type?'var(--tr)':'var(--tm)'}},recording===type?t.recording:t.recStart)
      ),
      audioBlobs[type]&&e('div',{style:{marginTop:12,padding:12,background:'rgba(16,185,129,0.08)',borderRadius:8,border:'1px solid var(--tg)'}},
-      e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8,fontWeight:600}},'Audio recorded'),
+      e('p',{style:{fontSize:12,color:'var(--tg)',marginBottom:8,fontWeight:600}},t.audioDone),
       e('audio',{src:URL.createObjectURL(audioBlobs[type]),controls:true,style:{width:'100%'}}),
-      e('button',{type:'button',className:'nav-btn secondary',style:{marginTop:8,padding:'6px 12px',fontSize:11},onClick:()=>setAudioBlobs(p=>{const n={...p};delete n[type];return n})},'Remove')
+      e('button',{type:'button',className:'nav-btn secondary',style:{marginTop:8,padding:'6px 12px',fontSize:11},onClick:()=>setAudioBlobs(p=>{const n={...p};delete n[type];return n})},t.remove)
      )
     )
    ),
 
    // Signature
    e('div',{style:{marginTop:24,paddingTop:20,borderTop:'1px solid var(--gbd)'}},
-    e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},'Electronic Signature'),
-    e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},'Sign in the box below'),
+    e('h3',{style:{fontSize:14,color:'var(--ta)',marginBottom:16}},t.sigTitle),
+    e('p',{style:{fontSize:12,color:'var(--tm)',marginBottom:12}},t.sigHelp),
     e('div',{className:'sig-canvas-wrap'},
      e('canvas',{ref:sigCanvasRef,className:'sig-canvas',
       onMouseDown:startDraw,onMouseMove:draw,onMouseUp:()=>stopDraw(setData),onMouseLeave:()=>stopDraw(setData),
@@ -359,27 +409,24 @@ const renderStatement=(type,data,setData,signed,setSigned)=>{
      })
     ),
     e('div',{style:{display:'flex',gap:8,marginTop:8}},
-     e('button',{className:'nav-btn secondary',type:'button',style:{padding:'8px 16px'},onClick:()=>clearSig(setData)},'Clear'),
-     data.signature&&e('span',{style:{fontSize:12,color:'var(--tg)',display:'flex',alignItems:'center'}},'Signature captured')
+     e('button',{className:'nav-btn secondary',type:'button',style:{padding:'8px 16px'},onClick:()=>clearSig(setData)},t.clear),
+     data.signature&&e('span',{style:{fontSize:12,color:'var(--tg)',display:'flex',alignItems:'center'}},t.sigCaptured)
     ),
     e('div',{className:'form-group',style:{marginTop:16}},
-     e('label',null,'Type Full Legal Name ',e('span',{className:'required'},'*')),
-     e('input',{className:'input-field',value:data.typedName,onChange:x=>setData(p=>({...p,typedName:x.target.value})),placeholder:'Type your full legal name'})
+     e('label',null,t.typedName,e('span',{className:'required'},' *')),
+     e('input',{className:'input-field',value:data.typedName,onChange:set('typedName'),placeholder:t.typedNamePh})
     ),
     e('div',{className:'checkbox-group'},
-     e('input',{type:'checkbox',checked:data.consent1,onChange:x=>setData(p=>({...p,consent1:x.target.checked}))}),
-     e('label',null,'I certify that the information provided is true and correct to the best of my knowledge.')
+     e('input',{type:'checkbox',id:type+'-c1',checked:data.consent1,onChange:x=>setData(p=>({...p,consent1:x.target.checked}))}),
+     e('label',{htmlFor:type+'-c1'},t.consent1)
     ),
     e('div',{className:'checkbox-group'},
-     e('input',{type:'checkbox',checked:data.consent2,onChange:x=>setData(p=>({...p,consent2:x.target.checked}))}),
-     e('label',null,'I consent to sign electronically per the E-SIGN Act.')
+     e('input',{type:'checkbox',id:type+'-c2',checked:data.consent2,onChange:x=>setData(p=>({...p,consent2:x.target.checked}))}),
+     e('label',{htmlFor:type+'-c2'},t.consent2)
     ),
     e('div',{style:{marginTop:20}},
-     e('button',{className:'nav-btn primary',style:{padding:'14px 28px',fontSize:15},disabled:!canSign,onClick:()=>{
-      setSigned(true);
-      alert('Statement signed successfully!');
-     }},'Sign & Save'),
-     !canSign&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},'Complete all required fields, sign above, and check both boxes')
+     e('button',{className:'nav-btn primary',style:{padding:'14px 28px',fontSize:15},disabled:!canSign,onClick:()=>setSigned(true)},t.signSave),
+     !canSign&&e('p',{style:{fontSize:11,color:'var(--tm)',marginTop:8}},t.signHint)
     )
    )
   )
@@ -391,7 +438,11 @@ return e('div',{className:'page'},
  e('header',{className:'header'},
   e('div',{className:'header-content'},
    e('div',{className:'brand'},e('div',{className:'brand-logo'},e('img',{src:'/titanium-logo.webp',alt:'Titanium Defense Group'}))),
-   e('div',{style:{display:'flex',alignItems:'center',gap:16}},
+   e('div',{style:{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}},
+    e('div',{className:'toggle-group',role:'group','aria-label':'Language'},
+     e('button',{type:'button',className:'toggle-btn'+(lang==='en'?' active':''),style:{padding:'6px 12px',fontSize:12},onClick:()=>setLang('en')},'English'),
+     e('button',{type:'button',className:'toggle-btn'+(lang==='es'?' active':''),style:{padding:'6px 12px',fontSize:12},onClick:()=>setLang('es'),lang:'es'},'Español')
+    ),
     e('div',{className:'ref-badge'},'Claim: '+refNum),
     entity&&e('div',{style:{fontSize:13,color:'var(--tm)'}},entity)
    )
@@ -406,15 +457,15 @@ return e('div',{className:'page'},
   e('div',{className:'content'},
    tab===0&&e('div',null,
     e('div',{className:'section-header'},
-     e('h2',null,'Witness Statement'),
-     e('p',{className:'section-subtitle'},'Collect a signed witness statement')
+     e('h2',null,t.witnessTab),
+     e('p',{className:'section-subtitle'},t.witnessSubtitle)
     ),
     renderStatement('witness',witnessData,setWitnessData,witnessSigned,setWitnessSigned)
    ),
    tab===1&&e('div',null,
     e('div',{className:'section-header'},
-     e('h2',null,'Claimant Statement'),
-     e('p',{className:'section-subtitle'},'Collect the injured worker\'s signed statement')
+     e('h2',null,t.claimantTab),
+     e('p',{className:'section-subtitle'},t.claimantSubtitle)
     ),
     renderStatement('claimant',claimantData,setClaimantData,claimantSigned,setClaimantSigned)
    ),
@@ -428,7 +479,7 @@ return e('div',{className:'page'},
   ),
   e('div',{style:{marginTop:24,display:'flex',justifyContent:'flex-end'}},
    e('button',{className:'nav-btn primary',style:{padding:'16px 36px',fontSize:15},disabled:submitting,onClick:handleSubmit},
-    submitting?'Submitting...':'Submit Follow-Up'
+    submitting?t.submitting:t.submit
    )
   )
  )

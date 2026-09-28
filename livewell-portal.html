@@ -119,6 +119,20 @@ const INDUSTRIES={
 };
 const IND=INDUSTRIES[IND_KEY];
 
+// Red flags detected from dates and times on the report. Mirrors computeAutoFlags() in index.js.
+function autoFlags(d){
+ const flags=[];const DAY=86400000;
+ const pd=s=>{if(!s||!/^\d{4}-\d{2}-\d{2}/.test(s))return null;const[y,m,dd]=s.slice(0,10).split('-').map(Number);return Date.UTC(y,m-1,dd)};
+ const tm=s=>{const m=/^(\d{1,2}):(\d{2})/.exec(s||'');return m?Number(m[1])*60+Number(m[2]):null};
+ const doi=pd(d.dateOfInjury),rep=pd(d.dateReported),hire=pd(d.dateOfHire);
+ if(doi!==null){if(doi>Date.now())flags.push('Date of injury is in the future');if(new Date(doi).getUTCDay()===1)flags.push('Injury date falls on a Monday')}
+ if(doi!==null&&rep!==null){const lag=Math.round((rep-doi)/DAY);if(lag<0)flags.push('Date reported is before the date of injury');else if(lag>=2)flags.push('Reported '+lag+' days after the injury')}
+ if(doi!==null&&hire!==null){const ten=Math.round((doi-hire)/DAY);if(ten<0)flags.push('Date of injury is before the date of hire');else if(ten<90)flags.push('Injured '+ten+' day'+(ten===1?'':'s')+' after hire')}
+ const inj=tm(d.timeOfInjury),start=tm(d.timeWorkdayBegan);
+ if(inj!==null&&start!==null&&inj<start&&start-inj<=480)flags.push('Injury time is before the workday began');
+ return flags;
+}
+
 function App(){
 const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
 const[d,setD]=S({
@@ -758,7 +772,16 @@ if(step===0)return e('div',{className:'content'},
  e('div',{className:'form-group full-width'},
   e('label',null,'Occupation / Job Title ',e('span',{className:'required'},'*')),
   inp('occupation','Job title or position')
- )
+ ),
+ e('div',{className:'form-group'},
+  e('label',null,'Primary Language'),
+  sel('primaryLanguage',['English','Spanish','Other'],'Select language')
+ ),
+ d.primaryLanguage==='Other'&&e('div',{className:'form-group'},
+  e('label',null,'Language Spoken'),
+  inp('primaryLanguageOther','e.g., Portuguese, Haitian Creole')
+ ),
+ d.primaryLanguage==='Spanish'&&e('div',{className:'info-tip full-width',style:{gridColumn:'1/-1',margin:0}},'The follow-up link for statements will open in Spanish.')
  ),
  (d.firstName || d.lastName) && e('div',{className:'employee-summary'},
  e('h4',null,'Employee Summary'),
@@ -806,6 +829,10 @@ if(step===1){
   e('div',{className:'form-group'},
   e('label',null,'Time of Injury ',e('span',{className:'required'},'*')),
   inp('timeOfInjury','','time')
+  ),
+  e('div',{className:'form-group'},
+  e('label',null,'Time Workday Began'),
+  inp('timeWorkdayBegan','','time')
   ),
   e('div',{className:'form-group'},
   e('label',null,'Date Reported ',e('span',{className:'required'},'*')),
@@ -923,6 +950,10 @@ if(step===1){
   e('div',{className:'form-group'},
    e('label',null,'Work Type ',e('span',{className:'required'},'*')),
    sel('workType',WORK_TYPES,'Select work type')
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Days Worked Per Week'),
+   sel('daysPerWeek',['1','2','3','4','5','6','7'],'Select days')
   )
   )
  )
@@ -1027,6 +1058,32 @@ if(step===2){
    tog('lightDutyAvailable',[
    {v:true,l:'Yes',c:'success'},
    {v:false,l:'No',c:'warning'}
+   ])
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'Wages Paid for the Date of Injury?'),
+   tog('paidDayOfInjury',[
+   {v:true,l:'Yes'},
+   {v:false,l:'No'}
+   ])
+  )
+  ),
+  e('h3',{style:{fontSize:14,color:'var(--ta)',margin:'24px 0 16px'}},'Compliance'),
+  e('div',{className:'form-grid'},
+  e('div',{className:'form-group'},
+   e('label',null,'Post-Accident Drug Test'),
+   tog('postAccidentDrugTest',[
+   {v:'yes',l:'Yes'},
+   {v:'no',l:'No'},
+   {v:'not_required',l:'Not Required'}
+   ])
+  ),
+  e('div',{className:'form-group'},
+   e('label',null,'OSHA Recordable'),
+   tog('oshaRecordable',[
+   {v:'yes',l:'Yes'},
+   {v:'no',l:'No'},
+   {v:'unknown',l:'Unknown'}
    ])
   )
   )
@@ -1259,6 +1316,11 @@ if(step===4){
  ),
  
  e('div',{className:'warning-box'},'Red flags are for investigation purposes only. They indicate areas requiring closer review, not accusations of fraud.'),
+ (()=>{const af=autoFlags(d);return af.length>0&&e('div',{className:'info-tip',style:{borderLeftColor:'var(--tw)',marginBottom:18}},
+  e('p',{style:{fontWeight:600,marginBottom:6,color:'var(--tt)'}},'Detected from the dates on this report'),
+  ...af.map(f=>e('p',{key:f,style:{margin:'2px 0'}},'\u2022 '+f)),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:8}},'These are added to the claim report automatically. Correct the dates on earlier steps if any are wrong.')
+ )})(),
  
  e('div',{className:'form-group'},
   e('label',null,'Do you have any validity concerns about this claim?'),
