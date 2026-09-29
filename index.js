@@ -1958,6 +1958,11 @@ app.get('/resources/claim-files/what-a-finger-is-worth', sendPage('post-slu.html
 app.get('/resources/claim-files/when-the-carrier-knew-before-you-did', sendPage('post-notice.html'));
 app.get('/resources/claim-files/it-happened-at-work', sendPage('post-compensability.html'));
 app.get('/resources/claim-files/which-injury-are-you-paying-for', sendPage('post-apportionment.html'));
+app.get('/resources/claim-files/when-the-claim-gets-a-lawyer', sendPage('post-when-the-claim-gets-a-lawyer.html'));
+app.get('/resources/claim-files/the-exam-that-cut-the-reserve', sendPage('post-the-exam-that-cut-the-reserve.html'));
+app.get('/resources/claim-files/the-claim-that-was-two-lawsuits', sendPage('post-the-claim-that-was-two-lawsuits.html'));
+app.get('/resources/claim-files/the-five-hundred-dollar-burn', sendPage('post-the-five-hundred-dollar-burn.html'));
+app.get('/resources/claim-files/the-most-expensive-injury-in-healthcare', sendPage('post-the-most-expensive-injury-in-healthcare.html'));
 app.get('/audit', sendPage('audit.html'));
 app.get('/privacy', sendPage('privacy.html'));
 app.get('/share-your-story', sendPage('share-your-story.html'));
