@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<title>Workers' Comp Cost Toolkit: Mod, Claims &amp; Loss Run Tools — CompShield</title>
+<meta name="description" content="Three free workers' comp tools for employers: an experience mod impact calculator, a primary vs. excess claim analyzer, and a loss run red-flag analyzer. Everything runs in your browser. Nothing you type is sent anywhere.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://www.comp-shield.com/resources/cost-toolkit">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CompShield">
+<meta property="og:title" content="Workers' Comp Cost Toolkit: Mod, Claims &amp; Loss Run Tools — CompShield">
+<meta property="og:description" content="Three free workers' comp tools: mod impact calculator, primary vs. excess claim analyzer, loss run red-flag analyzer. Runs entirely in your browser.">
+<meta property="og:url" content="https://www.comp-shield.com/resources/cost-toolkit">
+<meta property="og:image" content="https://www.comp-shield.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Workers' Comp Cost Toolkit — CompShield">
+<meta name="twitter:description" content="Three free workers' comp tools: mod impact calculator, primary vs. excess claim analyzer, loss run red-flag analyzer.">
+<meta name="twitter:image" content="https://www.comp-shield.com/og-image.png">
+<link rel="stylesheet" href="/site.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Workers' Comp Cost Toolkit","applicationCategory":"BusinessApplication","operatingSystem":"Web browser","url":"https://www.comp-shield.com/resources/cost-toolkit","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free interactive workers' compensation tools for employers: experience mod impact calculator, primary vs. excess claim analyzer, and loss run red-flag analyzer. All calculations run locally in the browser."}
+</script>
+<style>
+.tool-nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:26px 0 8px}
+.tool-nav a{padding:10px 18px;border:1px solid var(--bd,#e2e8f0);border-radius:999px;text-decoration:none;font-weight:600;font-size:.92rem;color:var(--tx,#0f172a);background:var(--card,#fff)}
+.tool-sec{scroll-margin-top:90px}
+textarea.tk{width:100%;min-height:150px;padding:12px 14px;border:1px solid var(--bd,#e2e8f0);border-radius:10px;font:400 .95rem/1.5 'Inter',monospace,monospace;background:var(--bg,#fff);color:var(--tx,#0f172a);resize:vertical}
+.tk-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.92rem}
+.tk-table th,.tk-table td{padding:9px 10px;border-bottom:1px solid var(--bd,#e2e8f0);text-align:right}
+.tk-table th:first-child,.tk-table td:first-child{text-align:left}
+.tk-table th{font-weight:600;color:var(--tm,#64748b);font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+.flag-list{list-style:none;padding:0;margin:14px 0 0}
+.flag-list li{padding:10px 14px;border-left:4px solid #d97706;background:rgba(217,119,6,.07);border-radius:0 8px 8px 0;margin-bottom:10px;font-size:.93rem}
+.flag-list li.ok{border-left-color:#16a34a;background:rgba(22,163,74,.07)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.stat{background:var(--card,#fff);border:1px solid var(--bd,#e2e8f0);border-radius:10px;padding:12px 14px}
+.stat .sv{font:700 1.35rem 'Outfit',sans-serif}
+.stat .sl{font-size:.78rem;color:var(--tm,#64748b);margin-top:2px}
+.lead-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-top:18px}
+.lead-form input{padding:10px 12px;border:1px solid var(--bd,#e2e8f0);border-radius:8px;font-size:.92rem;background:var(--bg,#fff);color:var(--tx,#0f172a);width:100%}
+.privacy-strip{display:flex;align-items:center;gap:10px;justify-content:center;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.25);border-radius:12px;padding:12px 18px;margin:22px auto 0;max-width:760px;font-size:.93rem}
+.sample-link{background:none;border:none;color:var(--ta,#2563eb);cursor:pointer;font-size:.88rem;font-weight:600;padding:0;margin-top:8px;text-decoration:underline}
+.err-box{background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:12px 16px;margin-top:14px;font-size:.9rem}
+@media(max-width:720px){.lead-form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+      <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">Workers' Comp Claims Defense</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/audit">The Audit</a>
+      <a href="/process">How It Works</a>
+      <a href="/resources">Resources</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <div class="nav-cta">
+        <a href="/report" class="btn btn-ghost">Report a Claim</a>
+        <a href="/contact" class="btn btn-primary">Free Claim Review</a>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()"><span data-theme-icon>☀</span><span data-theme-label>Light</span></button>
+      </div>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero" style="padding:64px 0 24px">
+  <div class="container">
+    <span class="badge"><span class="badge-dot"></span> Free Toolkit</span>
+    <h1>Workers' Comp <span class="grad">Cost Toolkit</span></h1>
+    <p class="hero-sub">Three tools that show you where your workers' comp money goes: what your experience mod costs you, how each claim feeds it, and what your loss runs are hiding. Built for employers who want straight answers, not sales decks.</p>
+    <div class="privacy-strip"><span>🔒</span><span><strong>Private by design.</strong> Every calculation happens in your browser. Nothing you type is sent to us or anyone else.</span></div>
+    <div class="tool-nav">
+      <a href="#mod-impact">1. Mod Impact Calculator</a>
+      <a href="#primary-excess">2. Primary vs. Excess Analyzer</a>
+      <a href="#loss-run">3. Loss Run Red-Flag Analyzer</a>
+    </div>
+  </div>
+</section>
+
+<section class="section tool-sec" id="mod-impact">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Tool 1</span><h2>Mod Impact Calculator</h2>
+    <p class="lead">Your experience mod is a multiplier on your premium. See what it costs you now, and what each point of movement is worth per year.</p></div>
+    <div class="calc">
+      <div class="calc-inputs">
+        <h3>Your numbers</h3>
+        <p class="hint">Use your manual premium (before the mod is applied). Find it on your policy declarations page.</p>
+        <div class="field">
+          <label>Annual Manual Premium <span class="unit">(before mod)</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="mi-premium" value="150000" min="0" step="1000"></div>
+        </div>
+        <div class="field">
+          <label>Current Experience Mod</label>
+          <input type="number" id="mi-mod" value="1.20" min="0.3" max="3" step="0.01">
+        </div>
+      </div>
+      <div class="calc-out">
+        <h3>What your mod means</h3>
+        <div class="result-hero">
+          <div class="result-label">Estimated annual premium at your current mod</div>
+          <div class="result-num" id="mi-prem">$180,000</div>
+        </div>
+        <div class="result-row"><span class="rk">Mod surcharge vs. 1.00</span><span class="rv" id="mi-surcharge">$30,000</span></div>
+        <table class="tk-table" id="mi-table">
+          <thead><tr><th>Mod moves</th><th>New mod</th><th>Annual change</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="disclaimer"><strong>Educational estimate only.</strong> This is simple multiplication to show scale. Your official mod is calculated by your state rating bureau, not by this tool.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:22px">
+      <h3 style="margin-top:0">Email me this report</h3>
+      <p class="hint" style="margin-bottom:6px">Get these numbers in your inbox, plus a plain-English read on what usually moves a mod. This opens your email app addressed to info@comp-shield.com.</p>
+      <form class="lead-form" onsubmit="return sendLead(event,'mod')">
+        <input type="text" id="lead-mod-name" placeholder="Your name" required>
+        <input type="email" id="lead-mod-email" placeholder="Work email" required>
+        <input type="text" id="lead-mod-co" placeholder="Company">
+        <button type="submit" class="btn btn-primary">Email me this report</button>
+      </form>
+      <p class="hint">Prefer a form? <a href="/contact">Send it through our contact page →</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt tool-sec" id="primary-excess">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Tool 2</span><h2>Primary vs. Excess Claim Analyzer</h2>
+    <p class="lead">Experience rating splits every claim into primary dollars (the first chunk, which counts in full) and excess dollars (the rest, which counts far less). Paste your claim amounts and see the split.</p></div>
+    <div class="calc">
+      <div class="calc-inputs">
+        <h3>Your numbers</h3>
+        <div class="field">
+          <label>Split point <span class="unit">(per claim)</span></label>
+          <div class="input-prefix"><span>$</span><input type="number" id="pe-split" value="17500" min="1000" max="170000" step="500"></div>
+          <p class="hint">New York now uses a variable split point of $1,000 to $170,000 based on your expected losses (NYCIRB Table II). Confirm yours on your mod worksheet and adjust here if needed.</p>
+        </div>
+        <div class="field">
+          <label>Claim incurred amounts <span class="unit">(one per line)</span></label>
+          <textarea class="tk" id="pe-amounts" placeholder="45000&#10;8200&#10;125000&#10;3100">45000
+8200
+125000
+3100</textarea>
+        </div>
+      </div>
+      <div class="calc-out">
+        <h3>The split</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="sv" id="pe-total">$0</div><div class="sl">Total incurred</div></div>
+          <div class="stat"><div class="sv" id="pe-prim">$0</div><div class="sl">Primary dollars</div></div>
+          <div class="stat"><div class="sv" id="pe-exc">$0</div><div class="sl">Excess dollars</div></div>
+          <div class="stat"><div class="sv" id="pe-pct">0%</div><div class="sl">Share that is primary</div></div>
+        </div>
+        <table class="tk-table" id="pe-table">
+          <thead><tr><th>Claim</th><th>Incurred</th><th>Primary</th><th>Excess</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="disclaimer"><strong>Why this matters.</strong> Under New York's current experience rating plan, primary losses carry full weight in your mod. That is why five $15,000 claims usually hurt your mod more than one $75,000 claim. Small, frequent claims are the leak to close first.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:22px">
+      <h3 style="margin-top:0">Email me this report</h3>
+      <p class="hint" style="margin-bottom:6px">Get this breakdown in your inbox. This opens your email app addressed to info@comp-shield.com.</p>
+      <form class="lead-form" onsubmit="return sendLead(event,'pe')">
+        <input type="text" id="lead-pe-name" placeholder="Your name" required>
+        <input type="email" id="lead-pe-email" placeholder="Work email" required>
+        <input type="text" id="lead-pe-co" placeholder="Company">
+        <button type="submit" class="btn btn-primary">Email me this report</button>
+      </form>
+      <p class="hint">Prefer a form? <a href="/contact">Send it through our contact page →</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section tool-sec" id="loss-run">
+  <div class="container">
+    <div class="section-head"><span class="eyebrow">Tool 3</span><h2>Loss Run Red-Flag Analyzer</h2>
+    <p class="lead">Paste your loss run as CSV and get an instant read: totals, reporting speed, stale reserves, and the claims that deserve a second look.</p></div>
+    <div class="calc">
+      <div class="calc-inputs">
+        <h3>Paste your loss run</h3>
+        <p class="hint">CSV with headers: claim_number, date_of_injury, date_reported, paid, reserved, status. Dollar signs, commas, and quotes are fine.</p>
+        <textarea class="tk" id="lr-csv" style="min-height:190px" placeholder="claim_number,date_of_injury,date_reported,paid,reserved,status"></textarea>
+        <button type="button" class="sample-link" onclick="loadSample()">Load sample data to try it →</button>
+        <div style="margin-top:14px"><button type="button" class="btn btn-primary" onclick="runLossRun()">Analyze my loss run</button></div>
+      </div>
+      <div class="calc-out">
+        <h3>What your loss run says</h3>
+        <div id="lr-empty"><p class="hint">Your results will appear here.</p></div>
+        <div id="lr-results" style="display:none">
+          <div class="stat-grid">
+            <div class="stat"><div class="sv" id="lr-incurred">$0</div><div class="sl">Total incurred</div></div>
+            <div class="stat"><div class="sv" id="lr-reserve">$0</div><div class="sl">Open reserves</div></div>
+            <div class="stat"><div class="sv" id="lr-count">0</div><div class="sl">Claims</div></div>
+            <div class="stat"><div class="sv" id="lr-lag">0 days</div><div class="sl">Avg reporting lag</div></div>
+          </div>
+          <h4 style="margin:18px 0 4px">Red flags</h4>
+          <ul class="flag-list" id="lr-flags"></ul>
+          <h4 style="margin:18px 0 4px">Frequency and severity by injury year</h4>
+          <table class="tk-table" id="lr-years">
+            <thead><tr><th>Year</th><th>Claims</th><th>Total incurred</th><th>Avg per claim</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div id="lr-errors"></div>
+        </div>
+        <div class="disclaimer"><strong>Educational estimate only.</strong> Flags are starting points for review, not conclusions. A late-reported claim is not a denied claim, and a big reserve is not a wrong reserve. They are the ones worth asking about.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:22px">
+      <h3 style="margin-top:0">Email me this report</h3>
+      <p class="hint" style="margin-bottom:6px">Get this analysis in your inbox. This opens your email app addressed to info@comp-shield.com.</p>
+      <form class="lead-form" onsubmit="return sendLead(event,'lr')">
+        <input type="text" id="lead-lr-name" placeholder="Your name" required>
+        <input type="email" id="lead-lr-email" placeholder="Work email" required>
+        <input type="text" id="lead-lr-co" placeholder="Company">
+        <button type="submit" class="btn btn-primary">Email me this report</button>
+      </form>
+      <p class="hint">Prefer a form? <a href="/contact">Send it through our contact page →</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="cta-band reveal">
+      <h2>Numbers are a start. Judgment closes claims.</h2>
+      <p>These tools show you where to look. A free 15-minute workers' comp cost review shows you what to do about it: late reporting, stagnant reserves, missed recovery, and the weak spots in your program. No obligation.</p>
+      <div class="hero-cta">
+        <a href="/contact" class="btn btn-primary btn-lg">Book My Free 15-Minute Review</a>
+        <a href="/audit" class="btn btn-ghost btn-lg">Start with the Audit</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+          <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">Workers' Comp Claims Defense</span></span>
+        </a>
+        <p>Workers' compensation claims defense &amp; cost control, protecting employers from the true cost of claims.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/services">Services</a>
+        <a href="/audit">The CompShield Audit</a>
+        <a href="/process">How It Works</a>
+        <a href="/resources">Resources</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="/resources/claim-files">Claim Files</a>
+        <a href="/share-your-story">Share Your Story</a>
+        <a href="/resources/experience-mod-calculator">Experience Mod Calculator</a>
+        <a href="/resources/cost-of-a-claim">Cost of a Claim</a>
+        <a href="/resources/savings-estimator">Savings Estimator</a>
+        <a href="/resources/cost-toolkit">Cost Toolkit</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:info@comp-shield.com">info@comp-shield.com</a>
+        <div class="socials">
+          <a href="https://www.linkedin.com/company/comp-shield" target="_blank" rel="noopener" title="CompShield on LinkedIn">in</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> CompShield. All rights reserved. · <a href="/privacy" style="color:var(--tm)">Privacy Policy</a></p>
+      <span class="footer-hipaa">🔒 HIPAA compliant · Data encrypted in transit &amp; at rest</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script>
+/*__PURE__*/
+function fmt$(n){var neg=n<0;n=Math.round(Math.abs(n));return (neg?'-$':'$')+n.toLocaleString('en-US');}
+function parseNum(v){if(v==null)return NaN;var s=String(v).trim().replace(/[$,\s"']/g,'');if(s===''||s==='-'||s==='.')return NaN;var neg=false;var pm=s.match(/^\((.*)\)$/);if(pm){neg=true;s=pm[1];}var n=parseFloat(s);if(!isFinite(n))return NaN;return neg?-n:n;}
+function modImpact(premium,mod){
+  var p=Math.max(0,premium||0),m=Math.max(0,mod||0);
+  var r2=function(n){return Math.round(n*100)/100;};
+  var deltas=[-0.10,-0.05,-0.01,0.01,0.05,0.10];
+  var rows=deltas.map(function(d){return{delta:d,newMod:r2(m+d),annual:r2(p*d)};});
+  return{premiumAtMod:r2(p*m),surcharge:r2(p*(m-1)),rows:rows};
+}
+function splitClaims(splitPoint,amounts){
+  var sp=Math.max(0,splitPoint||0);
+  var rows=[],tI=0,tP=0;
+  amounts.forEach(function(a){if(!isFinite(a)||a<0)return;var pr=Math.min(a,sp);rows.push({incurred:a,primary:pr,excess:a-pr});tI+=a;tP+=pr;});
+  var tE=tI-tP;
+  return{rows:rows,totalIncurred:tI,totalPrimary:tP,totalExcess:tE,pctPrimary:tI>0?(tP/tI*100):0};
+}
+function splitCSVLine(line){
+  var out=[],cur='',q=false;
+  for(var i=0;i<line.length;i++){var ch=line[i];
+    if(q){if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++;}else{q=false;}}else{cur+=ch;}}
+    else{if(ch==='"'){q=true;}else if(ch===','){out.push(cur);cur='';}else{cur+=ch;}}}
+  out.push(cur);return out;
+}
+function normH(h){return String(h||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+var COL_ALIASES={
+  claim:['claimnumber','claimno','claimnum','claimid','claim','claimnbr'],
+  doi:['dateofinjury','injurydate','doi','accidentdate','dateofloss','lossdate','dateofaccident'],
+  reported:['datereported','reporteddate','reportdate','datereport','dtreported','reported'],
+  paid:['paid','paidtodate','totalpaid','amountpaid','paidamount'],
+  reserved:['reserved','reserve','outstanding','outstandingreserve','reserveremaining'],
+  status:['status','claimstatus','claimstate']
+};
+function findCol(headers,aliases){
+  for(var i=0;i<aliases.length;i++){var ix=headers.indexOf(aliases[i]);if(ix>=0)return ix;}
+  return -1;
+}
+function parseDateFlex(s){
+  s=String(s||'').trim();if(!s)return null;var m;
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m){var d=new Date(+m[1],+m[2]-1,+m[3]);return isNaN(d)?null:d;}
+  m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+  if(m){var y=+m[3];if(y<100)y+=2000;var d2=new Date(y,+m[1]-1,+m[2]);return isNaN(d2)?null:d2;}
+  var d3=new Date(s);return isNaN(d3)?null:d3;
+}
+function isOpenStatus(s){s=String(s||'').toLowerCase();return !/(closed|settled|denied|dismissed|final|withdrawn|void)/.test(s);}
+function analyzeLossRun(rows,todayMs){
+  var today=todayMs||Date.now();
+  var count=rows.length,inc=0,res=0,lagSum=0,lagN=0,flags=[],byYear={};
+  rows.forEach(function(r){
+    var incurred=r.paid+r.reserved;inc+=incurred;
+    var open=isOpenStatus(r.status);
+    if(open)res+=r.reserved;
+    if(r.doi&&r.reported){var lag=Math.round((r.reported.getTime()-r.doi.getTime())/86400000);lagSum+=lag;lagN++;
+      if(lag>7)flags.push({claim:r.claim,text:'Reported '+lag+' days after the injury. Late reporting is one of the biggest cost drivers we see.'});}
+    if(open&&r.doi){var months=(today-r.doi.getTime())/2629800000;
+      if(months>18)flags.push({claim:r.claim,text:'Open '+Math.floor(months)+' months with '+fmt$(r.reserved)+' still reserved. Stale reserves deserve a fresh review.'});}
+    if(r.reserved>25000)flags.push({claim:r.claim,text:'Carries a '+fmt$(r.reserved)+' reserve. Large reserves push your mod up and are worth challenging.'});
+    if(r.doi){var y=r.doi.getFullYear();if(!byYear[y])byYear[y]={count:0,incurred:0};byYear[y].count++;byYear[y].incurred+=incurred;}
+  });
+  var years=Object.keys(byYear).sort().map(function(y){return{year:+y,count:byYear[y].count,incurred:byYear[y].incurred,avg:byYear[y].incurred/byYear[y].count};});
+  return{count:count,totalIncurred:inc,totalOpenReserve:res,avgLag:lagN>0?lagSum/lagN:0,flags:flags,years:years};
+}
+function parseLossRunCSV(text,todayMs){
+  var errors=[],rows=[];
+  var lines=String(text||'').split(/\r?\n/).filter(function(l){return l.trim()!=='';});
+  if(lines.length<2)return{rows:[],errors:['Paste at least a header row and one data row.'],analysis:null};
+  var headers=splitCSVLine(lines[0]).map(normH);
+  var ci={claim:findCol(headers,COL_ALIASES.claim),doi:findCol(headers,COL_ALIASES.doi),reported:findCol(headers,COL_ALIASES.reported),paid:findCol(headers,COL_ALIASES.paid),reserved:findCol(headers,COL_ALIASES.reserved),status:findCol(headers,COL_ALIASES.status)};
+  var missing=[];if(ci.claim<0)missing.push('claim_number');if(ci.doi<0)missing.push('date_of_injury');if(ci.reported<0)missing.push('date_reported');if(ci.paid<0)missing.push('paid');if(ci.reserved<0)missing.push('reserved');if(ci.status<0)missing.push('status');
+  if(missing.length)return{rows:[],errors:['Could not find these columns: '+missing.join(', ')+'. Check your header row.'],analysis:null};
+  for(var i=1;i<lines.length;i++){
+    var cells=splitCSVLine(lines[i]);
+    var claim=(cells[ci.claim]||'').trim();
+    var doi=parseDateFlex(cells[ci.doi]),rep=parseDateFlex(cells[ci.reported]);
+    var paid=parseNum(cells[ci.paid]),resv=parseNum(cells[ci.reserved]);
+    if(!claim){errors.push('Row '+i+': missing claim number, skipped.');continue;}
+    if(!doi){errors.push('Row '+i+' ('+claim+'): injury date not recognized, skipped.');continue;}
+    if(!rep){errors.push('Row '+i+' ('+claim+'): reported date not recognized, skipped.');continue;}
+    if(!isFinite(paid)){errors.push('Row '+i+' ('+claim+'): paid amount not recognized, treated as 0.');paid=0;}
+    if(!isFinite(resv)){errors.push('Row '+i+' ('+claim+'): reserved amount not recognized, treated as 0.');resv=0;}
+    rows.push({claim:claim,doi:doi,reported:rep,paid:paid,reserved:resv,status:(cells[ci.status]||'').trim()});
+  }
+  if(!rows.length)return{rows:[],errors:errors.length?errors:['No usable rows found.'],analysis:null};
+  return{rows:rows,errors:errors,analysis:analyzeLossRun(rows,todayMs)};
+}
+/*__DOM__*/
+function el(id){return document.getElementById(id);}
+function calcMod(){
+  var p=parseNum(el('mi-premium').value),m=parseFloat(el('mi-mod').value);
+  if(!isFinite(p))p=0;if(!isFinite(m))m=0;
+  var r=modImpact(p,m);
+  el('mi-prem').textContent=fmt$(r.premiumAtMod);
+  el('mi-surcharge').textContent=fmt$(r.surcharge);
+  var tb=el('mi-table').querySelector('tbody');tb.innerHTML='';
+  r.rows.forEach(function(row){
+    var tr=document.createElement('tr');
+    var dir=row.delta<0?'down':'up';
+    tr.innerHTML='<td>Mod '+dir+' '+Math.abs(row.delta).toFixed(2)+'</td><td>'+row.newMod.toFixed(2)+'</td><td>'+fmt$(row.annual)+'/yr</td>';
+    tb.appendChild(tr);
+  });
+}
+function calcPE(){
+  var sp=parseNum(el('pe-split').value);if(!isFinite(sp)||sp<=0)sp=17500;
+  var amounts=el('pe-amounts').value.split(/\n/).map(parseNum).filter(function(n){return isFinite(n)&&n>=0;});
+  var r=splitClaims(sp,amounts);
+  el('pe-total').textContent=fmt$(r.totalIncurred);
+  el('pe-prim').textContent=fmt$(r.totalPrimary);
+  el('pe-exc').textContent=fmt$(r.totalExcess);
+  el('pe-pct').textContent=r.pctPrimary.toFixed(1)+'%';
+  var tb=el('pe-table').querySelector('tbody');tb.innerHTML='';
+  r.rows.forEach(function(row,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>Claim '+(i+1)+'</td><td>'+fmt$(row.incurred)+'</td><td>'+fmt$(row.primary)+'</td><td>'+fmt$(row.excess)+'</td>';
+    tb.appendChild(tr);
+  });
+}
+var SAMPLE_CSV='claim_number,date_of_injury,date_reported,paid,reserved,status\nWC-2024-001,03/14/2024,03/15/2024,12500,8000,Open\nWC-2024-002,06/02/2024,06/20/2024,4200,15000,Open\nWC-2023-014,11/05/2023,11/06/2023,31000,0,Closed\nWC-2023-009,08/19/2023,08/19/2023,1800,0,Closed\nWC-2022-031,05/30/2022,06/01/2022,22000,45000,Open\nWC-2024-003,09/11/2024,09/12/2024,900,2500,Open';
+function loadSample(){el('lr-csv').value=SAMPLE_CSV;runLossRun();}
+function runLossRun(){
+  var res=parseLossRunCSV(el('lr-csv').value);
+  el('lr-empty').style.display='none';el('lr-results').style.display='block';
+  var a=res.analysis;
+  if(a){
+    el('lr-incurred').textContent=fmt$(a.totalIncurred);
+    el('lr-reserve').textContent=fmt$(a.totalOpenReserve);
+    el('lr-count').textContent=a.count;
+    el('lr-lag').textContent=a.avgLag.toFixed(1)+' days';
+    var fl=el('lr-flags');fl.innerHTML='';
+    if(!a.flags.length){var li=document.createElement('li');li.className='ok';li.textContent='No red flags in this data. Clean loss run.';fl.appendChild(li);}
+    a.flags.forEach(function(f){var li=document.createElement('li');li.innerHTML='<strong>'+f.claim+':</strong> '+f.text;fl.appendChild(li);});
+    var tb=el('lr-years').querySelector('tbody');tb.innerHTML='';
+    a.years.forEach(function(y){var tr=document.createElement('tr');tr.innerHTML='<td>'+y.year+'</td><td>'+y.count+'</td><td>'+fmt$(y.incurred)+'</td><td>'+fmt$(y.avg)+'</td>';tb.appendChild(tr);});
+  }
+  var eb=el('lr-errors');eb.innerHTML='';
+  if(res.errors.length){var d=document.createElement('div');d.className='err-box';d.innerHTML='<strong>Heads up:</strong><br>'+res.errors.map(function(e){return e.replace(/</g,'&lt;');}).join('<br>');eb.appendChild(d);}
+}
+function lastResults(kind){
+  if(kind==='mod'){var p=parseNum(el('mi-premium').value)||0,m=parseFloat(el('mi-mod').value)||0;var r=modImpact(p,m);
+    return 'Mod Impact: manual premium '+fmt$(p)+', current mod '+m.toFixed(2)+', estimated annual premium '+fmt$(r.premiumAtMod)+', mod surcharge vs 1.00 '+fmt$(r.surcharge)+'. A 0.10 mod move = '+fmt$(p*0.10)+'/yr.';}
+  if(kind==='pe'){var sp=parseNum(el('pe-split').value)||17500;var amts=el('pe-amounts').value.split(/\n/).map(parseNum).filter(function(n){return isFinite(n)&&n>=0;});var r2=splitClaims(sp,amts);
+    return 'Primary/Excess: split point '+fmt$(sp)+', '+r2.rows.length+' claims, total incurred '+fmt$(r2.totalIncurred)+', primary '+fmt$(r2.totalPrimary)+' ('+r2.pctPrimary.toFixed(1)+'%), excess '+fmt$(r2.totalExcess)+'.';}
+  var r3=parseLossRunCSV(el('lr-csv').value);
+  if(!r3.analysis)return 'Loss Run: no valid data pasted yet.';
+  var a=r3.analysis;
+  return 'Loss Run: '+a.count+' claims, total incurred '+fmt$(a.totalIncurred)+', open reserves '+fmt$(a.totalOpenReserve)+', avg reporting lag '+a.avgLag.toFixed(1)+' days, '+a.flags.length+' red flags.';
+}
+function sendLead(e,kind){
+  e.preventDefault();
+  var name=el('lead-'+kind+'-name').value.trim(),co=el('lead-'+kind+'-co').value.trim();
+  var subject='Toolkit report request from '+name+(co?' ('+co+')':'');
+  var body='Hi CompShield,\n\n'+name+(co?' from '+co:'')+' used the Workers\' Comp Cost Toolkit and would like the full report.\n\n'+lastResults(kind)+'\n\nPlease send the report and reach out about a free 15-minute cost review.\n\nThanks,\n'+name;
+  window.location.href='mailto:info@comp-shield.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  return false;
+}
+['mi-premium','mi-mod'].forEach(function(id){el(id).addEventListener('input',calcMod);});
+['pe-split','pe-amounts'].forEach(function(id){el(id).addEventListener('input',calcPE);});
+calcMod();calcPE();
+</script>
+<script src="/site.js"></script>
+</body>
+</html>
