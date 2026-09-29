@@ -1964,6 +1964,7 @@ app.get('/share-your-story', sendPage('share-your-story.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
 app.get('/resources/savings-estimator', sendPage('tool-savings.html'));
+app.get('/resources/cost-toolkit', sendPage('toolkit.html'));
 app.get('/resources/lower-experience-mod', sendPage('guide-experience-mod.html'));
 app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.html'));
 app.get('/resources/code-rule-59', sendPage('guide-code-rule-59.html'));
