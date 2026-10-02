@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/compshield-logo.svg">
+<title>Claim Files Newsletter | CompShield</title>
+<meta name="description" content="One short workers' comp story every week. Real claims, real lessons, in plain language. Join the CompShield newsletter.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://www.comp-shield.com/newsletter">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CompShield">
+<meta property="og:title" content="Claim Files Newsletter | CompShield">
+<meta property="og:description" content="One short workers' comp story every week. Real claims, real lessons.">
+<meta property="og:url" content="https://www.comp-shield.com/newsletter">
+<meta property="og:image" content="https://www.comp-shield.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claim Files Newsletter | CompShield">
+<meta name="twitter:description" content="One short workers' comp story every week. Real claims, real lessons.">
+<meta name="twitter:image" content="https://www.comp-shield.com/og-image.png">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+      <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">Workers' Comp Claims Defense</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/audit">The Audit</a>
+      <a href="/process">How It Works</a>
+      <a href="/resources">Resources</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <div class="nav-cta">
+        <a href="/report" class="btn btn-ghost">Report a Claim</a>
+        <a href="/contact" class="btn btn-primary">Free Claim Review</a>
+        <button class="theme-toggle" type="button" onclick="toggleTheme()"><span data-theme-icon>☀</span><span data-theme-label>Light</span></button>
+      </div>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="section" style="padding-top:56px">
+  <div class="container" style="max-width:760px">
+    <span class="tag">Newsletter</span>
+    <h1 style="margin-top:12px">The Claim Files Newsletter</h1>
+    <p class="lead">One short workers' comp story in your inbox every week. Each one is a real claim, anonymized, with the lesson it taught us about defending claims and controlling costs. Written in plain language for employers, brokers, and anyone who pays for workers' comp.</p>
+
+    <ul style="margin:24px 0;padding:0;list-style:none;display:grid;gap:10px">
+      <li>✓ A five-minute read, once a week. No fluff.</li>
+      <li>✓ Real claims and the defenses that worked.</li>
+      <li>✓ Early access to new tools and cost calculators.</li>
+    </ul>
+
+<!-- CompShield newsletter signup -->
+<div class="nl-signup">
+  <h3>Get Claim Files in your inbox</h3>
+  <p class="nl-sub">One short workers' comp story every week. Real claims, real lessons.</p>
+  <form class="nl-form" data-source="newsletter" novalidate>
+    <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address">
+    <input type="text" name="hp" class="nl-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button type="submit" class="btn btn-primary">Subscribe</button>
+  </form>
+  <p class="nl-msg" role="status"></p>
+  <p class="nl-micro">One email a week. Unsubscribe anytime. We never share your address.</p>
+</div>
+<style>
+.nl-signup{background:linear-gradient(135deg,rgba(79,143,239,.1),rgba(52,211,153,.05));border:1px solid rgba(79,143,239,.25);border-radius:16px;padding:32px;text-align:center;margin:38px 0}
+.nl-signup h3{font-size:22px;margin:0 0 10px}
+.nl-sub{color:var(--tm);margin:0 auto 20px;max-width:520px}
+.nl-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative}
+.nl-form input[type=email]{padding:12px 16px;border:1px solid var(--gbd);border-radius:11px;font-size:14px;background:var(--gb);color:var(--tt);min-width:260px;font-family:'Inter',sans-serif}
+.nl-form input[type=email]:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(79,143,239,.14)}
+.nl-hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0}
+.nl-msg{min-height:22px;margin:12px 0 0;font-weight:600}
+.nl-msg.ok{color:var(--tg)}
+.nl-msg.err{color:var(--tr)}
+.nl-micro{margin-top:10px;font-size:13px;color:var(--tm)}
+@media(max-width:560px){.nl-form input[type=email]{min-width:0;flex:1}}
+</style>
+<script>
+(function(){
+  document.querySelectorAll('.nl-form').forEach(function(form){
+    if (form.dataset.nlBound) return; form.dataset.nlBound = '1';
+    var box = form.closest('.nl-signup');
+    var msg = box ? box.querySelector('.nl-msg') : null;
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var emailField = form.querySelector('input[name=email]');
+      var email = emailField.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (msg) { msg.textContent = 'Please enter a valid email address.'; msg.className = 'nl-msg err'; }
+        return;
+      }
+      var btn = form.querySelector('button[type=submit]');
+      btn.disabled = true;
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: form.dataset.source || '', hp: form.querySelector('input[name=hp]').value })
+      }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
+      .then(function(res){
+        if (res.status === 200 && res.body.ok) {
+          form.style.display = 'none';
+          if (msg) { msg.textContent = "You're in. Check your inbox soon."; msg.className = 'nl-msg ok'; }
+        } else {
+          if (msg) { msg.textContent = (res.body && res.body.error) || 'Something went wrong. Please try again.'; msg.className = 'nl-msg err'; }
+          btn.disabled = false;
+        }
+      }).catch(function(){
+        if (msg) { msg.textContent = 'Something went wrong. Please try again.'; msg.className = 'nl-msg err'; }
+        btn.disabled = false;
+      });
+    });
+  });
+})();
+</script>
+
+    <h2 style="margin-top:48px">Recent stories</h2>
+    <div class="grid grid-3" style="margin-top:16px">
+      <a href="/resources/claim-files/when-the-claim-gets-a-lawyer" class="post-card"><span class="tag">Litigation</span><h3>When the Claim Gets a Lawyer</h3><span class="read">Read the case →</span></a>
+      <a href="/resources/claim-files/the-answer-was-in-the-bloodwork" class="post-card"><span class="tag">Causation</span><h3>The Answer Was in the Bloodwork</h3><span class="read">Read the case →</span></a>
+      <a href="/resources/claim-files/the-exam-that-cut-the-reserve" class="post-card"><span class="tag">Reserves</span><h3>The Exam That Cut the Reserve</h3><span class="read">Read the case →</span></a>
+    </div>
+    <p style="margin-top:24px"><a href="/resources/claim-files">Browse all Claim Files →</a></p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <img class="brand-logo" src="/compshield-logo.svg" alt="CompShield">
+          <span class="brand-text"><span class="brand-name">CompShield</span><span class="brand-sub">Workers' Comp Claims Defense</span></span>
+        </a>
+        <p>Workers' compensation claims defense &amp; cost control, protecting employers from the true cost of claims.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="/services">Services</a>
+        <a href="/audit">The CompShield Audit</a>
+        <a href="/process">How It Works</a>
+        <a href="/resources">Resources</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="/resources/claim-files">Claim Files</a>
+        <a href="/share-your-story">Share Your Story</a>
+        <a href="/resources/lower-experience-mod">Lower Your Mod</a>
+        <a href="/resources/fight-a-workers-comp-claim">Fight a Claim</a>
+        <a href="/resources/experience-mod-calculator">Mod Calculator</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="mailto:info@comp-shield.com">info@comp-shield.com</a>
+        <div class="socials">
+          <a href="https://www.linkedin.com/company/comp-shield" target="_blank" rel="noopener" title="CompShield on LinkedIn">in</a>
+          <a href="https://www.youtube.com/@CompShield" target="_blank" rel="noopener" title="CompShield on YouTube">yt</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> CompShield. All rights reserved. · <a href="/privacy" style="color:var(--tm)">Privacy Policy</a></p>
+      <span class="footer-hipaa">🔒 HIPAA compliant · Data encrypted in transit &amp; at rest</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script src="/site.js"></script>
+</body>
+</html>
