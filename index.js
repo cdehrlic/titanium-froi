@@ -2026,7 +2026,7 @@ app.post('/api/subscribe', subscribeLimiter, async (req, res) => {
       .catch(e => console.error('subscriber github persist error:', e.message));
     // Notify CompShield in real time (durable record even if storage fails).
     transporter.sendMail({
-      from: CONFIG.SMTP.auth.user,
+      from: 'CompShield <info@comp-shield.com>',
       to: CONFIG.CONTACT_EMAIL,
       subject: '[Newsletter] New subscriber: ' + clean,
       text: 'New newsletter signup\n\nEmail: ' + clean + '\nSource: ' + (entry.source || 'n/a') + '\nTime: ' + entry.ts
