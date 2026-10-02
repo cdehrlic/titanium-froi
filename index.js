@@ -5,6 +5,7 @@ const PDFDocument = require('pdfkit');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
@@ -1931,6 +1932,112 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// NEWSLETTER SUBSCRIBE
+// ═══════════════════════════════════════════════════════════════════════════════
+const subscribeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { ok: false, error: 'Too many requests. Please try again in a minute.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const SUBSCRIBERS_FILE = path.join(__dirname, 'data', 'subscribers.jsonl');
+
+// Append a subscriber to the local JSONL file (best effort; Railway disk is ephemeral).
+function appendSubscriberLocal(entry) {
+  try {
+    fs.mkdirSync(path.dirname(SUBSCRIBERS_FILE), { recursive: true });
+    let existing = '';
+    try { existing = fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'); } catch (e) { /* new file */ }
+    const dup = existing.split('\n').some(l => {
+      try { return JSON.parse(l).email === entry.email; } catch (e) { return false; }
+    });
+    if (!dup) fs.appendFileSync(SUBSCRIBERS_FILE, JSON.stringify(entry) + '\n');
+  } catch (e) {
+    console.error('subscriber local persist error:', e.message);
+  }
+}
+
+// Durable store: append to data/subscribers.jsonl in the GitHub repo.
+// Requires GITHUB_TOKEN env var (Contents read+write on cdehrlic/titanium-froi).
+// Without the token, signups still land in the local file and in the notify email.
+async function persistSubscriberGitHub(entry) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return false;
+  const apiPath = 'data/subscribers.jsonl';
+  const headers = {
+    'Authorization': 'Bearer ' + token,
+    'Accept': 'application/vnd.github+json',
+    'User-Agent': 'comp-shield-site',
+    'Content-Type': 'application/json'
+  };
+  const line = JSON.stringify(entry) + '\n';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let sha = null, content = '';
+    const getRes = await fetch('https://api.github.com/repos/cdehrlic/titanium-froi/contents/' + apiPath + '?ref=main', { headers });
+    if (getRes.ok) {
+      const j = await getRes.json();
+      sha = j.sha;
+      content = Buffer.from(j.content || '', 'base64').toString('utf8');
+    } else if (getRes.status !== 404) {
+      throw new Error('github read failed: ' + getRes.status);
+    }
+    const dup = content.split('\n').some(l => {
+      try { return JSON.parse(l).email === entry.email; } catch (e) { return false; }
+    });
+    if (dup) return true;
+    const putRes = await fetch('https://api.github.com/repos/cdehrlic/titanium-froi/contents/' + apiPath, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        message: 'newsletter signup ' + entry.email,
+        content: Buffer.from(content + line).toString('base64'),
+        branch: 'main',
+        ...(sha ? { sha } : {})
+      })
+    });
+    if (putRes.ok) return true;
+    if (putRes.status === 409 && attempt === 0) continue; // sha race: re-read and retry once
+    throw new Error('github write failed: ' + putRes.status);
+  }
+  return false;
+}
+
+app.post('/api/subscribe', subscribeLimiter, async (req, res) => {
+  try {
+    const { email, source, hp } = req.body || {};
+    if (hp) return res.json({ ok: true }); // honeypot: bots get a fake success
+    const clean = String(email || '').trim().toLowerCase();
+    if (clean.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) {
+      return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
+    }
+    const entry = {
+      email: clean,
+      source: String(source || '').slice(0, 60),
+      ip: getClientIP(req),
+      ts: new Date().toISOString()
+    };
+    res.json({ ok: true });
+    // Persist in the background so storage latency never blocks the visitor.
+    appendSubscriberLocal(entry);
+    persistSubscriberGitHub(entry)
+      .then(ok => { if (ok) console.log('newsletter signup stored: ' + clean); })
+      .catch(e => console.error('subscriber github persist error:', e.message));
+    // Notify CompShield in real time (durable record even if storage fails).
+    transporter.sendMail({
+      from: CONFIG.SMTP.auth.user,
+      to: CONFIG.CONTACT_EMAIL,
+      subject: '[Newsletter] New subscriber: ' + clean,
+      text: 'New newsletter signup\n\nEmail: ' + clean + '\nSource: ' + (entry.source || 'n/a') + '\nTime: ' + entry.ts
+    }).catch(e => console.error('subscriber notify error:', e.message));
+  } catch (e) {
+    console.error('subscribe error:', e);
+    if (!res.headersSent) res.status(500).json({ ok: false, error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SERVE HTML FILES  (marketing site + portal)
 // ═══════════════════════════════════════════════════════════════════════════════
 const sendPage = file => (req, res) => res.sendFile(path.join(__dirname, file));
@@ -1965,6 +2072,7 @@ app.get('/resources/claim-files/the-five-hundred-dollar-burn', sendPage('post-th
 app.get('/resources/claim-files/the-most-expensive-injury-in-healthcare', sendPage('post-the-most-expensive-injury-in-healthcare.html'));
 app.get('/audit', sendPage('audit.html'));
 app.get('/privacy', sendPage('privacy.html'));
+app.get('/newsletter', sendPage('newsletter.html'));
 app.get('/share-your-story', sendPage('share-your-story.html'));
 app.get('/resources/experience-mod-calculator', sendPage('tool-emr.html'));
 app.get('/resources/cost-of-a-claim', sendPage('tool-claim-cost.html'));
