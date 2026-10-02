@@ -124,6 +124,70 @@
   </div>
 </section>
 
+<!-- CompShield newsletter signup -->
+<div class="nl-signup">
+  <h3>Get Claim Files in your inbox</h3>
+  <p class="nl-sub">One short workers' comp story every week. Real claims, real lessons.</p>
+  <form class="nl-form" data-source="article" novalidate>
+    <input type="email" name="email" placeholder="you@company.com" required aria-label="Email address">
+    <input type="text" name="hp" class="nl-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button type="submit" class="btn btn-primary">Subscribe</button>
+  </form>
+  <p class="nl-msg" role="status"></p>
+  <p class="nl-micro">One email a week. Unsubscribe anytime. We never share your address.</p>
+</div>
+<style>
+.nl-signup{background:linear-gradient(135deg,rgba(79,143,239,.1),rgba(52,211,153,.05));border:1px solid rgba(79,143,239,.25);border-radius:16px;padding:32px;text-align:center;margin:38px 0}
+.nl-signup h3{font-size:22px;margin:0 0 10px}
+.nl-sub{color:var(--tm);margin:0 auto 20px;max-width:520px}
+.nl-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative}
+.nl-form input[type=email]{padding:12px 16px;border:1px solid var(--gbd);border-radius:11px;font-size:14px;background:var(--gb);color:var(--tt);min-width:260px;font-family:'Inter',sans-serif}
+.nl-form input[type=email]:focus{outline:none;border-color:var(--ta);box-shadow:0 0 0 3px rgba(79,143,239,.14)}
+.nl-hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0}
+.nl-msg{min-height:22px;margin:12px 0 0;font-weight:600}
+.nl-msg.ok{color:var(--tg)}
+.nl-msg.err{color:var(--tr)}
+.nl-micro{margin-top:10px;font-size:13px;color:var(--tm)}
+@media(max-width:560px){.nl-form input[type=email]{min-width:0;flex:1}}
+</style>
+<script>
+(function(){
+  document.querySelectorAll('.nl-form').forEach(function(form){
+    if (form.dataset.nlBound) return; form.dataset.nlBound = '1';
+    var box = form.closest('.nl-signup');
+    var msg = box ? box.querySelector('.nl-msg') : null;
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var emailField = form.querySelector('input[name=email]');
+      var email = emailField.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (msg) { msg.textContent = 'Please enter a valid email address.'; msg.className = 'nl-msg err'; }
+        return;
+      }
+      var btn = form.querySelector('button[type=submit]');
+      btn.disabled = true;
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: form.dataset.source || '', hp: form.querySelector('input[name=hp]').value })
+      }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
+      .then(function(res){
+        if (res.status === 200 && res.body.ok) {
+          form.style.display = 'none';
+          if (msg) { msg.textContent = "You're in. Check your inbox soon."; msg.className = 'nl-msg ok'; }
+        } else {
+          if (msg) { msg.textContent = (res.body && res.body.error) || 'Something went wrong. Please try again.'; msg.className = 'nl-msg err'; }
+          btn.disabled = false;
+        }
+      }).catch(function(){
+        if (msg) { msg.textContent = 'Something went wrong. Please try again.'; msg.className = 'nl-msg err'; }
+        btn.disabled = false;
+      });
+    });
+  });
+})();
+</script>
+
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
