@@ -198,9 +198,7 @@ const ENTITIES = [
   'Live Well Healthcare Solutions',
   'Advanced Care Agency / Baybay',
   'Esky Care',
-  'New Premier Management LLC',
-  'Quality Facility Solutions Corp',
-  'Friends and Family Homecare LLC'
+  'New Premier Management LLC'
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
