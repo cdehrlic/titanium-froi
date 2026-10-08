@@ -96,6 +96,87 @@ transporter.verify(function(error, success) {
   }
 });
 
+// ── Outbound mail safety net ──────────────────────────────────────────────────
+// Gmail hard-rejects any message over 25MB, and MIME base64 inflates payloads by
+// ~37%. Uploads are capped per-file (25MB x 25 files) but never in aggregate, so
+// a claim with a few phone photos could silently blow the limit: the notification
+// to the claims team would be rejected while the attachment-free confirmation to
+// the submitter went through, leaving nobody aware the claim had arrived.
+const MAX_ATTACHMENT_BYTES = 18 * 1024 * 1024;
+
+const attachmentBytes = list => list.reduce((n, a) => n + (a && a.content ? a.content.length : 0), 0);
+const mb = bytes => (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+
+// Drop the largest attachments until the message fits, so the claim report and
+// signed statements (small) survive and only bulky media is shed.
+function fitAttachments(list, limit = MAX_ATTACHMENT_BYTES) {
+  if (attachmentBytes(list) <= limit) return { kept: list, dropped: [] };
+  const sized = list.map((a, i) => ({ a, i, size: a && a.content ? a.content.length : 0 }));
+  const kept = [];
+  const dropped = [];
+  let total = 0;
+  for (const item of [...sized].sort((x, y) => x.size - y.size)) {
+    if (total + item.size <= limit) { kept.push(item); total += item.size; }
+    else dropped.push(item);
+  }
+  kept.sort((x, y) => x.i - y.i);
+  dropped.sort((x, y) => x.i - y.i);
+  return { kept: kept.map(k => k.a), dropped: dropped.map(d => d.a) };
+}
+
+// One sentence for the email body naming what had to be left off.
+const droppedNote = dropped => dropped.length
+  ? `${dropped.length} file(s) totalling ${mb(attachmentBytes(dropped))} exceeded the 25MB email limit and could not be attached: ${dropped.map(d => d.filename).join(', ')}. The claim was received in full — ask the submitter to send these separately.`
+  : null;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// 4xx and socket failures are transient; a 5xx rejection (too large, bad
+// recipient) will fail the same way every time, so don't burn retries on it.
+const isTransientSmtpError = err => {
+  const code = err && err.responseCode;
+  if (typeof code === 'number') return code >= 400 && code < 500;
+  return ['ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'ECONNRESET', 'EDNS', 'EENVELOPE'].includes(err && err.code);
+};
+
+async function sendMailWithRetry(message, { attempts = 3, label = 'email' } = {}) {
+  let lastErr;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await transporter.sendMail(message);
+    } catch (err) {
+      lastErr = err;
+      if (attempt === attempts || !isTransientSmtpError(err)) break;
+      const wait = 1000 * Math.pow(2, attempt - 1);
+      console.warn(`⚠️  ${label}: attempt ${attempt}/${attempts} failed (${err.message}); retrying in ${wait}ms`);
+      await sleep(wait);
+    }
+  }
+  throw lastErr;
+}
+
+// Last resort when a claims notification cannot be delivered: a tiny, plain
+// message with no attachments, so a claim is never lost in silence.
+async function sendFallbackAlert({ referenceNumber, entityName, summaryRows, reason }) {
+  const rows = summaryRows.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6e7681;">${h(k)}:</td><td style="font-weight:bold;">${h(v || 'N/A')}</td></tr>`).join('');
+  await sendMailWithRetry({
+    from: CONFIG.SMTP.auth.user,
+    to: CONFIG.CLAIMS_EMAIL,
+    subject: `[ACTION REQUIRED] ${referenceNumber} received - notification email failed`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;">
+        <div style="background:#b91c1c;padding:20px;text-align:center;">
+          <h2 style="color:white;margin:0;">Claim received - full notification failed to send</h2>
+        </div>
+        <div style="padding:20px;background:#f8fafc;">
+          <p style="margin:0 0 14px;">A claim came in but its notification email could not be delivered. The details below are all that could be sent; retrieve the full record and attachments from the portal.</p>
+          <table style="font-size:14px;">${rows}</table>
+          <p style="margin:16px 0 0;font-size:13px;color:#6e7681;">Reason: ${h(reason)}</p>
+        </div>
+      </div>`
+  }, { attempts: 2, label: 'fallback alert' });
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // IN-MEMORY STORAGE (Replace with database in production)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -113,6 +194,7 @@ const ENTITIES = [
   'Shiftster LLC / Eshyft',
   'Grandison Management',
   'Towne Home Care / Towne Staffing LLC',
+  'Towne Homecare Payroll, LLC / Towne Kids',
   'Live Well Healthcare Solutions',
   'Advanced Care Agency / Baybay',
   'Esky Care',
@@ -1292,8 +1374,11 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
     });
 
     // Send email notification
+    const { kept: statementAttachments, dropped: droppedStatementFiles } = fitAttachments(attachments);
+    const statementDropNote = droppedNote(droppedStatementFiles);
+    if (statementDropNote) console.warn(`⚠️  ${linkData.claimRef}: ${statementDropNote}`);
     try {
-      await transporter.sendMail({
+      await sendMailWithRetry({
         from: CONFIG.SMTP.auth.user,
         to: CONFIG.CLAIMS_EMAIL,
         subject: `[${linkData.type.toUpperCase()}] ${linkData.claimRef} - ${formData.witnessName || formData.claimantName || formData.patientName || 'Statement'} Received`,
@@ -1311,13 +1396,30 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
               <p><strong>IP Address:</strong> ${h(signatureData.ipAddress)}</p>
               <p><strong>Document Hash:</strong> <code style="font-size:10px;">${signatureData.documentHash}</code></p>
               ${formData.hasAudioRecording ? '<p><strong>Audio recording attached</strong></p>' : ''}
+              ${statementDropNote ? `<p style="color:#b91c1c;"><strong>${h(statementDropNote)}</strong></p>` : ''}
             </div>
           </div>`,
-        attachments
-      });
+        attachments: statementAttachments
+      }, { label: 'statement email' });
       console.log(`✅ ${linkData.type} statement received for ${linkData.claimRef}`);
     } catch (emailErr) {
-      console.error('Email error:', emailErr.message);
+      console.error('❌ Statement email failed after retries:', emailErr.message);
+      try {
+        await sendFallbackAlert({
+          referenceNumber: linkData.claimRef,
+          entityName: linkData.entityName || 'N/A',
+          reason: emailErr.message,
+          summaryRows: [
+            ['Entity', linkData.entityName],
+            ['Statement Type', linkData.type],
+            ['Signed By', signatureData.typedName],
+            ['Signed At', signatureData.signedAt]
+          ]
+        });
+        console.log(`✅ Fallback alert sent for ${linkData.claimRef}`);
+      } catch (fallbackErr) {
+        console.error('❌ Fallback alert also failed:', fallbackErr.message);
+      }
     }
 
     // Mark as completed
@@ -1454,6 +1556,14 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     // Add uploaded files
     files.forEach(file => attachments.push({ filename: file.originalname, content: file.buffer, contentType: file.mimetype }));
 
+    // Shed oversized media before the send so the notification itself survives.
+    const { kept: claimAttachments, dropped: droppedAttachments } = fitAttachments(attachments);
+    const claimDropNote = droppedNote(droppedAttachments);
+    if (claimDropNote) {
+      problems.push(claimDropNote);
+      console.warn(`⚠️  ${referenceNumber}: ${droppedAttachments.length} attachment(s) omitted, ${mb(attachmentBytes(droppedAttachments))} over the limit`);
+    }
+
     // Store claim data
     claimData.set(referenceNumber, { formData, createdAt: new Date().toISOString(), inlineStatements });
 
@@ -1528,18 +1638,37 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
         </div>
       </div>`;
 
+    let claimEmailError = null;
     try {
-      await transporter.sendMail({
+      await sendMailWithRetry({
         from: CONFIG.SMTP.auth.user,
         to: CONFIG.CLAIMS_EMAIL,
         cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
         subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
         html: emailHtml,
-        attachments
-      });
-      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL}${ccEmails.length > 0 ? ' (CC: ' + ccEmails.join(', ') + ')' : ''} with ${attachments.length} attachments (including ${audioFileCount} audio files)`);
+        attachments: claimAttachments
+      }, { label: 'claim email' });
+      console.log(`✅ Claim email sent to ${CONFIG.CLAIMS_EMAIL}${ccEmails.length > 0 ? ' (CC: ' + ccEmails.join(', ') + ')' : ''} with ${claimAttachments.length} attachments (${audioFileCount} audio)${droppedAttachments.length ? `, ${droppedAttachments.length} omitted over size limit` : ''}`);
     } catch (err) {
-      console.error('❌ Email error:', err.message);
+      claimEmailError = err.message;
+      console.error('❌ Claim email failed after retries:', err.message);
+      try {
+        await sendFallbackAlert({
+          referenceNumber,
+          entityName,
+          reason: err.message,
+          summaryRows: [
+            ['Entity', entityName],
+            ['Employee', `${formData.firstName || ''} ${formData.lastName || ''}`.trim()],
+            ['Date of Injury', formData.dateOfInjury],
+            ['Priority', priority.replace(/[^\w\s-]/g, '').trim()],
+            ['Submitted By', `${formData.submitterName || 'N/A'} (${formData.submitterEmail || 'N/A'})`]
+          ]
+        });
+        console.log(`✅ Fallback alert sent to ${CONFIG.CLAIMS_EMAIL} for ${referenceNumber}`);
+      } catch (fallbackErr) {
+        console.error('❌ Fallback alert also failed:', fallbackErr.message);
+      }
     }
 
     // Confirmation to submitter (with follow-up link)
@@ -1579,7 +1708,12 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
       }
     }
 
-    res.json({ success: true, referenceNumber });
+    res.json({
+      success: true,
+      referenceNumber,
+      ...(claimEmailError ? { warning: 'Your claim was received, but our internal notification could not be delivered. Please keep your reference number and contact us to confirm receipt.' } : {}),
+      ...(droppedAttachments.length ? { omittedAttachments: droppedAttachments.map(a => a.filename) } : {})
+    });
   } catch (error) {
     console.error('❌ Error:', error.message);
     res.status(500).json({ success: false, error: error.message });
@@ -1719,6 +1853,14 @@ app.post('/api/followup', upload.any(), async (req, res) => {
       });
     });
 
+    // Shed oversized media before the body is built, so the note reaches both.
+    const { kept: followUpAttachments, dropped: droppedFollowUpFiles } = fitAttachments(attachments);
+    const followUpDropNote = droppedNote(droppedFollowUpFiles);
+    if (followUpDropNote) {
+      problems.push(followUpDropNote);
+      console.warn(`⚠️  ${referenceNumber}: ${followUpDropNote}`);
+    }
+
     // ── Plain-text summary ──
     const label = (map, v) => (map && map[v]) || v;
     const line = (name, v) => isFilled(v) ? `${name}: ${Array.isArray(v) ? v.join(', ') : v}\n` : '';
@@ -1831,16 +1973,32 @@ app.post('/api/followup', upload.any(), async (req, res) => {
       </div>`;
 
     const parts = [hasWitness && (wSigned ? 'Witness' : 'Witness (unsigned)'), hasClaimant && (cSigned ? 'Claimant' : 'Claimant (unsigned)'), hasRoot && 'Root Cause'].filter(Boolean);
-    await transporter.sendMail({
-      from: CONFIG.SMTP.auth.user,
-      to: CONFIG.CLAIMS_EMAIL,
-      subject: `[FOLLOW-UP]${problems.length ? ' [ATTENTION]' : ''} ${referenceNumber} - ${entityName} - ${parts.join(', ') || 'Audio'}`,
-      html: emailHtml,
-      text: summary,
-      attachments
-    });
+    try {
+      await sendMailWithRetry({
+        from: CONFIG.SMTP.auth.user,
+        to: CONFIG.CLAIMS_EMAIL,
+        subject: `[FOLLOW-UP]${problems.length ? ' [ATTENTION]' : ''} ${referenceNumber} - ${entityName} - ${parts.join(', ') || 'Audio'}`,
+        html: emailHtml,
+        text: summary,
+        attachments: followUpAttachments
+      }, { label: 'follow-up email' });
+    } catch (err) {
+      console.error('❌ Follow-up email failed after retries:', err.message);
+      try {
+        await sendFallbackAlert({
+          referenceNumber,
+          entityName,
+          reason: err.message,
+          summaryRows: [['Entity', entityName], ['Sections', parts.join(', ') || 'Audio']]
+        });
+        console.log(`✅ Fallback alert sent for follow-up ${referenceNumber}`);
+      } catch (fallbackErr) {
+        console.error('❌ Fallback alert also failed:', fallbackErr.message);
+      }
+      throw err; // keep the 500 so the submitter knows to resend
+    }
 
-    console.log(`✅ Follow-up received for ${referenceNumber} (${attachments.length} attachments${problems.length ? ', ' + problems.length + ' problem(s)' : ''})`);
+    console.log(`✅ Follow-up received for ${referenceNumber} (${followUpAttachments.length} attachments${problems.length ? ', ' + problems.length + ' problem(s)' : ''})`);
     res.json({ success: true, referenceNumber, problems });
   } catch (error) {
     console.error('Follow-up submission error:', error);
