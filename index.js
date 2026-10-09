@@ -2239,6 +2239,9 @@ app.get('/resources/fight-a-workers-comp-claim', sendPage('guide-fight-claim.htm
 app.get('/resources/code-rule-59', sendPage('guide-code-rule-59.html'));
 app.get('/resources/workers-comp-audit', sendPage('guide-workers-comp-audit.html')); app.get('/resources/first-24-hours-injury', sendPage('guide-first-24-hours.html'));
 app.get('/resources/ny-workers-comp-rate-cut-2026', sendPage('post-ny-workers-comp-rate-cut-2026.html'));
+app.get('/resources/surveillance-playbook', sendPage('post-surveillance-playbook.html'));
+app.get('/resources/section-32-settlement-guide', sendPage('post-section32-settlements.html'));
+app.get('/resources/contractor-test', sendPage('post-contractor-test.html'));
 app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
 app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
 app.get('/livewell', (req, res) => res.sendFile(path.join(__dirname, 'livewell-portal.html')));
