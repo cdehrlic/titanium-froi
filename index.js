@@ -209,6 +209,61 @@ const claimData = new Map(); // claimRef -> full claim object with statements
 // ═══════════════════════════════════════════════════════════════════════════════
 // ENTITY LIST - Edit this to add/remove clients
 // ═══════════════════════════════════════════════════════════════════════════════
+// Sigma Link Rehab staffs these facilities. A claim naming one is flagged in the
+// subject and body of the claims notification so it is not lost among the rest.
+// Single source of truth: /api/sigma-link-locations serves this list to the
+// portal, so the dropdown cannot drift out of step with the matching below.
+const SIGMA_LINK_ENTITY = 'Sigma Link Rehab';
+const SIGMA_LINK_LOCATIONS = [
+  'Beth Abe',
+  'Bishop',
+  'Boro Park',
+  'Bronx',
+  'Brooklyn',
+  'Buffalo',
+  'Bushwick',
+  'Carthage',
+  'Cooperstown',
+  'Corning',
+  'Ellicott',
+  'Essex',
+  'Far Rockaway',
+  'Fulton',
+  'Glens Falls',
+  'Granville',
+  'Holliswood',
+  'Hope',
+  'Martine',
+  'Northern Met',
+  'Northern Riverview',
+  'New Paltz',
+  'Oneida',
+  'Onondaga',
+  'Ontario',
+  'Richmond',
+  'Rochester',
+  'Schenectady',
+  'Slate Valley',
+  'Steuben',
+  'Triboro',
+  'Troy',
+  'University',
+  'Warren',
+  'Washington',
+  'Williamsbridge'
+];
+
+// Returns the canonical location name when this claim is a Sigma Link claim at
+// a listed facility, otherwise null. Compared case- and whitespace-insensitively
+// so a stray capital or trailing space still matches.
+const norm = v => String(v || '').trim().toLowerCase();
+function sigmaLinkAlert(formData, entityName) {
+  if (norm(entityName) !== norm(SIGMA_LINK_ENTITY)) return null;
+  const picked = norm(formData.facilityLocation);
+  if (!picked) return null;
+  return SIGMA_LINK_LOCATIONS.find(loc => norm(loc) === picked) || null;
+}
+
 const ENTITIES = [
   'Sigma Link Rehab',
   'Towne Nursing Staff',
@@ -1038,6 +1093,7 @@ function generateClaimPDF(formData, referenceNumber) {
     // Worksite & accident location
     const wsParts = [formData.worksiteStreet, formData.worksiteCity, formData.worksiteState, formData.worksiteZip].filter(Boolean).join(', ');
     const worksiteLoc = [formData.worksiteName, wsParts].filter(Boolean).join(' — ');
+    addFieldIf('Facility / Location', formData.facilityLocation);
     addFieldIf('Worksite Location', worksiteLoc);
     if (formData.accidentAtWorksite === false) {
       const loc = [formData.accidentStreet, formData.accidentCity, formData.accidentState, formData.accidentZip].filter(Boolean).join(', ');
@@ -1249,6 +1305,7 @@ function generateClaimPDF(formData, referenceNumber) {
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '3.4' }));
 app.get('/health', (req, res) => res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() }));
 app.get('/api/entities', (req, res) => res.json(isCSHost(req) ? [] : ENTITIES));
+app.get('/api/sigma-link-locations', (req, res) => res.json(SIGMA_LINK_LOCATIONS));
 
 // Generate secure link for statement/release
 app.post('/api/generate-link', async (req, res) => {
@@ -1552,6 +1609,8 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     }
     const autoFlags = computeAutoFlags(formData);
     
+    const sigmaLocation = sigmaLinkAlert(formData, entityName);
+
     // Add inline statement PDFs and their audio files
     inlineStatements.forEach(stmt => {
       // Add the PDF
@@ -1618,6 +1677,11 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
           <p style="color:white;margin:0;font-weight:bold;">PRIORITY: ${priority}</p>
         </div>
         <div style="padding:25px;background:#f8fafc;">
+          ${sigmaLocation ? `
+          <div style="background:#fef3c7;border:2px solid #d97706;padding:15px;margin-bottom:20px;border-radius:8px;">
+            <h3 style="color:#92400e;margin:0 0 4px;">Sigma Link - ${h(sigmaLocation)}</h3>
+            <p style="margin:0;font-size:13px;color:#92400e;">This claim is for a monitored Sigma Link location.</p>
+          </div>` : ''}
           ${problems.length ? `
           <div style="background:#fee2e2;border:1px solid #dc2626;padding:15px;margin-bottom:20px;border-radius:8px;">
             <h3 style="color:#b91c1c;margin:0 0 8px;">Attention: a document is missing</h3>
@@ -1632,6 +1696,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
               <tr><td style="padding:5px 0;color:#6e7681;">Date of Injury:</td><td>${h(formData.dateOfInjury || 'N/A')}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Injury Type:</td><td>${h(INJURY_TYPE_LABELS[formData.injuryType] || formData.injuryType || 'N/A')}</td></tr>
               <tr><td style="padding:5px 0;color:#6e7681;">Losing Time:</td><td style="${formData.losingTime === true ? 'color:#dc2626;font-weight:bold;' : ''}">${formData.losingTime === true ? 'YES' : 'No'}</td></tr>
+              ${formData.facilityLocation ? `<tr><td style="padding:5px 0;color:#6e7681;">Location:</td><td style="font-weight:bold;${sigmaLocation ? 'color:#b45309;' : ''}">${h(formData.facilityLocation)}</td></tr>` : ''}
               ${autoFlags.length ? `<tr><td style="padding:5px 0;color:#6e7681;vertical-align:top;">Date Flags:</td><td style="color:#b45309;font-weight:bold;">${autoFlags.map(h).join('<br/>')}</td></tr>` : ''}
             </table>
           </div>
@@ -1665,7 +1730,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
         from: CONFIG.CLAIMS_FROM,
         to: CONFIG.CLAIMS_EMAIL,
         cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
-        subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
+        subject: `${sigmaLocation ? `[SIGMA LINK - ${sigmaLocation.toUpperCase()}] ` : ''}[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
         html: emailHtml,
         attachments: claimAttachments
       }, { label: 'claim email' });
@@ -1680,6 +1745,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
           reason: err.message,
           summaryRows: [
             ['Entity', entityName],
+            ...(sigmaLocation ? [['Sigma Link Location', sigmaLocation]] : []),
             ['Employee', `${formData.firstName || ''} ${formData.lastName || ''}`.trim()],
             ['Date of Injury', formData.dateOfInjury],
             ['Priority', priority.replace(/[^\w\s-]/g, '').trim()],

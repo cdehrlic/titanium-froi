@@ -90,6 +90,8 @@ const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','
 
 // ── Industry-aware config (?industry=healthcare|construction|general) ──────────
 const IND_KEY=(()=>{try{const q=(new URLSearchParams(location.search).get('industry')||'').toLowerCase();return ['healthcare','construction','general'].includes(q)?q:'healthcare'}catch(e){return 'healthcare'}})();
+const SIGMA_LINK_ENTITY='Sigma Link Rehab';
+const SIGMA_LINK_LOCATIONS_FALLBACK=['Beth Abe','Bishop','Boro Park','Bronx','Brooklyn','Buffalo','Bushwick','Carthage','Cooperstown','Corning','Ellicott','Essex','Far Rockaway','Fulton','Glens Falls','Granville','Holliswood','Hope','Martine','Northern Met','Northern Riverview','New Paltz','Oneida','Onondaga','Ontario','Richmond','Rochester','Schenectady','Slate Valley','Steuben','Triboro','Troy','University','Warren','Washington','Williamsbridge'];
 const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Towne Homecare Payroll, LLC / Towne Kids','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
 const INDUSTRIES={
  healthcare:{
@@ -131,7 +133,7 @@ function autoFlags(d){
 }
 
 function App(){
-const[entities,setEntities]=S([]);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
+const[entities,setEntities]=S([]);const[sigmaLocations,setSigmaLocations]=S(SIGMA_LINK_LOCATIONS_FALLBACK);const[step,setStep]=S(0);const[submitting,setSubmitting]=S(false);const[result,setResult]=S(null);const[openRcCat,setOpenRcCat]=S(null);const[openCaCat,setOpenCaCat]=S(null);const[openFlagCat,setOpenFlagCat]=S(null);
 const[d,setD]=S({
  industry:IND_KEY,
  firstName:'',
@@ -145,7 +147,7 @@ const[d,setD]=S({
  dateOfHire:'',
  ssn:'',
  occupation:'',
- entity:'',customEntity:'',dateOfInjury:'',timeOfInjury:'',dateReported:'',reportedImmediately:null,
+ entity:'',customEntity:'',facilityLocation:'',dateOfInjury:'',timeOfInjury:'',dateReported:'',reportedImmediately:null,
  weeklyWage:'',
  workType:'',
  accidentDescription:'',injuryType:'',bodyParts:[],
@@ -248,6 +250,7 @@ const[uploadedFiles,setUploadedFiles]=S([]);const[inlineStmts,setInlineStmts]=S(
 const sigCanvasRef=R(null);const sigCtxRef=R(null);const isDrawingRef=R(false);const mediaRecorderRef=R(null);const audioChunksRef=R([]);
 
 E(()=>{fetch('/api/entities').then(r=>r.json()).then(setEntities).catch(()=>{})},[]);
+E(()=>{fetch('/api/sigma-link-locations').then(r=>r.json()).then(v=>{if(Array.isArray(v)&&v.length)setSigmaLocations(v)}).catch(()=>{})},[]);
 E(()=>{if(theme==='light'){document.body.classList.add('light')}else{document.body.classList.remove('light')};try{localStorage.setItem('wcr_theme',theme)}catch(e){}},[theme]);
 const toggleTheme=()=>setTheme(t=>t==='dark'?'light':'dark');
 
@@ -814,6 +817,11 @@ if(step===1){
   e('label',null,'Entity ',e('span',{className:'required'},'*')),
   sel('entity',[...ENTITIES,'Other - Enter Manually'],'Select Entity'),
   d.entity==='Other - Enter Manually'&&e('input',{className:'input-field',style:{marginTop:8},value:d.customEntity||'',onChange:x=>u('customEntity',x.target.value),placeholder:'Enter entity name'})
+ ),
+ d.entity===SIGMA_LINK_ENTITY&&e('div',{className:'form-group full-width',style:{marginTop:16}},
+  e('label',null,'Location / Facility ',e('span',{className:'required'},'*')),
+  sel('facilityLocation',[...sigmaLocations,'Other - Not Listed'],'Select location'),
+  e('p',{style:{fontSize:12,color:'var(--tm)',marginTop:2,lineHeight:1.5}},'Which Sigma Link facility this claim is for.')
  ),
  e('div',{className:'form-grid',style:{marginTop:16}},
   e('div',{className:'form-group'},
@@ -1423,6 +1431,7 @@ if(step===5){
  else if(d.ssn.replace(/[^0-9]/g,'').length<9)errors.push({field:'Complete SSN (9 digits)',step:0});
  // Step 1 — Incident
  if(!d.entity&&!d.customEntity)errors.push({field:'Entity',step:1});
+ if(d.entity===SIGMA_LINK_ENTITY&&!d.facilityLocation)errors.push({field:'Location / Facility',step:1});
  if(!d.dateOfInjury)errors.push({field:'Date of Injury',step:1});
  if(!d.timeOfInjury)errors.push({field:'Time of Injury',step:1});
  if(!d.dateReported)errors.push({field:'Date Reported',step:1});
