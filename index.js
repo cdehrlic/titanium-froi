@@ -30,6 +30,11 @@ const submitLimiter = rateLimit({
 
 const CONFIG = {
   CLAIMS_EMAIL: process.env.CLAIMS_EMAIL || 'Chad@Titaniumdg.com',
+  // Claim/FROI mail is sent under the Titanium identity rather than the raw
+  // SMTP login. Gmail only honours this if the address is a verified
+  // "Send mail as" alias on the authenticated account, otherwise it rewrites
+  // the header back to SMTP_USER (or rejects the message).
+  CLAIMS_FROM: process.env.CLAIMS_FROM || 'Titanium Defense Group <Chad@Titaniumdg.com>',
   CONTACT_EMAIL: process.env.CONTACT_EMAIL || 'info@comp-shield.com',
   SMTP: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -139,13 +144,31 @@ const isTransientSmtpError = err => {
   return ['ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'ECONNRESET', 'EDNS', 'EENVELOPE'].includes(err && err.code);
 };
 
+// Gmail refuses a From it does not own unless the address is a verified
+// "Send mail as" alias. If CLAIMS_FROM has not been set up that way, fall back
+// to the authenticated login rather than lose the message: a notification from
+// the wrong address is recoverable, a notification nobody receives is not.
+const isSenderRejection = err => {
+  const code = err && err.responseCode;
+  if ([553, 554, 555, 530].includes(code)) return true;
+  return /sender address rejected|not owned by user|must equal authorized user|mail from|sender mismatch/i.test((err && err.message) || '');
+};
+
 async function sendMailWithRetry(message, { attempts = 3, label = 'email' } = {}) {
   let lastErr;
+  let msg = message;
+  let downgradedFrom = false;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
-      return await transporter.sendMail(message);
+      return await transporter.sendMail(msg);
     } catch (err) {
       lastErr = err;
+      if (!downgradedFrom && isSenderRejection(err) && msg.from !== CONFIG.SMTP.auth.user) {
+        console.error(`⚠️  ${label}: SMTP rejected From "${msg.from}" (${err.message}). Verify it as a "Send mail as" alias on ${CONFIG.SMTP.auth.user}. Resending as ${CONFIG.SMTP.auth.user}.`);
+        msg = { ...msg, from: CONFIG.SMTP.auth.user, replyTo: msg.replyTo || CONFIG.CLAIMS_EMAIL };
+        downgradedFrom = true;
+        continue; // retry immediately, this attempt does not count against the budget
+      }
       if (attempt === attempts || !isTransientSmtpError(err)) break;
       const wait = 1000 * Math.pow(2, attempt - 1);
       console.warn(`⚠️  ${label}: attempt ${attempt}/${attempts} failed (${err.message}); retrying in ${wait}ms`);
@@ -160,7 +183,7 @@ async function sendMailWithRetry(message, { attempts = 3, label = 'email' } = {}
 async function sendFallbackAlert({ referenceNumber, entityName, summaryRows, reason }) {
   const rows = summaryRows.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6e7681;">${h(k)}:</td><td style="font-weight:bold;">${h(v || 'N/A')}</td></tr>`).join('');
   await sendMailWithRetry({
-    from: CONFIG.SMTP.auth.user,
+    from: CONFIG.CLAIMS_FROM,
     to: CONFIG.CLAIMS_EMAIL,
     subject: `[ACTION REQUIRED] ${referenceNumber} received - notification email failed`,
     html: `
@@ -1255,8 +1278,8 @@ app.post('/api/generate-link', async (req, res) => {
     // Send email if provided
     if (email) {
       try {
-        await transporter.sendMail({
-          from: CONFIG.SMTP.auth.user,
+        await sendMailWithRetry({
+          from: CONFIG.CLAIMS_FROM,
           to: email,
           subject: `Action Required: ${type === 'hipaa' ? 'HIPAA Authorization' : type.charAt(0).toUpperCase() + type.slice(1) + ' Statement'} - ${claimRef}`,
           html: `
@@ -1377,7 +1400,7 @@ app.post('/api/submit-statement/:token', upload.any(), async (req, res) => {
     if (statementDropNote) console.warn(`⚠️  ${linkData.claimRef}: ${statementDropNote}`);
     try {
       await sendMailWithRetry({
-        from: CONFIG.SMTP.auth.user,
+        from: CONFIG.CLAIMS_FROM,
         to: CONFIG.CLAIMS_EMAIL,
         subject: `[${linkData.type.toUpperCase()}] ${linkData.claimRef} - ${formData.witnessName || formData.claimantName || formData.patientName || 'Statement'} Received`,
         html: `
@@ -1639,7 +1662,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     let claimEmailError = null;
     try {
       await sendMailWithRetry({
-        from: CONFIG.SMTP.auth.user,
+        from: CONFIG.CLAIMS_FROM,
         to: CONFIG.CLAIMS_EMAIL,
         cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
         subject: `[${priority.replace(/[^\w\s-]/g, '').trim()}] ${formData.firstName || ''} ${formData.lastName || ''} - ${entityName} - ${formData.dateOfInjury || ''}`,
@@ -1672,8 +1695,8 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
     // Confirmation to submitter (with follow-up link)
     if (formData.submitterEmail) {
       try {
-        await transporter.sendMail({
-          from: CONFIG.SMTP.auth.user,
+        await sendMailWithRetry({
+          from: CONFIG.CLAIMS_FROM,
           to: formData.submitterEmail,
           cc: ccEmails.length > 0 ? ccEmails.join(', ') : undefined,
           subject: `Claim Confirmation - ${referenceNumber} - ${entityName}`,
@@ -1699,7 +1722,7 @@ app.post('/api/submit-claim', submitLimiter, upload.any(), async (req, res) => {
                 <p style="color:#64748b;">Our team will review and follow up if needed.</p>
               </div>
             </div>`
-        });
+        }, { label: 'submitter confirmation' });
         console.log(`✅ Confirmation sent to ${formData.submitterEmail}${ccEmails.length > 0 ? ' (CC: ' + ccEmails.join(', ') + ')' : ''}`);
       } catch (err) {
         console.error('❌ Confirmation email error:', err.message);
@@ -1973,7 +1996,7 @@ app.post('/api/followup', upload.any(), async (req, res) => {
     const parts = [hasWitness && (wSigned ? 'Witness' : 'Witness (unsigned)'), hasClaimant && (cSigned ? 'Claimant' : 'Claimant (unsigned)'), hasRoot && 'Root Cause'].filter(Boolean);
     try {
       await sendMailWithRetry({
-        from: CONFIG.SMTP.auth.user,
+        from: CONFIG.CLAIMS_FROM,
         to: CONFIG.CLAIMS_EMAIL,
         subject: `[FOLLOW-UP]${problems.length ? ' [ATTENTION]' : ''} ${referenceNumber} - ${entityName} - ${parts.join(', ') || 'Audio'}`,
         html: emailHtml,
