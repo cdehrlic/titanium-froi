@@ -2292,6 +2292,7 @@ app.get('/resources/claim-files/the-exam-that-cut-the-reserve', sendPage('post-t
 app.get('/resources/claim-files/the-claim-that-was-two-lawsuits', sendPage('post-the-claim-that-was-two-lawsuits.html'));
 app.get('/resources/claim-files/the-five-hundred-dollar-burn', sendPage('post-the-five-hundred-dollar-burn.html'));
 app.get('/resources/claim-files/the-most-expensive-injury-in-healthcare', sendPage('post-the-most-expensive-injury-in-healthcare.html'));
+app.get('/resources/claim-files/it-was-just-a-softball-game', sendPage('post-it-was-just-a-softball-game.html'));
 app.get('/resources/claim-files/the-platform-that-wasnt-there', sendPage('post-the-platform-that-wasnt-there.html'));
 app.get('/audit', sendPage('audit.html'));
 app.get('/privacy', sendPage('privacy.html'));
