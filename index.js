@@ -2295,6 +2295,7 @@ app.get('/resources/claim-files/the-most-expensive-injury-in-healthcare', sendPa
 app.get('/resources/claim-files/the-wrong-man-on-the-train', sendPage('post-the-wrong-man-on-the-train.html'));
 app.get('/resources/claim-files/it-was-just-a-softball-game', sendPage('post-it-was-just-a-softball-game.html'));
 app.get('/resources/claim-files/the-platform-that-wasnt-there', sendPage('post-the-platform-that-wasnt-there.html'));
+app.get('/code-rule-59', sendPage('code-rule-59.html'));
 app.get('/audit', sendPage('audit.html'));
 app.get('/privacy', sendPage('privacy.html'));
 app.get('/newsletter', sendPage('newsletter.html'));
