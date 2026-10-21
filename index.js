@@ -2314,6 +2314,7 @@ app.get('/resources/section-32-settlement-guide', sendPage('post-section32-settl
 app.get('/resources/contractor-test', sendPage('post-contractor-test.html'));
 app.get('/resources/ny-donkey-heart-attack-comp-ruling', sendPage('post-ny-donkey-heart-attack-comp-ruling.html'));
 app.get('/resources/ny-greek-bus-driver-death-benefits', sendPage('post-ny-greek-bus-driver-death-benefits.html'));
+app.get('/resources/ny-2027-workers-comp-assessment-rate', sendPage('post-ny-2027-workers-comp-assessment-rate.html'));
 app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
 app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
 app.get('/livewell', (req, res) => res.sendFile(path.join(__dirname, 'livewell-portal.html')));
