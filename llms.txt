@@ -1,0 +1,42 @@
+# CompShield
+
+> CompShield is an employer-side workers' compensation consulting firm for mid-size employers in New York and the NY metro area, also serving NJ, PA, FL, and NV. It helps employers with claims reporting and management, investigation and fraud defense, cost containment and carrier oversight, and return-to-work and prevention programs. CompShield is not an insurance company, broker, law firm, or third-party administrator. It works only for employers.
+
+## Key facts
+
+- Serves employers of roughly 50 to 500 employees, focused on healthcare, construction, staffing, and facilities companies.
+- The CompShield Audit is a flat-fee forensic review of a workers' comp program: $3,500 standard (under about 150 employees) and $5,500 enterprise (150 to 500 employees). It ends in a written Findings Report with a 90-day action plan, and the audit fee is credited toward an ongoing claims management engagement.
+- Employers who received a NY Code Rule 59 notice get the audit at $2,500. Code Rule 59 requires employers with payroll over $800,000 and an experience mod over 1.20 to arrange a workplace safety and loss prevention consultation within 30 days of the notice, receive the evaluation within 75 days, and take remedial action within 6 months, or face a 5% premium surcharge.
+- CompShield's team includes a New York Department of Labor certified Code Rule 59 workplace safety and loss prevention consultant (certificate WS-000795, ICR 59 and ICR 60, active through March 31, 2028).
+- A free 15-minute review call can be booked at https://calendly.com/comp-shield-info/intro-call-workers-comp-audit
+- Contact: info@comp-shield.com
+
+## Main pages
+
+- [Home](https://www.comp-shield.com/): What CompShield does and who it serves.
+- [Services](https://www.comp-shield.com/services): Claims reporting and management, investigation and fraud defense, cost containment, and return-to-work and prevention.
+- [The CompShield Audit](https://www.comp-shield.com/audit): The flat-fee forensic audit, what it covers, and what the Findings Report includes.
+- [Code Rule 59 in New York](https://www.comp-shield.com/code-rule-59): What a Code Rule 59 notice means, the deadlines, the surcharge risk, and how the consultation works.
+- [Process](https://www.comp-shield.com/process): How an engagement runs.
+- [About](https://www.comp-shield.com/about): Background and approach.
+- [Contact](https://www.comp-shield.com/contact): How to reach CompShield.
+
+## Tools and guides
+
+- [Mod Self-Check](https://www.comp-shield.com/resources/mod-self-check): Ten questions that score where a workers' comp program is leaking money, with a printable worksheet and a free review offer.
+- [Cost toolkit](https://www.comp-shield.com/resources/cost-toolkit): Mod Impact Calculator, Primary vs Excess Claim Analyzer, and Loss Run Red-Flag Analyzer.
+- [How to lower your experience mod](https://www.comp-shield.com/resources/lower-experience-mod): How the experience modification factor works and what moves it.
+- [How to fight a workers' comp claim](https://www.comp-shield.com/resources/fight-a-workers-comp-claim): The employer-side guide to disputing a claim.
+- [Surveillance playbook](https://www.comp-shield.com/resources/surveillance-playbook): When surveillance helps a claim and when it does not.
+- [Section 32 settlement guide](https://www.comp-shield.com/resources/section-32-settlement-guide): How NY Section 32 settlements work for employers.
+- [The contractor test](https://www.comp-shield.com/resources/contractor-test): Employee vs independent contractor in NY workers' comp.
+- [NY workers' comp rate cut 2026](https://www.comp-shield.com/resources/ny-workers-comp-rate-cut-2026): What the rate change means for NY employers.
+
+## Claim Files story library
+
+- [Claim Files index](https://www.comp-shield.com/resources/claim-files): Short anonymized stories drawn from real workers' comp claim patterns, organized around prevention, first response, investigation, compensability, medical management, cost, litigation, return to work, and carrier oversight. 24 stories published as of October 19, 2026.
+
+## Optional
+
+- [LinkedIn company page](https://www.linkedin.com/company/comp-shield): CompShield posts and articles.
+- [Sitemap](https://www.comp-shield.com/sitemap.xml): Full list of public pages.
