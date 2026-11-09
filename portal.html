@@ -92,7 +92,7 @@ const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','
 const IND_KEY=(()=>{try{const q=(new URLSearchParams(location.search).get('industry')||'').toLowerCase();return ['healthcare','construction','general'].includes(q)?q:'healthcare'}catch(e){return 'healthcare'}})();
 const SIGMA_LINK_ENTITY='Sigma Link Rehab';
 const SIGMA_LINK_LOCATIONS_FALLBACK=['Beth Abe','Bishop','Boro Park','Bronx','Brooklyn','Buffalo','Bushwick','Carthage','Cooperstown','Corning','Ellicott','Essex','Far Rockaway','Fulton','Glens Falls','Granville','Holliswood','Hope','Martine','Northern Met','Northern Riverview','New Paltz','Oneida','Onondaga','Ontario','Richmond','Rochester','Schenectady','Slate Valley','Steuben','Triboro','Troy','University','Warren','Washington','Williamsbridge'];
-const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care / Towne Staffing LLC','Towne Homecare Payroll, LLC / Towne Kids','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
+const HEALTHCARE_ENTITIES=['Sigma Link Rehab','Towne Nursing Staff','Towne Healthcare Staffing','Towne School Nurses','Shiftster LLC / Eshyft','Grandison Management','Towne Home Care','Towne Staffing LLC','Towne Homecare Payroll, LLC / Towne Kids','Live Well Healthcare Solutions','Advanced Care Agency / Baybay','Esky Care','New Premier Management LLC'];
 const INDUSTRIES={
  healthcare:{
   label:'Healthcare',
