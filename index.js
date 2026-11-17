@@ -2320,6 +2320,7 @@ app.get('/resources/ny-mcdonell-waived-defenses-prehearing-statement', sendPage(
 app.get('/resources/ny-labor-market-attachment-bill-hochul', sendPage('post-ny-labor-market-attachment-bill-hochul.html'));
 app.get('/resources/ny-miles-occupational-disease-medical-history', sendPage('post-ny-miles-occupational-disease-medical-history.html'));
 app.get('/resources/mod-self-check', sendPage('post-mod-self-check.html'));
+app.get('/resources/faq', sendPage('post-faq.html'));
 app.get('/report', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-report.html' : 'index.html')));
 app.get('/portal', (req, res) => res.sendFile(path.join(__dirname, isCSHost(req) ? 'cs-portal.html' : 'portal.html')));
 app.get('/livewell', (req, res) => res.sendFile(path.join(__dirname, 'livewell-portal.html')));
