@@ -871,7 +871,7 @@ if(step===1){
   )
   ),
   e('div',{className:'form-group full-width',style:{marginTop:16}},
-  e('label',null,'Worksite / Facility Name'),
+  e('label',null,'Worksite / Facility Name ',e('span',{className:'required'},'*')),
   inp('worksiteName','e.g., Riverside Care Center - Newark Facility')
   ),
   e('div',{className:'form-group full-width',style:{marginTop:8}},
@@ -1430,6 +1430,7 @@ if(step===5){
  if(!d.accidentDescription)errors.push({field:'Accident Description',step:1});
  if(!d.injuryType)errors.push({field:'Injury Type',step:1});
  if(!d.bodyParts||d.bodyParts.length===0)errors.push({field:'Body Parts Affected',step:1});
+ if(!d.worksiteName||!d.worksiteName.trim())errors.push({field:'Worksite / Facility Name',step:1});
  if(!d.worksiteStreet)errors.push({field:'Worksite Street Address',step:1});
  if(!d.worksiteCity)errors.push({field:'Worksite City',step:1});
  if(!d.worksiteState)errors.push({field:'Worksite State',step:1});
